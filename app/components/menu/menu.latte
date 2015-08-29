@@ -1,0 +1,20 @@
+{* next if is used only if "onlyActiveSection" mode is set *}
+{ifset $sectionTitle}<h2>{$sectionTitle}</h2>{/ifset}
+
+{block menu}
+	<ul>
+		{foreach $section as $item}
+		<li>
+			{if $item->url_params}
+				<a href="{plink $item->url (expand)explode(' ', $item->url_params)}">{$item->title}</a>
+			{else}
+				<a href="{plink $item->url}">{$item->title}</a>
+			{/if}
+
+			{if isset($menuArr[$item->id]) && $presenter->isSectionCurrent($item->url)}
+				{include menu, section => $menuArr[$item->id], } {* RECURSION *}
+			{/if}
+		</li>
+		{/foreach}
+	</ul>
+{/block}

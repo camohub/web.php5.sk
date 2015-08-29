@@ -1,0 +1,38 @@
+{extends ../../../templates/@layoutAdmin.latte}
+
+{define #content}
+
+{form testForm}
+    {label first /}<br>
+    {input first}
+    <br><br>
+    {snippet secondSnippet}
+        {label second /}<br>
+        {input second}
+    {/snippet}
+    <br>
+    {input send}
+{/form}
+
+<script>
+{include #jsCallback, input => first, link => change}
+</script>
+
+{/define}
+
+
+{define #jsCallback}
+
+$('#'+'{$control["testForm"][$input]->htmlId}').on('change', function() {
+	spinner = $('#ajax-spinner').css({'display':'block'});
+    $.nette.ajax({
+        type: 'GET',
+        url: '{link {$link}!}',
+        data: {
+            'test_id': $(this).val(),
+        }
+    });
+    //spinner.css({'display' : 'none'});
+});
+
+{/define}

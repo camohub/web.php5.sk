@@ -1,0 +1,39 @@
+{extends ../../../templates/@layoutAdmin.latte}
+
+{block content}
+
+<div class="pV20">
+
+    <div n:if="count($flashes)" n:inner-foreach="$flashes as $flash" class="flash">
+        <div class="{$flash->type}">{$flash->message}</div>
+    </div>
+
+    <h3 class="m0 mT10">Vyberte užívateľa, ktorého chcete editovať</h3>
+
+    {control vp}
+
+	<table class="datagrid mT10">
+		<tr>
+			<th>ID</th>
+			<th>Meno</th>
+			<th>Registovaný</th>
+			<th>Action</th>
+		</tr>
+		<tr n:if="count($users)" n:foreach="$users as $user">
+			<td>{$user->id}</td>
+			<td>{$user->user_name}</td>
+			<td>{$user->created}</td>
+			<td>
+				<a n:href=":Admin:Users:edit $user->id" class="ico ico_modify" title="Edit"></a>
+				<a n:href="active! $user->id" n:class="ico, $user->active ? ico_ok : ico_no-entry" title="Block/Unblock"></a>
+			</td>
+		</tr>
+	</table>
+
+	{control vp}
+
+
+
+
+</div>
+

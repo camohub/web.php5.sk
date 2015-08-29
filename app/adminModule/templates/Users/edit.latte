@@ -1,0 +1,35 @@
+{extends ../../../templates/@layoutAdmin.latte}
+
+{block content}
+
+<div class="pV20">
+
+    <div n:if="count($flashes)" n:inner-foreach="$flashes as $flash" class="flash">
+        <div class="{$flash->type}">{$flash->message}</div>
+    </div>
+
+    <h3>Editujete užívateľa {$userRow->user_name}</h3>
+
+    {form editForm}
+        <ul class="errors" n:if="$form->hasErrors()">
+                <li n:foreach="$form->errors as $error">{$error}</li>
+        </ul>
+        <div class="pV10">
+            {label users_acl_roles /}<br>
+            {input users_acl_roles}
+        </div>
+        <div class="pV10">
+            {input confirmEmail}{label confirmEmail /}<br>
+            <span class="small1">Odolanie konfirmačného emailu zablokuje užívateľské konto, <br>kým sa email nepotvrdí.</span>
+        </div>
+        <div class="pV10">
+            {input send}
+        </div>
+    {/form}
+
+
+
+
+
+</div>
+

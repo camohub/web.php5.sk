@@ -1,0 +1,197 @@
+{extends ../../../templates/@layoutAdmin.latte}
+
+{block content}
+
+<script type="text/javascript" src="{$basePath}/js/jquery-sortable-lists.js"></script>
+<script type="text/javascript">
+$(document).ready(function()
+{
+// sortalbeLists part /////////////////////////////////////////
+
+	$('.sortable').sortableLists({
+		placeholderCss: {
+			'background-color': '#ff9'
+		},
+		hintCss: {
+			'background-color': '#9f9'
+		},
+		baseCss: {
+			'background-color': 'blue'
+		},
+		ignoreClass: 'ignore'
+    });
+
+// End of sortableLists part //////////////////////////////////
+
+   	$('.editMenu').on('mousedown', function()
+   	{
+   		var serialized = $('ul.sortable').sortableListsToString(),
+   			href = $(this).attr('href');
+
+   		serialized = serialized.replace(/no-parent/g, '0');
+   		href = href.replace(/&sItems[^&]+/g, '');
+
+   		$(this).attr('href', href + '&' + serialized);
+   	});
+
+
+   	$('.ico_trash')
+   		.css({'display':'inline-block'})
+   		.on('click', function(){
+   			if(confirm('Naozaj chcete položku zmazať?')) return true;
+   			else return false;
+   	});
+
+// Nette.ajax extensions ///////////////////////////////////////////
+
+   	$.nette.ext('menu', {
+    	before: function (jqXHR, settings) {
+    		var sn = settings.nette;
+			if(!sn) return true;
+
+			if(sn.el.hasClass('stop-ajax'))
+			{
+				return false;
+			}
+			else if(sn.el.hasClass('ico-trash'))
+			{
+				sn.el.addClass('stop-ajax');
+			}
+
+    		$('#editSection, #createSection').slideUp();
+    	},
+    	complete: function () {
+    		this.counter--;
+    		if (this.counter <= 0) {
+
+    		}
+    	}
+    });
+
+// End of nette.ajax ///////////////////////////////////////////////
+
+
+
+});
+
+
+function activateEditForm(id, title, el)
+{
+	var editSection = $('#editSection');
+
+	editSection.find('input[name=title]').val(title);
+    editSection.find('input[name=id]').val(id);
+	$('#createSection').css({'display' : 'none'});
+	editSection.slideDown();
+    editSection.offset({ left:editSection.offset().left, top:$(el).offset().top - 20 });  // must be after the slide cause display:none make some trouble
+
+}
+
+
+function activateCreateForm(el)
+{
+	var spinner = $('#ajax-spinner').css({'display':'block'});
+
+	$.nette.ajax(
+	{
+		type: 'GET',
+		url: {link select!},
+		complete: function()
+		{
+			spinner.css({'display' : 'none'});
+		}
+	});
+
+	var elOffset = $(el).offset(),
+		createSection = $('#createSection');
+
+	$('#editSection').css({'display' : 'none'});
+	createSection.slideDown();
+    createSection.offset({ left:elOffset.left, top:elOffset.top });  // must be after the slide cause display:none make some trouble
+
+}
+
+</script>
+
+<div class="bgC5 mT10">
+	<div class="pV30 pH10 adminEditMenu">
+
+		<a class="editMenu ajax dIB button1 mV10 pH20 pV5 fWB" n:href="priority!">Uložiť zmeny</a>
+		<span onclick="activateCreateForm(this);" class="ico ico_add" title="Add new section"> </span>
+
+		{snippet sortableList}
+		{block menu}
+			<ul id="sortableList" n:class="!isset($nested) ? sortable"{* $nested comes from recursion *}>
+				{foreach $section as $item}
+				<li data-module="{$item->module_id}" id="menuItem_{$item->id}">
+					<div>{$item->title}
+						<a n:href="delete! $item->id" {if !$presenter->isAjax()}style="display:none"{/if} class="ignore ajax ico ico_trash fR" title="Delete"> </a>
+						{if $item->app != 1}<span onclick="activateEditForm({$item->id}, {$item->title}, this);" class="ignore ico ico_modify fR" title="Upraviť"> </span>{/if}
+						<a n:href="visibility! $item->id" n:class="ignore, ajax, ico, fR, $item->visible ? ico_ok : ico_no-entry" title="Display/Hide"> </a>
+					</div>
+					{if isset($menuArr[$item->id])}
+						{include menu, section => $menuArr[$item->id], nested => 1}
+					{/if}
+				</li>
+				{/foreach}
+			</ul>
+		{/block}
+		{if $presenter->isAjax()}{* Is here cause ajax renders new list without activ sortableLists *}
+			<script>
+				$('.sortable').sortableLists({
+					placeholderCss: { 'background-color': '#ff9' },
+					hintCss: { 'background-color': '#9f9' },
+					baseCss: { 'background-color': 'blue' },
+					ignoreClass: 'ignore'
+				});
+
+				$('.ico_trash', '#sortableList')
+                	.css({'display':'inline-block'})
+                	.on('click', function(){
+                		if(confirm('Naozaj chcete položku zmazať?')) return true;
+                		else return false;
+                });
+			</script>
+		{/if}
+		{/snippet}
+
+		<a class="editMenu ajax dIB button1 mV10 pH20 pV5 fWB" n:href="priority!">Uložiť zmeny</a>
+
+	</div>
+
+
+	<div class="pH10">
+		<div id="createSection" class="w200 fL mR20 dN p10 bgC5 bS1">
+			<span class="ico ico_no-entry fR" onclick="$('#createSection').slideUp();"> </span>
+			<span class="editItem dIB button1 mV10 pH20 pV5 fWB">Vytvoriť sekciu</span>
+			<div class="c3">
+				{form createSectionForm}
+				{label title}{/label}<br>
+				{input title}
+				{snippet create_parent}
+				<br><br>
+				{label parent_id}{/label}<br>
+				{input parent_id}
+				{/snippet}
+				<br><br>
+				{input sbmt}
+				{/form}
+			</div>
+		</div>
+		<div id="editSection" class="w200 fL dN p10 bgC5 bS1">
+			<span class="ico ico_no-entry fR" onclick="$('#editSection').slideUp();"> </span>
+			<span class="editItem dIB button1 mV10 pH20 pV5 fWB">Editovať sekciu</span>
+			<div class="c3">
+				{form editSectionForm}
+				{label title}{/label}<br>
+				{input title}
+				{input id}
+				<br><br>
+				{input sbmt}
+				{/form}
+			</div>
+		</div>
+	</div>
+
+	<div class="clear pB30"></div>
+</div>

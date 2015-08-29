@@ -1,0 +1,44 @@
+{extends ../../../templates/@layoutAdmin.latte}
+
+{block content}
+
+<div class="row">
+
+	<div class="col-xs-12 ncol-sm-offset-1 col-sm-5">
+		<h2 class="p0">Články</h2>
+		<ul class="pL30 pV20">
+			<li><a n:href=":Admin:Blog:Articles:create">Vytvoriť nový článok</a></li>
+
+			<li><a n:href=":Admin:Blog:Articles:default">Editovať články</a></li>
+			<li><a n:href=":Admin:Blog:Articles:test">test</a></li>
+		</ul>
+
+		<h2 class="p0">Menu</h2>
+		<ul class="pL30 pV20">
+			<li><a n:href=":Admin:Menu:default">Spravovať menu</a></li>
+		</ul>
+
+		<h2 class="p0">Obrázky</h2>
+		<ul class="pL30 pV20">
+			<li><a n:href=":Admin:Images:blog">Blog</a></li>
+		</ul>
+	</div>
+
+	<div class="col-xs-12 col-sm-5">
+		<h2 class="p0">Užívatelia</h2>
+		<ul class="pL30 pV20">
+			<li><a n:href=":Admin:Users:default">Editovať užívateľov</a></li>
+		</ul>
+
+		<h2 class="p0">Ankety</h2>
+		<ul class="pL30 pV20">
+			<li><a n:href=":Admin:Polls:default">Spravovať ankety</a></li>
+		</ul>
+
+		<h2 class="p0">Drom</h2>
+		<ul class="pL30 pV20">
+			<li><a n:href=":Admin:Drom:default">Drom</a></li>
+		</ul>
+	</div>
+
+</div>

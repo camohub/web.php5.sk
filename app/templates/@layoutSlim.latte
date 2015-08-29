@@ -1,0 +1,55 @@
+{**
+* @param string $basePath web base path
+* @param array $flashes flash messages
+*}
+
+{extends '@base.latte'}
+
+{block body}
+
+{block scripts}
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/js/bootstrap.min.js"></script>
+<script src="{$basePath}/js/netteForms.js"></script>
+<script src="{$basePath}/js/nette.ajax.js"></script>
+<script src="{$basePath}/js/main.js"></script>
+{/block}
+
+<div id="wrapper">
+
+	<div class="bgC10">
+		<div class="container">
+			<div class="row">
+				<h1 id="header" class="col-xs-12 oH">web.php5.sk</h1>
+			</div>
+		</div>
+	</div>
+
+	<div class="container">
+		<div class="row pT50">
+
+			<div id="main" class="col-xs-12 col-sm-9 col-md-offset-2 col-md-8">
+
+				{snippet flash}
+				<div n:if="count($flashes)" n:inner-foreach="$flashes as $flash" class="flash">
+					<div class="{$flash->type}">{$flash->message}</div>
+				</div>
+				{/snippet}
+
+                {control breadcrumbs}
+
+				{include content}
+
+			</div>
+		</div>
+	</div>
+
+	<div id="footerPusher"></div>
+
+</div>
+
+<div class="footer">
+	<span class="small1">Created & designed by Camo 2014</span>
+</div>
+
+{/block}

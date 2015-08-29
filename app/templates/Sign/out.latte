@@ -1,0 +1,16 @@
+{extends ../@layoutSlim.latte}
+
+{block content}
+
+    <h1 n:block="title" class="mT30 fS2">Prihlasovanie</h1>
+
+    <div id="fbLogin" class="mT20">
+        <b>Prihlásiť cez Facebook</b>
+        <fb:login-button scope="public_profile,email" return_scopes="true" onlogin="checkLoginState();"></fb:login-button>
+        <div id="status" class="pV10"> </div>
+    </div>
+
+    {control signInForm}
+
+
+{* or use {include '../components/form.latte', form => signInForm} *}

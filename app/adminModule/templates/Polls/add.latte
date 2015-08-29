@@ -1,0 +1,29 @@
+{extends ../../../templates/@layoutAdmin.latte}
+
+{block content}
+
+<h2 class="pV20">Vytvoriť anketu</h2>
+
+<div class="p20 bgC5">
+
+	{form addPollForm}
+
+		{label title}{/label}<br>
+		{input title}<br><br>
+
+		<b>Otázky</b><br>
+
+		{formContainer questions}
+			{foreach $_form->getComponents() as $i}
+				{input $i}
+			{/foreach}
+		{/formContainer}<br>
+
+		<a class="ico ico_add c3 fL mR20" title="Add question" onclick="$('.dN').eq(0).fadeIn('slow').removeClass('dN'); return false;"> </a>
+
+		{input sbmt}
+
+	{/form}
+
+</div>
+

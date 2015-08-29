@@ -1,0 +1,74 @@
+{**
+* @param string $basePath web base path
+* @param array $flashes flash messages
+*}
+{default title => 'web.php5.sk'}
+{default metaDesc => 'Web o webových technológiách ako je php, mysql, javascript, css ...'}
+{default keywords => 'php, mysql, javascript'}
+{default metaRobots => 'index,follow'}
+{ifset $fb}{* Facebook meta tags ogXYZ *}
+	{default ogTitle => $title}
+	{default ogType => 'website'}
+	{default ogDesc => 'web.php5.sk'}
+	{default ogUrl => $presenter->link('//this')}
+	{default ogImage => $baseUri . '/www/images/fblogo3.png'}
+{/ifset}
+<!DOCTYPE html>
+<html itemscope itemtype="http://schema.org/Article">
+<head>
+	<meta charset="utf-8">
+	<meta name="description" content="{$metaDesc}">
+	<meta name="robots" content="{$metaRobots}" n:ifset="$metaRobots">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+	{ifset $fb}{* Facebook tags *}
+		<meta property="og:title" content="{$ogTitle}">
+    	<meta property="og:description" content="{$ogDesc}">
+    	<meta property="og:type" content="{$ogType}">
+    	<meta property="og:url" content="{$ogUrl}">
+    	<meta property="og:image" content="{$ogImage}">
+	{/ifset}
+
+	<title>{block title|striptags}{$title}{/block}</title>
+
+	<link rel="stylesheet" media="screen,projection,tv" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.4/css/bootstrap.min.css">
+	<link rel="stylesheet" media="screen,projection,tv" href="{$basePath}/css/screen.css">
+	<link rel="stylesheet" media="print" href="{$basePath}/css/print.css">
+	<link href="{$basePath}/js/prettify.css" type="text/css" rel="stylesheet" />
+	<link rel="shortcut icon" href="{$basePath}/favicon.ico">
+
+	{block head}{/block}
+</head>
+<body>
+
+{snippet flexiFlash}
+	<div n:if="isset($flexiFlash) && count($flexiFlash)" class="flexiFlash" n:inner-foreach="$flexiFlash as $fflash">
+		<div n:class="isset($fflash[1]) ? $fflash[1]"><span class="x">x</span>{$fflash[0]}</div>
+	</div>
+{/snippet}
+
+{block body}{/block}
+
+<div id="ajax-spinner"> </div>
+
+<script>
+{ifset $endless_session}
+	// Makes session endless. Session does not end after 20 minutes browsers inactivity.
+	setInterval( function()
+	{
+		$.ajax({
+			type: 'POST',
+			url: {link :Helper:default},
+			accepts : 'json',
+			complete: function( jqXHR )
+			{
+				if( jqXHR.status == 200 ) console.log( jqXHR.responseJSON.message );
+				else alert( 'Za niekoľko sekúnd budete automaticky odhlásený z dôvodu nečinnosti. Ak sa tomu chcete vyhnúť refrešnite stránku. Pred tým si nezabudnite uložiť nedokončenú prácu.' );
+			}
+		});
+    }, 1000 * 60 * 19 );
+{/ifset}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,60 @@
+{extends ../../../../templates/@layoutAdmin.latte}
+
+{block content}
+
+<table class="datagrid w100P mT10">
+	<tr>
+		<th>Názov</th>
+		<th>Autor</th>
+		<th>Vytvorené</th>
+		<th>Akcia</th>
+	</tr>
+	<tr n:if="count($articles)" n:foreach="$articles as $article">
+		<td>{$article->title}</td>
+		<td>{$article->ref('users', 'users_id')->user_name}</td>
+		<td>{$article->created|date:'j.n. Y'}</td>
+		<td class="tAR">
+			<a n:href=":Admin:Blog:Articles:edit $article->id" class="ico ico_modify" title="Edit"></a>
+           	<a n:href="visibility! $article->id" n:class="ico, $article->status ? ico_ok : ico_no-entry " title="Visible/Hidden"></a>
+           	<a n:href=":Admin:Blog:Comments:default $article->id" class="ico ico_comment" title="Show comments"></a>
+           	<a n:href="delete! $article->id" n:if="$user->isAllowed('article', 'delete')" class="ico ico_trash" title="Delete"></a>
+           </td>
+	</tr>
+</table>
+<div n:if="$user->isInRole('admin')" class="pV20">
+	<h4>Filtrovať podľa</h4>
+	{form articlesFilterForm}
+		<div class="fL p10">
+			{label authors}{/label}<br>
+			{input authors}
+		</div>
+		<div class="fL p10">
+			{label order}{/label}<br>
+			{input order}
+		</div>
+		<div class="fL p10 clear">
+			{label interval}{/label}
+			{input interval}
+		</div>
+		<div class="fL p10 clear">
+			{input remember}
+  				{label remember}{/label}
+  			</div>
+		<div class="p10 clear">
+			{input sbmt}
+		</div>
+	{/form}
+</div>
+
+<script>
+$('.ico_trash','table.datagrid').on('click', function()
+{
+	var title = $(this).closest('tr').find('td:first').text();
+	if(confirm('Naozaj chcete zmazať článok: ' + title + '?'))
+	{
+		return true;
+	}
+	else return false;
+});
+</script>
+

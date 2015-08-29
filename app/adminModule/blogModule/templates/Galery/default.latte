@@ -1,0 +1,33 @@
+{extends ../../../../templates/@base.latte}
+
+{block body}
+
+<div class="tAC">
+
+   	{control vp}
+
+	<img n:if="count($images)" n:foreach="$images as $image" src="{$basePath}/images/blog/thumbnails/{$image->name}" onclick="insert(this.src)" class="dIB p5 maxW75"><br>
+
+	{control vp}
+
+</div>
+
+<script>
+function insert(url)
+{
+	var params = top.tinymce.activeEditor.windowManager.getParams(),
+	input = params.input,
+	win = params.window,
+	page = params.page;
+
+	url = url.replace('thumbnails/', '');
+	win.document.getElementById(input).value = url;
+
+
+	top.tinymce.activeEditor.windowManager.close();
+}
+
+top.tinymce.activeEditor.imageBrowserPage = {$page};
+
+</script>
+

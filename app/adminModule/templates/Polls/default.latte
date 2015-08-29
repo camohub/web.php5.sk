@@ -1,0 +1,48 @@
+{extends ../../../templates/@layoutAdmin.latte}
+
+{block content}
+
+<div class="mT20">
+
+    <a n:href=":Admin:Polls:add" class="ico ico_add fL mT5" title="Add new"> </a>
+
+	{if !count($pollsArray)}
+		<h2 class="m0 p0 c3">Neboli nájdená žiadne ankety</h2>
+	{else}
+		<h2 class="mB10">Ankety</h2>
+
+		{snippet polls}
+		<div n:foreach="$polls as $row" class="clear">
+			<h3 class="p10 bgC7">{$row->title}
+				<a n:href="delete! $row->id" class="ajax ico ico_trash fR" title="Delete"> </a>
+				<a n:href=":Admin:Polls:edit $row->id" class="ico ico_modify fR mR10" title="Edit"> </a>
+			</h3>
+
+			<div n:foreach="$pollsArray[$row->id] as $rowLev2" class="pV5 pL10 pR10 hover3">
+				{$rowLev2->title} ({count($row->related('polls_responses', 'polls_question_id'))})
+				<a n:href="delete! 'id' => $rowLev2->id, 'question' => 1" class="ajax ico ico_trash fR" title="Delete"> </a>
+			</div>
+		</div>
+		{/snippet}
+	{/if}
+
+</div>
+
+
+<script>
+$('.ico_trash')
+	.css({'display':'inline-block'})
+	.on('click', function(e){
+		if(confirm('Naozaj chcete položku zmazať?'))
+		{
+			$(this).parent().css('display','none');
+			return true;
+		}
+		else
+		{
+			e.stopImmediatePropagation();
+			return false;
+		}
+});
+</script>
+

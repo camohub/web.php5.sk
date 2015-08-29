@@ -1,0 +1,21 @@
+{extends ../../../templates/@layoutAdmin.latte}
+
+{block content}
+
+<div class="bgC8 mT10 c3">
+	<div class="p10">
+		{form insertForm}
+
+			<ul class="error" n:if="$form->hasErrors()">
+					<li n:foreach="$form->errors as $error">{$error}</li>
+			</ul>
+
+			{input images}<br>
+			<span class="small1">Viac obrázkov naraz vyberiete stlačením klávesy ctrl. Maximálny počet je 5 obrázkov.</span>
+			<br><br>
+
+			{input sbmt}
+
+		{/form}
+	</div>
+</div>

@@ -1,0 +1,102 @@
+{extends ../../templates/@layoutFull.latte}
+
+{block content}
+
+
+{if isset($articles)}
+
+	{foreach $articles as $a}
+		<h1><a n:href=":Articles:show 'title' => $a->url_title">{$a->title}</a></h1>
+
+		<div class="content">{$a->perex|noescape}</div>
+
+		<div class="small1 pT10 pB20">{$a->created|date:'j. F Y'|datum:sk}</div>
+	{/foreach}
+
+	{control vp}
+
+{/if}
+
+
+{if isset($article)}
+
+	<h1>{$article->title}</h1>
+
+	<div class="small1">{$article->created|date:'j. F Y'|datum:sk}</div>
+
+	<div>{$article->perex|noescape}{$article->content|noescape}</div>
+
+	<div class="fb-like pT10" data-colorscheme="dark" data-share="true" data-show-faces="true" data-width="450"> </div>
+
+	{if $user->id == $article->users_id}
+		<a n:href=":Admin:Blog:Articles:edit $article->id" class="small1 fR">editovať</a>
+	{/if}
+
+
+	<div class="hr"></div><a name="commentsAnch"></a>
+
+	{***** comments **********************}
+
+	{if $user->isAllowed('comment', 'add')}
+		{form commentForm}
+			<span class="c3">{label content}{/label}</span> <span id="showCommentHelp" class="ico ico_hint"> </span>
+			<ul class="errors" n:if="$form->hasErrors()">
+					<li n:foreach="$form->errors as $error">{$error}</li>
+			</ul>
+			<div id="commentHelp" class="pA dN bgC9 bS1 p5">**<b>Tučný text</b>**<br>```Kód programu```</div>
+			<div class="dN">{* Name is a trap to the robots *}{label name}{/label}{input name}</div>
+			<div class="required">{input content}</div>
+			{input send}
+		{/form}
+	{else}
+		<span>Ak chcete pridávať komentáre musíte sa <a n:href=":Sign:in">prihlásiť na webe</a>, alebo cez
+		sieť</span>&nbsp;
+		<!--fb:login-button scope="public_profile,email" return_scopes="true" onlogin="checkLoginState();"></fb:login-button-->
+		<img id="fbLogin" class="h15E cP bR2" src="{$basePath}/images/fblogin.png">
+		<script>
+			$('#fbLogin').on('click', function(e)
+			{
+				FB.login(
+					function( response ) {
+						checkLoginState();
+					},
+					{
+						scope: 'public_profile,email'
+					}
+				)
+			});
+		</script>
+		<img id="gLogin" class="h15E cP bR2" src="{$basePath}/images/glogin.png">
+        <script>
+        	$('#gLogin').click(function()
+        	{
+            	// signInCallback defined in step 6.
+            	auth2.grantOfflineAccess({'redirect_uri': 'postmessage'}).then(googleSignIn);
+        	});
+        </script>
+        <div id="result"></div>
+		<!--a href="#" onclick="googleSignOut();">Sign out</a-->
+		<div id ="loginStatus"><!-- element to show social login errors --></div>
+	{/if}
+
+
+	<div class="pV30">
+		<div n:foreach="$comments as $comment" n:class="p10, bR5, $iterator->isOdd() ? bgC8">
+			<div class="small1 c3 fWB commUserName cP">{$comment->ref('users', 'users_id')->user_name}</div>
+			<div class="pB10 pT5">{$comment->content|noescape}</div>
+		</div>
+	</div>
+	<script>
+		$('.commUserName').on('click', function()
+		{
+			var area = $('#frm-commentForm-content');
+			area.val(area.val() + '**' + $(this).text() + '** ').focus();
+		});
+
+		$('#showCommentHelp').on('mouseover', function(){ $('#commentHelp').css('display', 'block'); });
+		$('#showCommentHelp').on('mouseout', function(){ $('#commentHelp').css('display', 'none'); });
+
+	</script>
+
+{/if}
+

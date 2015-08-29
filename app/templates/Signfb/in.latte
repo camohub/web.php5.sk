@@ -1,0 +1,17 @@
+{extends ../@layoutSlim.latte}
+
+{block content}
+
+<script>
+if({$fbLogin == 1})
+{
+	window.opener.fbAfterLogin();
+}
+
+</script>
+
+<h2 n:block="title" class="mT30 fS2">Prihlasovanie</h2>
+
+<a n:href=":FBSign:in">FBSign:in</a>
+
+{* or use {include '../components/form.latte', form => signInForm} *}

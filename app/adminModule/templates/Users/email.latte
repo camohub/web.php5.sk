@@ -1,0 +1,28 @@
+{**
+* @param string $basePath web base path
+* @param array $flashes flash messages
+*}
+{default title => 'NCMS'}
+{default metaDesc => 'NCMS cms založený na Nette frameworku'}
+{default keywords => 'CMS, blog, eshop, forum'}
+{default metaRobots => 'index,follow'}
+{ifset $fb}{* Facebook meta tags ogXYZ *}
+	{default ogTitle => $title}
+	{default ogType => 'website'}
+	{default ogDesc => 'NCMS'}
+	{default ogUrl => $presenter->link('//this')}
+	{default ogImage => $baseUri . '/images/logo.png'}
+{/ifset}
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+<h2>Potvrdenie emailovej adresy</h2>
+
+<b><a n:href="//:User:email $userId, 'code' => $code">Kliknutím na odkaz aktivujete svoj účet na portáli NCMS</a></b>
+
+</body>
+</html>
+
