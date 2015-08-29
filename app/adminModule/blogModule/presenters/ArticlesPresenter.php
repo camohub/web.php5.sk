@@ -207,7 +207,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 		$form->addTextArea('content', 'Text', 60)
 			->setRequired('Nenapísali ste žiaden text. Bez neho nebude formulár odoslaný.')
-			->setAttribute('class', 'area600 editor');
+			->setAttribute('class', 'area500 editor');
 
 		$catArray = $this->categories->getArray('admin');
 		$sParams = $this->getCategoriesSelectParams($catArray, $catArray[0]);

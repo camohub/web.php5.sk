@@ -449,8 +449,11 @@ form .required label {
 	height:60px;
 }
 
+.area500 {
+	height:500px;
+}
+
 .area600 {
-	nwidth:600px;
 	height:600px;
 }
 
