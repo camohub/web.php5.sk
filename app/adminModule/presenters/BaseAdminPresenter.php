@@ -27,7 +27,7 @@ class BaseAdminPresenter extends \App\Presenters\BasePresenter
 		if(!$this->user->isLoggedIn())
 		{
 			$this->flashMessage('Pred vstupom do administrácie sa musíte prihlásiť.');
-			$this->redirect(':Sign:in', $this->storeRequest());
+			$this->redirect(':Sign:in');
 		}
 		if(!$this->user->isAllowed('administration', 'view'))
 		{
