@@ -15,9 +15,12 @@ class HelperPresenter extends BasePresenter
 {
 
 
+	/**
+	 * @desc Makes session endless. Is called via ajax and extends session.
+	 */
 	public function renderDefault()
 	{
-		$this->sendJson( ['message' => 'Session was extended'] );
+		$this->sendJson( [ 'message' => 'Session was extended' ] );
 	}
 
 }

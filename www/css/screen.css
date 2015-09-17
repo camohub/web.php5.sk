@@ -307,7 +307,7 @@ ul li ul li a:hover{
 .bgC10 { background-color: #358472; }
 
 .bgI1 { background:#a7aa4e url('/www/images/bgI1.png') left top; }
-.bgI2 { background:#358472 url('/www/images/bolts2.png') right center  no-repeat; }
+.bgI2 { background:#358472 url('/web.php5.sk/www/images/stars2.png') right -90px  no-repeat; }
 
 .bor0, .b0 { border: none; }
 .bor1, .b1 { border: 1px solid #dfe0eb; }
@@ -409,7 +409,7 @@ form td,
 form th {
 	padding:7px 7px;
 	min-width:80px;
-	vertical-align: center;
+	vertical-align: middle;
 	font-weight: normal;
 	Nborder:1px solid red; 
 }

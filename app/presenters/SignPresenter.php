@@ -18,17 +18,17 @@ class SignPresenter extends BasePresenter
 	{
 		// Sign:in Facebook login makes redirect to itself(It means this action).
 		// But user is already logged in.
-		if($this->user->isLoggedIn())
+		if ( $this->user->isLoggedIn() )
 		{
-			$this->redirect(':Articles:show');
+			$this->redirect( ':Articles:show' );
 		}
 
-		$this['breadcrumbs']->add('Prihlásiť', 'Sign:in');
+		$this['breadcrumbs']->add( 'Prihlásiť', 'Sign:in' );
 
 		$this->template->fb = TRUE;
-		$this->setHeaderTags(NULL, NULL, $robots = 'noindex, nofolow');
+		$this->setHeaderTags( NULL, NULL, $robots = 'noindex, nofolow' );
 
-		$this->setReferer('signInReferrer');
+		$this->setReferer( 'signInReferrer' );
 	}
 
 
@@ -36,13 +36,16 @@ class SignPresenter extends BasePresenter
 	public function actionOut()
 	{
 		$this->getUser()->logout();
-		$this->flashMessage('Boli ste odhlásený.');
+		$this->flashMessage( 'Boli ste odhlásený.' );
 
-		$this->setReferer('signOutReferer');
+		$this->setReferer( 'signOutReferer' );
 
-		if($url = $this->getReferer('signOutReferer')) { $this->redirectUrl($url); }
+		if ( $url = $this->getReferer( 'signOutReferer' ) )
+		{
+			$this->redirectUrl( $url );
+		}
 
-		$this->redirect('Articles:show');
+		$this->redirect( 'Articles:show' );
 	}
 
 
@@ -56,58 +59,61 @@ class SignPresenter extends BasePresenter
 	{
 		$form = new Nette\Application\UI\Form;
 
-		$form->addProtection('Vypršal čas vyhradený pre odoslanie formulára. Z dôvodu rizika útoku CSRF bola požiadavka na server zamietnutá.');
+		$form->addProtection( 'Vypršal čas vyhradený pre odoslanie formulára. Z dôvodu rizika útoku CSRF bola požiadavka na server zamietnutá.' );
 
-		$form->addText('user_name', 'Username:')
-			->setRequired('Please enter your username.')
-			->setAttribute('class', 'formEl');
+		$form->addText( 'user_name', 'Username:' )
+			->setRequired( 'Please enter your username.' )
+			->setAttribute( 'class', 'formEl' );
 
-		$form->addPassword('password', 'Password:')
-			->setRequired('Please enter your password.')
-			->setAttribute('class', 'formEl');
+		$form->addPassword( 'password', 'Password:' )
+			->setRequired( 'Please enter your password.' )
+			->setAttribute( 'class', 'formEl' );
 
-		$form->addCheckbox('remember', ' Keep me signed in');
+		$form->addCheckbox( 'remember', ' Keep me signed in' );
 
-		$form->addSubmit('send', 'Prihlásiť')
-			->setAttribute('class', 'formElB');
+		$form->addSubmit( 'send', 'Prihlásiť' )
+			->setAttribute( 'class', 'formElB' );
 
 		// call method signInFormSucceeded() on success
-		$form->onSuccess[] = array($this, 'signInFormSucceeded');
+		$form->onSuccess[] = array( $this, 'signInFormSucceeded' );
 		return $form;
 	}
 
 
-	public function signInFormSucceeded($form, $values)
+	public function signInFormSucceeded( $form, $values )
 	{
-		if ($values->remember) {
-			$this->getUser()->setExpiration('14 days', FALSE);
-		} else {
-			$this->getUser()->setExpiration('30 minutes', TRUE);
+		if ( $values->remember )
+		{
+			$this->getUser()->setExpiration( '14 days', FALSE );
+		}
+		else
+		{
+			$this->getUser()->setExpiration( 0, TRUE );
 		}
 
 		try
 		{
-			$this->getUser()->login($values->user_name, $values->password);
+			$this->getUser()->login( $values->user_name, $values->password );
 		}
-		catch (Nette\Security\AuthenticationException $e)
+		catch ( Nette\Security\AuthenticationException $e )
 		{
-			$form->addError($e->getMessage());
+			$form->addError( $e->getMessage() );
 			return;
 		}
-		catch (App\Exceptions\AccessDeniedException $e)
+		catch ( App\Exceptions\AccessDeniedException $e )
 		{
-			$this->flashMessage('Váš účet ešte nebol aktivovaný emailom, alebo je zablokovaný.');
+			$this->flashMessage( 'Váš účet ešte nebol aktivovaný emailom, alebo je zablokovaný.' );
 			return;
 		}
 
-		$this->flashMessage('Vitajte '.$values['user_name']);
+		$this->flashMessage( 'Vitajte ' . $values['user_name'] );
 
-		if ($url = $this->getReferer('signInReferrer'))
+		if ( $url = $this->getReferer( 'signInReferrer' ) )
 		{
-			$this->redirectUrl($url);
+			$this->redirectUrl( $url );
 		}
 
-		$this->redirect(':Articles:show');
+		$this->redirect( ':Articles:show' );
 
 	}
 

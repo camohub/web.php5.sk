@@ -51,8 +51,10 @@
 
 <div id="ajax-spinner"> </div>
 
-<script n:if="isset( $endless_session)">
-// Makes session endless. Session does not end after 20 minutes browsers inactivity.
+
+{*<script n:if="isset( $endless_session )">
+
+// Makes session endless. Session does not end after 24 minutes of browsers inactivity.
 setInterval( function()
 {
 	$.ajax({
@@ -61,12 +63,20 @@ setInterval( function()
 		accepts : 'json',
 		complete: function( jqXHR )
 		{
-			if( jqXHR.status == 200 ) console.log( jqXHR.responseJSON.message );
-			else alert( 'Za niekoľko sekúnd budete automaticky odhlásený z dôvodu nečinnosti. Ak sa tomu chcete vyhnúť refrešnite stránku. Pred tým si nezabudnite uložiť nedokončenú prácu.' );
+			if( jqXHR.status == 200 )
+			{
+				console.log( jqXHR.responseJSON.message );
+			}
+			else
+			{
+				console.log( jqXHR );
+				alert( 'Za niekoľko sekúnd budete automaticky odhlásený z dôvodu nečinnosti. Ak sa tomu chcete vyhnúť refrešnite stránku. Pred tým si nezabudnite uložiť nedokončenú prácu.' );
+			}
 		}
 	});
-}, 1000 * 60 * 19 );
-</script>
+}, 1000 * 60 * 22 );
+
+</script>*}
 
 </body>
 </html>
