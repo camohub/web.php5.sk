@@ -8,8 +8,7 @@ use Nette,
 class Categories
 {
 
-    CONST
-    TABLE_NAME = 'categories';
+    CONST   TABLE_NAME = 'categories';
 
     /** @var Nette\Database\Context */
     protected $database;

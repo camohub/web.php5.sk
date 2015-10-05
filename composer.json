@@ -32,6 +32,7 @@
 		"latte/latte": "~2.3.0",
 		"tracy/tracy": "~2.3.0",
 		"dg/adminer-custom": "~1.6",
+		"dg/ftp-deployment": "dev-master",
 		"nextras/secured-links": "~1.3",
 		"facebook/php-sdk-v4" : "4.0.*",
 		"google/apiclient": "1.0.*@beta",

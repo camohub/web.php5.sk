@@ -24,15 +24,17 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	public function startup()
 	{
 		parent::startup();
-		$this['breadcrumbs']->add('Home', ':Articles:show');
+		$this['breadcrumbs']->add( 'Home', ':Articles:show' );
 	}
 
 
 
 	public function afterRender()
 	{
-		if ($this->isAjax() && $this->hasFlashSession())
-			$this->redrawControl('flash');
+		if ( $this->isAjax() && $this->hasFlashSession() )
+		{
+			$this->redrawControl( 'flash' );
+		}
 	}
 
 
@@ -42,11 +44,11 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 * @param $url
 	 * @return bool
 	 */
-	public function isSectionCurrent($url)
+	public function isSectionCurrent( $url )
 	{
-		$url = ltrim($url, ':');
-		$section = explode(':', $this->getName())[0];
-		return stripos($url, $section) === 0;
+		$url = ltrim( $url, ':' );
+		$section = explode( ':', $this->getName() )[0];
+		return stripos( $url, $section ) === 0;
 		//or return \Nette\Utils\Strings::startsWith($this->getName(), $url);
 	}
 
@@ -56,15 +58,15 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 * @param $owner_id
 	 * @return Nette\Database\Table\Selection
 	 */
-	protected function getOptionalComponents($owner_id)
+	protected function getOptionalComponents( $owner_id )
 	{
 		$optCompArray = array();
-		if($sel = $this->database->table('optional_components')->where(array('owner_id' => $owner_id)))
+		if ( $sel = $this->database->table( 'optional_components' )->where( array( 'owner_id' => $owner_id ) ) )
 		{
-			foreach($sel as $row)
+			foreach ( $sel as $row )
 			{
 				// explode name cause it consists from name + identifier like "poll_50"
-				$optCompArray[explode('_', $row->component_name)[0]] = $row;
+				$optCompArray[explode( '_', $row->component_name )[0]] = $row;
 			}
 		}
 		return $optCompArray;
@@ -77,11 +79,20 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 * @param null $title
 	 * @param null $robots ( ie. 'noindex, nofollow')
 	 */
-	protected function setHeaderTags($desc = NULL, $title = NULL, $robots = NULL)
+	protected function setHeaderTags( $desc = NULL, $title = NULL, $robots = NULL )
 	{
-		if($desc) $this->template->metaDesc = $desc;
-		if($title) $this->template->title = $title;
-		if($robots) $this->template->metaRobots = $robots;
+		if ( $desc )
+		{
+			$this->template->metaDesc = $desc;
+		}
+		if ( $title )
+		{
+			$this->template->title = $title;
+		}
+		if ( $robots )
+		{
+			$this->template->metaRobots = $robots;
+		}
 	}
 
 
@@ -89,29 +100,35 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 * @desc Sets referrer url as string or '' to unique $id section for every page
 	 * @param string $id
 	 */
-	protected function setReferer($id = '')
+	protected function setReferer( $id = '' )
 	{
-		if(!$id) return;
+		if ( ! $id )
+		{
+			return;
+		}
 
 		$url = '';
 
-		if($referer = $this->getHttpRequest()->getReferer())
+		if ( $referer = $this->getHttpRequest()->getReferer() )
 		{
-			$url = $referer->getScheme().'://'.$referer->getHost().'/'.$referer->getPath();
+			$url = $referer->getScheme() . '://' . $referer->getHost() . '/' . $referer->getPath();
 
-			if($qsArr = $referer->getQueryParameters()) // returns array
+			if ( $qsArr = $referer->getQueryParameters() ) // returns array
 			{
-				foreach($qsArr as $key => $val)
+				foreach ( $qsArr as $key => $val )
 				{
-					if($key == self::FLASH_KEY) continue;
+					if ( $key == self::FLASH_KEY )
+					{
+						continue;
+					}
 
-					$url .= isset($i) ? '&'.$key.'='.$val : '?'.$key.'='.$val;
+					$url .= isset( $i ) ? '&' . $key . '=' . $val : '?' . $key . '=' . $val;
 					$i = 1;
 				}
 			}
 		}
 
-		$this->getSession($id)->url = $url;
+		$this->getSession( $id )->url = $url;
 	}
 
 
@@ -120,23 +137,26 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 * @param string $id
 	 * @return bool|mixed|string
 	 */
-	protected function getReferer($id = '')
+	protected function getReferer( $id = '' )
 	{
-		$refSes = $this->getSession($id);
+		$refSes = $this->getSession( $id );
 
-		if(!$id || !$url = $refSes->url) return false;
+		if ( ! $id || ! $url = $refSes->url )
+		{
+			return FALSE;
+		}
 
-		$url = $this->getSession($id)->url;
-		$url .= (parse_url($url, PHP_URL_QUERY) ? '&' : '?');
-		$url .= self::FLASH_KEY.'='.$this->getParameter(self::FLASH_KEY);
+		$url = $this->getSession( $id )->url;
+		$url .= ( parse_url( $url, PHP_URL_QUERY ) ? '&' : '?' );
+		$url .= self::FLASH_KEY . '=' . $this->getParameter( self::FLASH_KEY );
 
-		unset($refSes->url);
+		unset( $refSes->url );
 
 		return $url;
 	}
 
 
-/////////helper//////////////////////////////////////////////////////
+/////////helpers//////////////////////////////////////////////////////
 
 	/**
 	 * @desc Helpers
@@ -145,16 +165,16 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 * @param null $class
 	 * @return Nette\Application\UI\ITemplate
 	 */
-	protected function createTemplate($class = NULL)
+	protected function createTemplate( $class = NULL )
 	{
-		$template = parent::createTemplate($class);
-		$template->addFilter('datum', function ($s, $lang = 'sk')
-			{
-				$needles = array('Monday', 'Tuesday', 'Wensday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December',  'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Mon', 'Tue', 'Wen', 'Thu', 'Fri', 'Sat', 'Sun');
-				$sk = array('pondelok', 'utorok', 'streda', 'štvrtok', 'piatok', 'sobota', 'nedeľa', 'január','február','marec', 'apríl', 'máj', 'jún', 'júl', 'august', 'september', 'október', 'november', 'december', 'jan.', 'feb.', 'mar.', 'apr.', 'máj', 'jún', 'júl', 'aug.', 'sep.', 'okt.', 'nov.', 'dec.', 'Po', 'Ut', 'St', 'Št', 'Pi', 'So', 'Ne');
+		$template = parent::createTemplate( $class );
+		$template->addFilter( 'datum', function ( $s, $lang = 'sk' )
+		{
+			$needles = array( 'Monday', 'Tuesday', 'Wensday', 'Thursday', 'Friday', 'Saturday', 'Sunday', 'January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec', 'Mon', 'Tue', 'Wen', 'Thu', 'Fri', 'Sat', 'Sun' );
+			$sk = array( 'pondelok', 'utorok', 'streda', 'štvrtok', 'piatok', 'sobota', 'nedeľa', 'január', 'február', 'marec', 'apríl', 'máj', 'jún', 'júl', 'august', 'september', 'október', 'november', 'december', 'jan.', 'feb.', 'mar.', 'apr.', 'máj', 'jún', 'júl', 'aug.', 'sep.', 'okt.', 'nov.', 'dec.', 'Po', 'Ut', 'St', 'Št', 'Pi', 'So', 'Ne' );
 
-				return str_replace($needles, $$lang, $s);
-			}
+			return str_replace( $needles, $$lang, $s );
+		}
 		);
 
 		return $template;
@@ -168,8 +188,8 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 */
 	public function createComponentMenu()
 	{
-		$categories = new App\Model\Categories($this->database);
-		return  new App\Controls\Menu($categories);
+		$categories = new App\Model\Categories( $this->database );
+		return new App\Controls\Menu( $categories );
 	}
 
 
@@ -186,9 +206,9 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 * @param $name
 	 * @return \NasExt\Controls\VisualPaginator
 	 */
-	protected function createComponentVp($name)
+	protected function createComponentVp( $name )
 	{
-		$control = new \NasExt\Controls\VisualPaginator($this, $name);
+		$control = new \NasExt\Controls\VisualPaginator( $this, $name );
 		// enable ajax request, default is false
 		/*$control->setAjaxRequest();
 
@@ -207,10 +227,10 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 */
 	protected function createComponentPoll()
 	{
-		return new Nette\Application\UI\Multiplier( function($name)
+		return new Nette\Application\UI\Multiplier( function ( $name )
 		{
-			return new App\Controls\Poll($this->database, $this, $name);
-		});
+			return new App\Controls\Poll( $this->database, $this, $name );
+		} );
 	}
 
 

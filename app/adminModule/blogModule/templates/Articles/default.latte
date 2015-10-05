@@ -7,7 +7,7 @@
 		<th>Názov</th>
 		<th>Autor</th>
 		<th>Vytvorené</th>
-		<th>Akcia</th>
+		<th>Akcia <a n:href=":Admin:Blog:Articles:create" class="ico ico_add fR" title="Create new"> </a></th>
 	</tr>
 	<tr n:if="count($articles)" n:foreach="$articles as $article">
 		<td>{$article->title}</td>

@@ -48,7 +48,7 @@ body {
 
 table, tbody, thead, tr, th, td { border-collapse: collapse }
 
-p { margin:0; padding:5px 0; }
+p { margin:0 0 14px; padding:5px 0; }
 b, strong { color:#444; }
 
 
@@ -66,13 +66,19 @@ h1 a { color: #3C927E; }
 h2, h3, h4 {
 	font-weight:bold;
 	font-family:"Helvetica Neue", Trebuchet MS, verdana;
-	padding-top: 15px;
-	padding-bottom: 5px;
+	margin: 14px 0 0;
+	padding: 5px 0;
 }
 
 #main h2 { font-size:1.35em; ncolor:#899542; color:#568AB7; }
 #main h3 { font-size:1.1em; color:#546a7c; ncolor:#899542; }
 #main h4 { font-size:1em; color:#899542; ncolor:#546a7c; }
+
+#main ol, #main ul {
+	list-style-position: outside;
+	padding-left: 25px;
+	margin: 0 0 14px;
+}
 
 .sidebar {
 	color: #565656;
@@ -520,6 +526,7 @@ html.js .jshidden {
 	text-shadow:0 0 0 #fff;
 }
 
+#main ul.breadcrumbs { padding-left: 0; }
 
 li.breadcrumbs {
 	display:inline-block;

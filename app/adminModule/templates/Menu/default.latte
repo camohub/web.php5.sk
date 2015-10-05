@@ -126,7 +126,7 @@ function activateCreateForm(el)
 				<li data-module="{$item->module_id}" id="menuItem_{$item->id}">
 					<div>{$item->title}
 						<a n:href="delete! $item->id" {if !$presenter->isAjax()}style="display:none"{/if} class="ignore ajax ico ico_trash fR" title="Delete"> </a>
-						{if $item->app != 1}<span onclick="activateEditForm({$item->id}, {$item->title}, this);" class="ignore ico ico_modify fR" title="Upraviť"> </span>{/if}
+						{if $item->app != 1}<span onclick="activateEditForm({$item->id}, {$item->title}, this);" class="ignore ico ico_modify fR" title="Edit"> </span>{/if}
 						<a n:href="visibility! $item->id" n:class="ignore, ajax, ico, fR, $item->visible ? ico_ok : ico_no-entry" title="Display/Hide"> </a>
 					</div>
 					{if isset($menuArr[$item->id])}

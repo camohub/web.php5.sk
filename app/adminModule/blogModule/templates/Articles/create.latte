@@ -8,19 +8,21 @@
 				<li n:foreach="$form->errors as $error">{$error}</li>
 		</ul>
 		<div class="pV10">
-			{label meta_desc}{/label}<span class="ico_hint" title="Dôležité z hľadiska SEO. Vyplňte jednou výstižnou vetou a použite kľúčové slová."></span><br>
+			{label meta_desc}{/label}<span class="ico ico_hint" title="Dôležité z hľadiska SEO. Vyplňte jednou výstižnou vetou a použite kľúčové slová."> </span><br>
 			{input meta_desc}
 		</div>
 		<div class="pV10">
-        	{label title}{/label}<span class="ico_hint" title="Nadpis článku. Použite kľúčové slová."></span><br>
+        	{label title}{/label}<span class="ico ico_hint" title="Nadpis článku. Použite kľúčové slová."> </span><br>
         	{input title}
         </div>
 		<div class="pV10">
-        	{label perex}{/label}<span class="ico_hint" title="Úvod do textu. Zobrazí sa pred textom a ako skrátený text. Používajte kľúčové slová."></span><br>
+        	{label perex}{/label}<span class="ico ico_hint" title="Úvod do textu. Zobrazí sa pred textom a ako skrátený text. Používajte kľúčové slová.
+Kód a zoznamy sa ukončujú stlačením Shift + Enter"> <!-- Odriadkovanie v title zachovat!!! --></span><br>
         	{input perex}
         </div>
 		<div class="pV10">
-			{label content}{/label}<span class="ico_hint" title="Používajte kľúčové slová. Najmä v nadpisoch a zvýraznených výrazoch."></span><br>
+			{label content}{/label}<span class="ico ico_hint" title="Používajte kľúčové slová. Najmä v nadpisoch a zvýraznených výrazoch.
+Kód a zoznamy sa ukončujú stlačením Shift + Enter"> <!-- Odriadkovanie v title zachovat!!! --></span><br>
 			{input content}
 		</div>
 		<div class="pV10">

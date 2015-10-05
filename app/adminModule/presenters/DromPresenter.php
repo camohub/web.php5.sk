@@ -20,6 +20,7 @@ class DromPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 	public function __construct(Nette\Database\Context $database)
 	{
+		parent::__construct();
 		$this->database = $database;
 	}
 
