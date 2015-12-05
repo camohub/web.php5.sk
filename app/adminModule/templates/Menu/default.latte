@@ -2,7 +2,7 @@
 
 {block content}
 
-<script type="text/javascript" src="{$basePath}/js/jquery-sortable-lists.js"></script>
+<script type="text/javascript" src="{$basePath}/js/jquery-sortable-lists.min.js"></script>
 <script type="text/javascript">
 $(document).ready(function()
 {
@@ -36,7 +36,7 @@ $(document).ready(function()
 
 
    	$('.ico_trash')
-   		.css({'display':'inline-block'})
+   		.css({'display':'inline-block'})  // I do not want to display this function if js (confirm dialog) is off
    		.on('click', function(){
    			if(confirm('Naozaj chcete položku zmazať?')) return true;
    			else return false;
@@ -59,8 +59,10 @@ $(document).ready(function()
 			}
 
     		$('#editSection, #createSection').slideUp();
+    		$('#ajax-spinner').css( { 'display': 'block' } );
     	},
     	complete: function () {
+    		$('#ajax-spinner').css( { 'display': 'none' } );
     		this.counter--;
     		if (this.counter <= 0) {
 
@@ -114,7 +116,7 @@ function activateCreateForm(el)
 </script>
 
 <div class="bgC5 mT10">
-	<div class="pV30 pH10 adminEditMenu">
+	<div class="pV30 pH10" id="adminEditMenu">
 
 		<a class="editMenu ajax dIB button1 mV10 pH20 pV5 fWB" n:href="priority!">Uložiť zmeny</a>
 		<span onclick="activateCreateForm(this);" class="ico ico_add" title="Add new section"> </span>

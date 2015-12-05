@@ -25,9 +25,9 @@
 
 <div id="wrapper">
 
-	<div class="bgI2">
+	<div class="bgI2 bS2">
 		<div class="container">
-			<div class="row">
+			<div class="row oH">
 				<h1 id="header" class="col-xs-12 oH">web.php5.sk</h1>
 			</div>
 		</div>
@@ -69,7 +69,7 @@
 
 				{snippet flash}
 				<div n:if="count($flashes)" n:inner-foreach="$flashes as $flash" class="flash">
-                   	<div class="{$flash->type}">{$flash->message}</div>
+                   	<div n:class="alert, alert-dismissible, fade, in, $flash->type == 'info' ? alert-success, $flash->type == 'error' ? alert-danger">{$flash->message}<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button></div>
                 </div>
                 {/snippet}
 

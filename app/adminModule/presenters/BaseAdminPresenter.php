@@ -4,13 +4,13 @@
 namespace App\AdminModule\Presenters;
 
 
-use    Nette,
-	App,
-	Nextras,
-	Tracy\Debugger;
+use Nette;
+use App;
+use	Nextras;
+use	Tracy\Debugger;
 
 
-class BaseAdminPresenter extends \App\Presenters\BasePresenter
+class BaseAdminPresenter extends App\Presenters\BasePresenter
 {
 
 	use Nextras\Application\UI\SecuredLinksPresenterTrait;
@@ -23,7 +23,7 @@ class BaseAdminPresenter extends \App\Presenters\BasePresenter
 
 		if ( ! $this->user->isLoggedIn() )
 		{
-			$this->flashMessage( 'Pred vstupom do administrácie sa musíte prihlásiť.' );
+			$this->flashMessage( 'Pred vstupom do administrácie sa musíte prihlásiť.', 'error' );
 			$this->redirect( ':Sign:in' );
 		}
 

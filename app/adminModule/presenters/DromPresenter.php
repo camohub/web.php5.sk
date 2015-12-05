@@ -30,6 +30,8 @@ class DromPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	{
 		parent::startup();
 		$this->categories = new App\Model\Categories($this->database);
+
+		$this['breadcrumbs']->add( 'Drom', ':Admin:Drom' );
 		
 	}
 
