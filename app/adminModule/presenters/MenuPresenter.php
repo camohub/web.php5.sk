@@ -59,7 +59,7 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		$error = FALSE; // for ajax
 		try
 		{
-			foreach ( $_GET['sItems'] as $key => $val )
+			foreach ( $_GET['menuItem'] as $key => $val )
 			{
 				// if the array is large it would be better to update only changed items
 				$this->categories->update( (int) $key, array( 'parent_id' => (int) $val, 'priority' => $iterator ) );

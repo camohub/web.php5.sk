@@ -29,9 +29,9 @@ $(document).ready(function()
    			href = $(this).attr('href');
 
    		serialized = serialized.replace(/no-parent/g, '0');
-   		href = href.replace(/&sItems[^&]+/g, '');
+   		href = href.replace(/&menuItem[^&]+/g, '');  // If original url contains menuItems these have to be removed.
 
-   		$(this).attr('href', href + '&' + serialized);
+   		$(this).attr('href', href + '&' + serialized);  // Not need to solve ? cause links to handle methods always have do= param
    	});
 
 
