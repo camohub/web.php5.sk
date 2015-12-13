@@ -867,7 +867,7 @@ a[href^="error:"] {
 /* form errors */
 .error,
 ul.error li {
-  color: #FF7085;
+  color: #df5148;
   margin: 0;
   padding: 3px;
   font-weight: bold;

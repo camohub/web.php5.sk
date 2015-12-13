@@ -30,16 +30,7 @@ class DromPresenter extends BasePresenter
 
 	public function renderDefault()
 	{
-		$pass = 'password';
-		$this->database->table( 'users' )->where( 'email', 'vladimir.camaj@gmail.com' )->where( self::COLUMN_PASSWORD . ' NOT', NULL )->fetch();
-		if ( '0' )
-		{
-			Debugger::dump( TRUE );
-		}
-		else
-		{
-			Debugger::dump( FALSE );
-		}
+
 	}
 
 
@@ -55,9 +46,20 @@ class DromPresenter extends BasePresenter
 
 ///////component//////////////////////////////////////////////////////
 
-	public function createComponentEditForm()
+	public function createComponentTestForm()
 	{
 		$form = new Nette\Application\UI\Form;
+
+		$form->addText('text1', 'Text1')
+			->setRequired( 'Pole text 1 je povinne.' )
+			->addRule( $form::MIN_LENGTH, 'Pole text 1 musi mat dlzku najmenej %d znakov.', 6);
+
+		$form->addText('text2', 'Text2')
+			->setRequired( 'Pole text 2 je povinne.' )
+			->addRule( $form::RANGE, 'Pole text 2 musi byt v rozsahu od %d do %d', [3, 6] );
+
+		$form->addSubmit( 'sbmt', 'Submit');
+
 
 		return $form;
 	}

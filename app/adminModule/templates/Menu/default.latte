@@ -37,10 +37,7 @@ $(document).ready(function()
 
    	$('.ico_trash')
    		.css({'display':'inline-block'})  // I do not want to display this function if js (confirm dialog) is off
-   		.on('click', function(){
-   			if(confirm('Naozaj chcete položku zmazať?')) return true;
-   			else return false;
-   	});
+   		.on('click', function(){ return confirm('Naozaj chcete položku zmazať?'); });
 
 // Nette.ajax extensions ///////////////////////////////////////////
 

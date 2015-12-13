@@ -4,7 +4,7 @@
 namespace App\AdminModule\Presenters;
 
 
-use    Nette,
+use	Nette,
 	App,
 	Nette\Application\UI\Form,
 	App\Model\Categories,

@@ -11,6 +11,13 @@ $(function(){
         if($(this).attr('href') == window.location.pathname) $(this).addClass('current');
     });
 
+	LiveForm.setOptions({
+		messageTag: 'div',
+		controlErrorClass: 'b6',
+		messageErrorClass: 'error',
+		messageErrorPrefix: '<i class="glyphicon glyphicon-exclamation-sign"></i>&nbsp;',  // Default adjusts &nbsp; before
+	});
+
     prettyPrint();
 
 });
