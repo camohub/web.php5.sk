@@ -42,7 +42,8 @@ $(document).ready(function()
 // Nette.ajax extensions ///////////////////////////////////////////
 
    	$.nette.ext('menu', {
-    	before: function (jqXHR, settings) {
+    	before: function (jqXHR, settings)
+		{
     		var sn = settings.nette;
 			if(!sn) return true;
 
@@ -58,13 +59,18 @@ $(document).ready(function()
     		$('#editSection, #createSection').slideUp();
     		$('#ajax-spinner').css( { 'display': 'block' } );
     	},
-    	complete: function () {
+    	complete: function ( jqXHR, status, settings )
+		{
     		$('#ajax-spinner').css( { 'display': 'none' } );
     		this.counter--;
     		if (this.counter <= 0) {
 
     		}
-    	}
+    	},
+		error: function ()
+		{
+			alert( 'Pri spracovaní požiadavky došlo k  chybe.' );
+		}
     });
 
 // End of nette.ajax ///////////////////////////////////////////////
@@ -135,6 +141,7 @@ function activateCreateForm(el)
 				{/foreach}
 			</ul>
 		{/block}
+
 		{if $presenter->isAjax()}{* Is here cause ajax renders new list without activ sortableLists *}
 			<script>
 				$('.sortable').sortableLists({
@@ -177,6 +184,7 @@ function activateCreateForm(el)
 				{/form}
 			</div>
 		</div>
+
 		<div id="editSection" class="w200 fL dN p10 bgC5 bS1">
 			<span class="ico ico_no-entry fR" onclick="$('#editSection').slideUp();"> </span>
 			<span class="editItem dIB button1 mV10 pH20 pV5 fWB">Editovať sekciu</span>

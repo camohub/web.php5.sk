@@ -4,19 +4,16 @@
 namespace App\AdminModule\Presenters;
 
 
-use	Nette,
-	App,
-	Nette\Application\UI\Form,
-	App\Model\Categories,
-	Nette\Utils\Strings,
-	Tracy\Debugger;
+use Nette;
+use	App;
+use	Nette\Application\UI\Form;
+use	App\Model\Categories;
+use	Nette\Utils\Strings;
+use	Tracy\Debugger;
 
 
 class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 {
-
-	/** @var  App\Model\Categories */
-	protected $categories;
 
 	/** @var  Array */
 	protected $getArray;
@@ -32,7 +29,6 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte oprávnenie editovať položku menu.' );
 		}
 
-		$this->categories = new Categories( $this->database );
 		$this['breadcrumbs']->add( 'Spravovať menu', ':Admin:Menu:default' );
 	}
 
@@ -69,6 +65,9 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			{
 				$this->flashMessage( 'Zmeny v menu boli uložené.' );
 			}
+
+			$this->cleanCache();
+
 		}
 		catch ( \Exception $e )
 		{
@@ -132,6 +131,8 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		$visible = $row->visible == 1 ? 0 : 1;
 		$this->categories->update( (int) $id, array( 'visible' => $visible ) );
 
+		$this->cleanCache();
+
 		if ( $this->isAjax() )
 		{
 			$this->setFlexiFlash( 'Viditeľnosť položky bola upravená' );
@@ -174,6 +175,8 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			if ( $row )
 			{
 				$count = $this->categories->delete( (int) $id );
+				$this->cleanCache();
+
 				if ( $this->isAjax() )
 				{
 					$this->setFlexiFlash( 'Položka s názvom ' . $row->title . ' bola odstránená. Počet odstránených položiek ' . $count );
@@ -248,6 +251,17 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	}
 
 
+
+	/**
+	 * @desc Cleans the menu cache.
+	 */
+	protected function cleanCache()
+	{
+		$cache = new Nette\Caching\Cache( $this->storage, 'menu' );
+		$cache->clean( [ Nette\Caching\Cache::TAGS => [ "menuTag" ] ] );
+	}
+
+
 //////Control////////////////////////////////////////////////////////////////
 
 	protected function createComponentCreateSectionForm()
@@ -318,18 +332,19 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		try
 		{
 			$this->categories->add( $values );
+			$this->cleanCache();
 		}
 		catch ( \Exception $e )
 		{
+			Debugger::log( $e->getMessage(), 'error' );
+
 			if ( ! $this->isAjax() )
 			{
-				$this->flashMessage( 'Pri ukladaní došlo k chybe. Fungovanie alikácie by to nemalo ovplyvniť. Kontaktujte prosím administrátora.', 'error' );
+				$this->flashMessage( 'Pri ukladaní došlo k chybe. ', 'error' );
+				return;
 			}
-			else
-			{
-				$this->setFlexiFlash( 'Pri ukladaní došlo k chybe. Fungovanie alikácie by to nemalo ovplyvniť. Kontaktujte prosím administrátora.', 'error' );
-			}
-			Debugger::log( $e->getMessage(), 'error' );
+
+			$this->setFlexiFlash( 'Pri ukladaní došlo k chybe.', 'error' );
 
 			return $form;
 		}
@@ -376,7 +391,7 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	{
 		if ( $this->isAjax() )
 		{
-			$values = $form->getHttpData();
+			$values = (object) $form->getHttpData();
 		}
 		else
 		{
@@ -392,17 +407,17 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			$this->redrawControl( 'flexiFlash' );
 		}
 
-		$row = $this->categories->findOneBy( array( 'url_title', $url_title ) );
+
+		$row = $this->categories->findOneBy( array( 'url_title = ?' => $url_title ) );
 		if ( $row )
 		{
 			if ( $this->isAjax() )
 			{
-				$this->setFlexiFlash( 'Kategória s názvom ' . $values['title'] . ' už existuje. Musíte vybrať iný názov.', 'error' );
+				$this->setFlexiFlash( 'Kategória s názvom ' . $values->title . ' už existuje. Musíte vybrať iný názov.', 'error' );
+				return;
 			}
-			else
-			{
-				$this->flashMessage( 'Kategória s názvom ' . $values['title'] . ' už existuje. Musíte vybrať iný názov.', 'error' );
-			}
+
+			$this->flashMessage( 'Kategória s názvom ' . $values->title . ' už existuje. Musíte vybrať iný názov.', 'error' );
 
 			return $form;
 		}
@@ -410,11 +425,21 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		try
 		{
 			$this->categories->update( (int) $values->id, array( 'title' => $values->title, 'url_title' => $url_title, 'url_params' => $url_params ) );
+			$this->cleanCache();
 		}
 		catch ( \Exception $e )
 		{
 			Debugger::log( $e->getMessage(), 'error' );
-			$form->addError( 'Pri ukladaní došlo k chybe. Fungovanie aplikácie by to nemalo ovplyvniť. Kontaktujte administrátora.' );
+
+			if ( $this->isAjax() )
+			{
+				$this->setFlexiFlash( 'Pri ukladaní údajov došlo k chybe.', 'error' );
+				$this->redrawControl( 'flexiFlash' );
+				return;
+			}
+
+			$this->flashMessage( 'Pri ukladaní údajov do databázy došlo k chybe. Kontaktujte administrátora.', 'error' );
+
 			return $form;
 		}
 

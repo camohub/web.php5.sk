@@ -2,9 +2,10 @@
 
 namespace App\Presenters;
 
-use Nette,
-	App,
-	Tracy\Debugger;
+use Nette;
+use	App;
+use Nette\Caching\Cache;
+use	Tracy\Debugger;
 
 
 /**
@@ -16,6 +17,12 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	/** @var Nette\Database\Context @inject */
 	public $database;
 
+	/** @var App\Model\Categories @inject */
+	public $categories;
+
+	/** @var Nette\Caching\IStorage @inject */
+	public $storage;
+
 	/** @var  Nette\Security\IAuthorizator */
 	public $authorizator;
 
@@ -24,7 +31,9 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	public function startup()
 	{
 		parent::startup();
+
 		$this['breadcrumbs']->add( 'Home', ':Articles:show' );
+
 	}
 
 
@@ -40,7 +49,7 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 
 
 	/**
-	 * @desc Used in menu detects name of module  section == module
+	 * @desc Used in menu detects name of module  section == module. Method is still used for admin section of menu.
 	 * @param $url
 	 * @return bool
 	 */
@@ -188,8 +197,9 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 */
 	public function createComponentMenu()
 	{
-		$categories = new App\Model\Categories( $this->database );
-		return new App\Controls\Menu( $categories );
+		$cache = new Cache( $this->storage, 'menu' );
+
+		return new App\Controls\Menu( $this->categories, $cache );
 	}
 
 

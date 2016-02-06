@@ -1,6 +1,7 @@
 <?php
 namespace App\AdminModule\Presenters;
 
+
 use	Nette,
 	App,
 	Nette\Application\UI\Form,
@@ -8,28 +9,14 @@ use	Nette,
 	Nette\Caching\Cache,
 	Tracy\Debugger;
 
+
 class DromPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 {
-
-	/** @var Nette\Database\Context */
-	public $database;
-
-	/** @var  App\Model\Categories */
-	protected $categories;
-
-
-	public function __construct(Nette\Database\Context $database)
-	{
-		parent::__construct();
-		$this->database = $database;
-	}
-
 
 	
 	public function startup()
 	{
 		parent::startup();
-		$this->categories = new App\Model\Categories($this->database);
 
 		$this['breadcrumbs']->add( 'Drom', ':Admin:Drom' );
 		

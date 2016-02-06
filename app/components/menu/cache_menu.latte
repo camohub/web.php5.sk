@@ -1,6 +1,4 @@
-
-{* Next if is used only if "onlyActiveSection" mode is set and it does not work with cache. *}
-{ifset $sectionTitle}<h2>{$sectionTitle}</h2>{/ifset}
+{cache 'menu', tags => [ 'menuTag' ] }
 
 {block menu}
 	<ul>
@@ -12,10 +10,12 @@
 				<a href="{plink $item->url}">{$item->title}</a>
 			{/if}
 
-			{ifset $menuArr[$item->id]}
-				{include menu, section => $menuArr[$item->id], } {* RECURSION *}
+			{ifset $menuArr[$item->id] }
+				{include menu, section => $menuArr[$item->id]} {* RECURSION *}
 			{/ifset}
 		</li>
 		{/foreach}
 	</ul>
 {/block}
+
+{/cache}

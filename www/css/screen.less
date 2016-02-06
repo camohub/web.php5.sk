@@ -157,11 +157,20 @@ h2, h3, h4 {
         font-size:1.2em;
 
         &:hover {
-          color: @c7;
-          text-decoration:none;
+          	color: @c7;
+		  background-color: @c40;
+          	text-decoration:none;
         }
 
     }
+
+  	li ul {
+	  	display: none;
+	}
+
+  	li.current_li ul {
+	  	display: block;
+	}
 
     ul li a {
         padding:5px 5px 5px 10px;
@@ -173,6 +182,10 @@ h2, h3, h4 {
 
     ul li ul li ul li a {
         padding-left:50px;
+    }
+
+    ul li ul li ul li ul li a {
+        padding-left:70px;
     }
 
     h2 {

@@ -2,10 +2,12 @@
 
 namespace App\Controls;
 
-use    Nette,
-	App,
-	Nette\Application\UI\Control,
-	Tracy\Debugger;
+use	Nette;
+use	App;
+use	Nette\Application\UI\Control;
+use	Tracy\Debugger;
+use Nette\Caching\Storages\FileStorage;
+use Nette\Caching\Cache;
 
 
 class Menu extends Control
@@ -14,15 +16,20 @@ class Menu extends Control
 	/** @var App\Model\Categories */
 	protected $categories;
 
+	/** @var  Nette\Caching\Cache */
+	protected $cache;
+
 	/** @var Nette\Database\Table\ActiveRow */
 	protected $onlyActiveSection;
 
 
 
-	public function __construct( App\Model\Categories $categories )
+	public function __construct( $categories, $cache )
 	{
 		parent::__construct();
+
 		$this->categories = $categories;
+		$this->cache = $cache;
 	}
 
 
@@ -32,12 +39,15 @@ class Menu extends Control
 	public function render()
 	{
 		$template = $this->template;
-		$template->setFile( __DIR__ . '/menu.latte' );
+		$template->setFile( __DIR__ . '/cache_menu.latte' );
 
 		$arr = $this->categories->getArray();
 
 		// template parameters
 		$template->menuArr = $arr;
+
+		//$this->cache->clean( [ Nette\Caching\Cache::TAGS => [ "menuTag2" ] ] );
+		$template->test = time();
 
 		// if we render only active section other sections are removed from menu
 		// set it in presenter by $menuControl->setSection(Categories->findOneByUrl())

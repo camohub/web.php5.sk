@@ -130,7 +130,14 @@ h4 {
 }
 .sidebar a:hover {
   color: #159f7e;
+  background-color: #e9eaf5;
   text-decoration: none;
+}
+.sidebar li ul {
+  display: none;
+}
+.sidebar li.current_li ul {
+  display: block;
 }
 .sidebar ul li a {
   padding: 5px 5px 5px 10px;
@@ -140,6 +147,9 @@ h4 {
 }
 .sidebar ul li ul li ul li a {
   padding-left: 50px;
+}
+.sidebar ul li ul li ul li ul li a {
+  padding-left: 70px;
 }
 .sidebar h2 {
   margin: 0;
