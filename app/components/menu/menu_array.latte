@@ -11,9 +11,9 @@
 					<a href="{plink $item->url}">{$item->title}</a>
 				{/if}
 
-				{if $children = $item->related( 'categories', 'parent_id' ) }
-					{include menu, section => $children } {* RECURSION *}
-				{/if}
+				{ifset $menuArr[$item->id] }
+					{include menu, section => $menuArr[$item->id]} {* RECURSION *}
+				{/ifset}
 			</li>
 		{/foreach}
 	</ul>

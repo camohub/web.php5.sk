@@ -8,6 +8,7 @@ use Nette;
 use	App;
 use	Nette\Application\UI\Form;
 use	App\Model\Categories;
+use Nette\Caching\Cache;
 use	Nette\Utils\Strings;
 use	Tracy\Debugger;
 
@@ -83,7 +84,7 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		{
 			if ( $error )
 			{
-				$this->setFlexiFlash( 'Poradie položiek bolo upravené', 'error' );
+				$this->setFlexiFlash( 'Poradie položiek bolo upravené' );
 			}
 			else
 			{
@@ -255,10 +256,10 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	/**
 	 * @desc Cleans the menu cache.
 	 */
-	protected function cleanCache()
+	private function cleanCache()
 	{
-		$cache = new Nette\Caching\Cache( $this->storage, 'menu' );
-		$cache->clean( [ Nette\Caching\Cache::TAGS => [ "menuTag" ] ] );
+		//$cache = new Cache( $this->storage, 'categories' );
+		$this->categories_cache->clean( [ Cache::TAGS => [ 'menu_tag', 'is_in_cache' ] ] );
 	}
 
 

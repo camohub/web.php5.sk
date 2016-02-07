@@ -16,9 +16,6 @@ use	Nette,
 class DefaultPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 {
 
-	public function renderDefault()
-	{
 
-	}
 
 }

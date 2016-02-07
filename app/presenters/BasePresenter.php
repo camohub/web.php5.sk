@@ -23,6 +23,9 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	/** @var Nette\Caching\IStorage @inject */
 	public $storage;
 
+	/** @var  @var Nette\Caching\Cache */
+	protected $categories_cache;
+
 	/** @var  Nette\Security\IAuthorizator */
 	public $authorizator;
 
@@ -31,6 +34,9 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	public function startup()
 	{
 		parent::startup();
+
+		// $categories_cache is used in Menu component in every request and in MenuPresenter sometimes
+		$this->categories_cache = new Cache( $this->storage, 'categories' );
 
 		$this['breadcrumbs']->add( 'Home', ':Articles:show' );
 
@@ -197,9 +203,7 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 */
 	public function createComponentMenu()
 	{
-		$cache = new Cache( $this->storage, 'menu' );
-
-		return new App\Controls\Menu( $this->categories, $cache );
+		return new App\Controls\Menu( $this->categories, $this->categories_cache );
 	}
 
 

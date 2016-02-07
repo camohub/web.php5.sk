@@ -3,24 +3,25 @@
 namespace App\Controls;
 
 use	Nette;
-use	App\Model\Categories;
-use Nette\Caching\Cache;
+use	App;
 use	Nette\Application\UI\Control;
 use	Tracy\Debugger;
+use Nette\Caching\Storages\FileStorage;
+use Nette\Caching\Cache;
 
 
-class Menu extends Control
+class MenuArray extends Control
 {
 
-	/** @var Categories */
+	/** @var App\Model\Categories */
 	protected $categories;
 
-	/** @var  Cache */
+	/** @var  Nette\Caching\Cache */
 	protected $cache;
 
 
 
-	public function __construct( Categories $categories, Cache $cache )
+	public function __construct( App\Model\Categories $categories, Cache $cache )
 	{
 		parent::__construct();
 
@@ -40,14 +41,13 @@ class Menu extends Control
 
 		if( ! $this->cache->load( 'is_in_cache' ) )
 		{
-			//  Is called only if cache is invalid
-			$template->section = $this->categories->getMenu();
-			//  This avoids db query
+			$template->menuArr = $arr = $this->categories->getArray();
+			$template->section = $arr[0];
+			//  Cache identifier, that menu has been cached to avoid db query.
 			$this->cache->save( 'is_in_cache', true, [ Cache::TAGS => [ 'is_in_cache' ] ] );
 		}
 
 		$template->render();
 	}
-
+	
 }
-
