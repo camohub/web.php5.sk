@@ -4,9 +4,10 @@
 
 <div class="pV10">
 	{form articleForm}
-		<ul class="error" n:if="$form->hasErrors()">
-				<li n:foreach="$form->errors as $error">{$error}</li>
-		</ul>
+		<div class="alert alert-dismissible alert-danger fade in" n:if="$form->hasErrors()">
+			<div n:foreach="$form->errors as $error">{$error}</div>
+		</div>
+
 		<div class="pV10">
 			{label meta_desc}{/label}<span class="ico ico_hint" title="Dôležité z hľadiska SEO. Vyplňte jednou výstižnou vetou a použite kľúčové slová."> </span><br>
 			{input meta_desc}
@@ -35,7 +36,9 @@ Kód a zoznamy sa ukončujú stlačením Shift + Enter"> <!-- Odriadkovanie v ti
 	{/form}
 </div>
 
-<script>
+<script>{include 'tinymce.js'}</script>
+
+{*<script>
 // tinymce.min.js is in @layuotAdmin.latte
 tinymce.init({
     selector: ".editor",
@@ -79,9 +82,16 @@ tinymce.init({
 
 	toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist | link image | media fullpage | forecolor backcolor",
 
-    file_browser_callback: function (field_name, url, type, win) {
+    file_browser_callback: function (field_name, url, type, win)
+    {
 
-        var browserURL = {link :Admin:Blog:Galery:default} + '?type=' + type + '&dir=blog';
+		if(type == 'image')
+		{
+			var page = (typeof tinymce.activeEditor.imageBrowserPage == 'undefined') ? 1 : tinymce.activeEditor.imageBrowserPage;
+			// Every module and medium have its own GaleryPresenter so no need to send module/type or make link makro universal
+			var browserURL = {link :Admin:Blog:Galery:default} + '?type=' + type + '&vp-page=' + page;
+			var title = 'Image browser';
+		}
 
         tinyMCE.activeEditor.windowManager.open({
             url : browserURL,
@@ -99,5 +109,4 @@ tinymce.init({
     file_browser_callback_types: 'file image media'
 
  });
-</script>
-
+</script>*}

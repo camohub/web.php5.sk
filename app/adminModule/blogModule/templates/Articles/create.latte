@@ -4,9 +4,10 @@
 
 <div class="pV10">
 	{form articleForm}
-		<ul class="error" n:if="$form->hasErrors()">
-				<li n:foreach="$form->errors as $error">{$error}</li>
-		</ul>
+		<div class="alert alert-dismissible alert-danger fade in" n:if="$form->hasErrors()">
+			<div n:foreach="$form->errors as $error">{$error}</div>
+		</div>
+
 		<div class="pV10">
 			{label meta_desc}{/label}<span class="ico ico_hint" title="Dôležité z hľadiska SEO. Vyplňte jednou výstižnou vetou a použite kľúčové slová."> </span><br>
 			{input meta_desc}
@@ -35,7 +36,9 @@ Kód a zoznamy sa ukončujú stlačením Shift + Enter"> <!-- Odriadkovanie v ti
 	{/form}
 </div>
 
-<script>
+<script>{include 'tinymce.js'}</script>
+
+{*<script>
 // tinymce.min.js is in @layuotAdmin.latte
 tinymce.init({
     selector: ".editor",
@@ -53,7 +56,7 @@ tinymce.init({
              "searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
              "save table contextmenu directionality emoticons template paste textcolor"
        ],
-    content_css: {$basePath}+"/js/tinymce/css/area.css",
+    content_css: {$basePath} + "/js/tinymce/css/area.css",
 	style_formats: [
 		{ title: "Headers", items: [
 			{ title: "Header 1", format: "h2"},
@@ -110,5 +113,4 @@ tinymce.init({
     file_browser_callback_types: 'file image media'
 
  });
-</script>
-
+</script>*}
