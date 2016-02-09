@@ -205,11 +205,11 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 		$form->addTextArea( 'perex', 'Perex' )
 			->setRequired( 'Nemáte vyplnený prerex. Bez neho nebude formulár odoslaný.' )
-			->setAttribute( 'class', 'editor w100P' );
+			->setAttribute( 'class', 'show-hidden-error editor w100P' );  // show-hidden-errors is necessary because of live-form-validation.js
 
 		$form->addTextArea( 'content', 'Text', 60 )
 			->setRequired( 'Nenapísali ste žiaden text. Bez neho nebude formulár odoslaný.' )
-			->setAttribute( 'class', 'area500 editor' );
+			->setAttribute( 'class', 'show-hidden-error area500 editor' );
 
 		$catArray = $this->categories->getArray( 'admin' );
 		$sParams = $this->getCategoriesSelectParams( $catArray, $catArray[0] );
