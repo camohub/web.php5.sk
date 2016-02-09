@@ -13,6 +13,7 @@ use	Tracy\Debugger;
  */
 abstract class BasePresenter extends Nette\Application\UI\Presenter
 {
+	public $test = 'test';
 
 	/** @var Nette\Database\Context @inject */
 	public $database;
@@ -28,6 +29,9 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 
 	/** @var  Nette\Security\IAuthorizator */
 	public $authorizator;
+
+	/** @var null int */
+	public $category_id = null;
 
 
 
@@ -65,6 +69,17 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 		$section = explode( ':', $this->getName() )[0];
 		return stripos( $url, $section ) === 0;
 		//or return \Nette\Utils\Strings::startsWith($this->getName(), $url);
+	}
+
+
+
+	/**
+	 * @desc This method sets section id for javascript which opens/closes menu items.
+	 */
+	public function setCategoryId( $id )
+	{
+		$this['menu']->setCategory( $id );
+
 	}
 
 

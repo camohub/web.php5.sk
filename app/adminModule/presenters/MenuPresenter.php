@@ -75,7 +75,7 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			Debugger::log( $e->getMessage(), 'error' );
 			if ( ! $this->isAjax() )
 			{
-				$this->flashMessage( 'Pri ukladaní údajov došlo k chybe. Funkčnosť aplikácie by to nemalo ovplyvniť, ale pre istotu kontaktujte adminístrátora.' );
+				$this->flashMessage( 'Pri ukladaní údajov došlo k chybe.' );
 			}
 			$error = TRUE;
 		}

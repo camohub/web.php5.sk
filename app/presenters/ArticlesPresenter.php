@@ -35,53 +35,75 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 
 
 
+	/**
+	 * @desc This method is used for both category and article actions.
+	 * @param $title
+	 * @throws Nette\Application\BadRequestException
+	 */
 	public function renderShow( $title )
 	{
-		if ( $category = $this->categories->findOneBy( array( 'url_title' => $title ) ) )
+		if ( $category = $this->categories->findOneBy( array( 'url_title' => $title ) ) )  // Displays category.
 		{
+			$session_article = $this->getSession( 'article' );
+			$session_article->category_id = $category->id;  // Enables cat. id when display article (else part).
+
+			$this->setCategoryId( $category->id );
+
 			// Displays all articles from category and nested categories.
 			$ids = $this->categories->findCategoryIds( $category->id );
 
 			$articles = $this->blogArticles->findCategoryArticles( $ids );
 
-			$vp = $this['vp'];
-			$paginator = $vp->getPaginator();
-			$paginator->itemsPerPage = 7;
-			$paginator->itemCount = $articles->count( '*' );
-
-			$this->template->articles = $articles->limit( $paginator->itemsPerPage, $paginator->offset );
+			$this->setPaginator( $articles );
 
 			$this->setHeaderTags( $metaDesc = 'web.php5.sk - najnovšie články', $title = ' Najnovšie články' );
 			$this->template->optCompArray = $this->getOptionalComponents( $this->name ) ? $this->getOptionalComponents( $this->name ) : $this->optCompArray;
 		}
 		else // Displays one article.
 		{
-			if ( ! $article = $this->article ) // This->article comes from commentFormSucceeded() on error.
+			$this->setCategoryId( $this->getSession( 'article' )->category_id );
+
+			if ( ! $article = $this->article ) // $this->article comes from commentFormSucceeded().
 			{
-				$this->article = $article = $this->blogArticles->findOneBy( array( 'url_title' => $title ) );
+				$this->article = $article = $this->blogArticles->findOneBy( [ 'url_title' => $title ] );
 			}
 
 			if ( ! $article )
 			{
+
 				throw new Nette\Application\BadRequestException( 'Požadovanú stránku sa nepodarilo nájsť.' );
 			}
 
 			$this->template->article = $article;
-
 			$this->template->comments = $article->related( 'blog_comments', 'blog_articles_id' )->order( 'created_at' );
+
+			$this->template->fb = TRUE; // If is true template loads FB javascript SDK
+			$this->template->google = TRUE; // If is true template loads Google javascript API
 
 			$this['breadcrumbs']->add( $article->title, ':Articles:show ' . $article->url_title );
 
 			$this->setHeaderTags( $metaDesc = $article->meta_desc, $title = $article->title );
-
-			$this->template->fb = TRUE; // If is true template loads FB javascript SDK
-			$this->template->google = TRUE; // If is true template loads Google javascript API
 
 			$this->template->optCompArray = $this->getOptionalComponents( $this->name . ' ' . $article->id ) ? $this->getOptionalComponents( $this->name . ' ' . $article->id ) : $this->optCompArray;
 
 		}
 
 	}
+
+
+/////Helpers/////////////////////////////////////////////////////////////////////////
+
+	private function setPaginator( $articles )
+	{
+		$vp = $this['vp'];
+		$paginator = $vp->getPaginator();
+		$paginator->itemsPerPage = 7;
+		$paginator->itemCount = $articles->count( '*' );
+
+		$this->template->articles = $articles->limit( $paginator->itemsPerPage, $paginator->offset );
+
+	}
+
 
 
 

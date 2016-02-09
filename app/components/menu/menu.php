@@ -18,6 +18,8 @@ class Menu extends Control
 	/** @var  Cache */
 	protected $cache;
 
+	/** @var  int */
+	public $category_id = -1;  // null can fail.
 
 
 	public function __construct( Categories $categories, Cache $cache )
@@ -38,6 +40,10 @@ class Menu extends Control
 		$template = $this->template;
 		$template->setFile( __DIR__ . '/menu.latte' );
 
+		// Farmework automaticaly invalidate latte cache if latte was changed.
+		// Then you will need uncomment next line.
+		//$this->cache->clean( [ Cache::TAGS => [ 'menu_tag', 'is_in_cache' ] ] );
+
 		if( ! $this->cache->load( 'is_in_cache' ) )
 		{
 			//  Is called only if cache is invalid
@@ -46,7 +52,20 @@ class Menu extends Control
 			$this->cache->save( 'is_in_cache', true, [ Cache::TAGS => [ 'is_in_cache' ] ] );
 		}
 
+		$template->category_id = $this->category_id;
+
 		$template->render();
+	}
+
+
+
+	/**
+	 * @desc This sets the category
+	 * @param $id
+	 */
+	public function setCategory( $id )
+	{
+		$this->category_id = $id;
 	}
 
 }

@@ -155,42 +155,9 @@ h4 {
   margin: 0;
   padding-bottom: 20px;
 }
-/*.sidebar ul {
-	margin:0;
-	padding:0;
-	list-style:none inside;
-}*/
-/*.sidebar a {
-	color: @c6;
-	display:block;
-	font-weight:bold;
-	letter-spacing:1px;
-	font-size:1.2em;
-}
-
-.sidebar a:hover {
-	color: @c7;
-	text-decoration:none;
-}*/
 a.current {
   color: #b63c3c;
 }
-/*.sidebar ul li a {
-	padding:5px 5px 5px 10px;
-}
-
-.sidebar ul li ul li a {
-	padding-left:30px;
-}
-
-.sidebar ul li ul li ul li a {
-	padding-left:50px;
-}
-
-.sidebar h2 {
-	margin:0;
-	padding-bottom:20px;
-}*/
 a {
   color: #056296;
   text-decoration: none;
@@ -205,11 +172,6 @@ a:active,
 a:visited {
   text-decoration: none;
 }
-/*a:hover {
-	color: @c7;
-	text-decoration:none;
-}*/
-/*a:focus, a:active, a:visited { text-decoration: none; }*/
 ul li ul li a:hover {
   color: #159f7e;
 }
@@ -758,14 +720,10 @@ ul.pagination {
   padding: 0;
   float: none;
 }
-/*.visualPaginator li a, .visualPaginator li span {
-	color: @c5;
-	border:0 solid transparent;
-	margin:0;
-	padding:0;
-	float: none;
-}*/
 .visualPaginator li span,
+.help-block.text-danger {
+  color: #df5148;
+}
 .pagination > .active > span,
 .pagination > .active > span:hover {
   color: #b63c3c;

@@ -45,8 +45,8 @@
 						<a n:href=":User:default" rel="nofollow" class="small1 c1">Prihlásený: <b class="nbsp">{$user->identity->user_name}</b></a>
 					</li>
 					{else}
-					<li><a n:href=":Sign:in" {ifCurrent Sign:in}class="current"{/ifCurrent}>Prihlásiť</a></li>
-					<li><a n:href=":Register:default" {ifCurrent Regist:regist}class="current"{/ifCurrent}>Registrovať</a></li>
+					<li><a n:href=":Sign:in">Prihlásiť</a></li>
+					<li><a n:href=":Register:default">Registrovať</a></li>
 					{/if}
 				</ul>
 
@@ -55,12 +55,9 @@
 			<div id="main" class="col-xs-12 col-sm-8 col-md-9 col-lg-8">
 
 				{snippet flash}
-				<div n:if="count($flashes)" n:inner-foreach="$flashes as $flash" class="flash">
-					<div n:class="alert, alert-dismissible, fade, in, $flash->type == 'info' ? alert-success, $flash->type == 'error' ? alert-danger">
-						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						{$flash->message}
+					<div n:if="count($flashes)" n:inner-foreach="$flashes as $flash" class="flash">
+						<div n:class="alert, alert-dismissible, fade, in, $flash->type == 'error' ? alert-danger : alert-success"><button type="button" class="close" data-dismiss="alert" aria-label="Close"><span aria-hidden="true">&times;</span></button>{$flash->message}</div>
 					</div>
-				</div>
 				{/snippet}
 
                	{control breadcrumbs}

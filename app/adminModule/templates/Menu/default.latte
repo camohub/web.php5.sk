@@ -6,6 +6,8 @@
 <script type="text/javascript">
 $(document).ready(function()
 {
+	$('#sideMenu').find( 'ul' ).css( 'display', 'block' );
+
 // sortalbeLists part /////////////////////////////////////////
 
 	$('.sortable').sortableLists({
@@ -64,6 +66,9 @@ $(document).ready(function()
 		{
     		$('#ajax-spinner').css( { 'display': 'none' } );
     		this.counter--;
+
+			$('#sideMenu').find( 'ul' ).css( 'display', 'block' );
+
     		if (this.counter <= 0) {
 
     		}

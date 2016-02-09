@@ -1,17 +1,22 @@
+<script>
+	// This variable is used by script in main.js which opens/closes categories.
+	var category_id = {$category_id};
+</script>
 
 {cache 'menu_key', tags => [ 'menu_tag' ] }
 
 {block menu}
 	<ul>
 		{foreach $section as $item}
-			<li>
+			{var $children = $item->related( 'categories', 'parent_id' )->order( 'priority ASC') }
+			<li id="{$item->id}">
 				{if $item->url_params}
 					<a href="{plink $item->url (expand)explode(' ', $item->url_params)}">{$item->title}</a>
 				{else}
 					<a href="{plink $item->url}">{$item->title}</a>
 				{/if}
 
-				{if $children = $item->related( 'categories', 'parent_id' ) }
+				{if $children->count() }
 					{include menu, section => $children } {* RECURSION *}
 				{/if}
 			</li>
