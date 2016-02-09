@@ -7,14 +7,20 @@ namespace App\AdminModule\Presenters;
 use Nette;
 use	App;
 use	Nette\Application\UI\Form;
-use	App\Model\Categories;
 use Nette\Caching\Cache;
 use	Nette\Utils\Strings;
+use App\Exceptions\AccessDeniedException;
 use	Tracy\Debugger;
 
 
 class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 {
+
+	/** @var Nette\Caching\IStorage @inject */
+	public $storage;
+
+	/** @var  @var Nette\Caching\Cache */
+	protected $categories_cache;
 
 	/** @var  Array */
 	protected $getArray;
@@ -27,8 +33,10 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 		if ( ! $this->user->isAllowed( 'menu', 'edit' ) )
 		{
-			throw new App\Exceptions\AccessDeniedException( 'Nemáte oprávnenie editovať položku menu.' );
+			throw new AccessDeniedException( 'Nemáte oprávnenie editovať položku menu.' );
 		}
+
+		$this->categories_cache = new Cache( $this->storage, 'categories' );
 
 		$this['breadcrumbs']->add( 'Spravovať menu', ':Admin:Menu:default' );
 	}
@@ -258,8 +266,10 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	 */
 	private function cleanCache()
 	{
-		//$cache = new Cache( $this->storage, 'categories' );
-		$this->categories_cache->clean( [ Cache::TAGS => [ 'menu_tag', 'is_in_cache' ] ] );
+		// Now is_in_cache from menu.latte is not used.
+		// Because of latte cache is invalidated if latte code was changed.
+		// Then is necessary to invalidate it manually. We do not want it.
+		$this->categories_cache->clean( [ Cache::TAGS => [ 'menu_tag'/*, 'is_in_cache'*/ ] ] );
 	}
 
 

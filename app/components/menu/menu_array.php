@@ -5,9 +5,8 @@ namespace App\Controls;
 use	Nette;
 use	App;
 use	Nette\Application\UI\Control;
-use	Tracy\Debugger;
-use Nette\Caching\Storages\FileStorage;
 use Nette\Caching\Cache;
+use	Tracy\Debugger;
 
 
 class MenuArray extends Control
@@ -16,7 +15,7 @@ class MenuArray extends Control
 	/** @var App\Model\Categories */
 	protected $categories;
 
-	/** @var  Nette\Caching\Cache */
+	/** @var  Cache */
 	protected $cache;
 
 	/** @var  int */
@@ -24,12 +23,12 @@ class MenuArray extends Control
 
 
 
-	public function __construct( App\Model\Categories $categories, Cache $cache )
+	public function __construct( App\Model\Categories $categories/*, Cache $cache*/ )
 	{
 		parent::__construct();
 
 		$this->categories = $categories;
-		$this->cache = $cache;
+		//$this->cache = $cache;
 
 	}
 
@@ -43,16 +42,19 @@ class MenuArray extends Control
 		$template->setFile( __DIR__ . '/menu.latte' );
 
 		// Farmework automaticaly invalidate latte cache if latte was changed.
-		// Then you will need uncomment next line.
+		// Then you will need uncomment next line. This is the reasom why whole cache is in comment.
 		//$this->cache->clean( [ Cache::TAGS => [ 'menu_tag', 'is_in_cache' ] ] );
 
-		if( ! $this->cache->load( 'is_in_cache' ) )
+		/*if( ! $this->cache->load( 'is_in_cache' ) )
 		{
 			$template->menuArr = $arr = $this->categories->getArray();
 			$template->section = $arr[0];
 			//  Cache identifier, that menu has been cached to avoid db query.
 			$this->cache->save( 'is_in_cache', true, [ Cache::TAGS => [ 'is_in_cache' ] ] );
-		}
+		}*/
+
+		$template->menuArr = $arr = $this->categories->getArray();
+		$template->section = $arr[0];
 
 		$template->category_id = $this->category_id;
 
