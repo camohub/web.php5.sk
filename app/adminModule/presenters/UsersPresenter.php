@@ -120,7 +120,7 @@ class UsersPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			->setDefaultValue($rolesDefault)
 			->setAttribute('class', 'w150');
 
-		$form->addCheckbox('confirmEmail', 'Overiť emailovú adresu.');
+		$form->addCheckbox('confirmEmail', ' Overiť emailovú adresu.');
 
 
 		$form->addSubmit('send', 'Uložiť')
