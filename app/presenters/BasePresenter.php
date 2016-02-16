@@ -4,8 +4,10 @@ namespace App\Presenters;
 
 use Nette;
 use	App;
+use Kdyby;
 use Nette\Caching\Cache;
 use	Tracy\Debugger;
+use    Kdyby\Doctrine\EntityManager;
 
 
 /**
@@ -13,7 +15,9 @@ use	Tracy\Debugger;
  */
 abstract class BasePresenter extends Nette\Application\UI\Presenter
 {
-	public $test = 'test';
+
+	/** @var Kdyby\Doctrine\EntityManager @inject */
+	public $em;
 
 	/** @var Nette\Database\Context @inject */
 	public $database;
@@ -22,10 +26,10 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	public $categories;
 
 	/** @var Nette\Caching\IStorage @inject */
-	public $storage;
+	//public $storage;
 
 	/** @var  @var Nette\Caching\Cache */
-	protected $categories_cache;
+	//protected $categories_cache;
 
 	/** @var  Nette\Security\IAuthorizator */
 	public $authorizator;
@@ -80,26 +84,6 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	{
 		$this['menu']->setCategory( $id );
 
-	}
-
-
-
-	/**
-	 * @param $owner_id
-	 * @return Nette\Database\Table\Selection
-	 */
-	protected function getOptionalComponents( $owner_id )
-	{
-		$optCompArray = array();
-		if ( $sel = $this->database->table( 'optional_components' )->where( array( 'owner_id' => $owner_id ) ) )
-		{
-			foreach ( $sel as $row )
-			{
-				// explode name cause it consists from name + identifier like "poll_50"
-				$optCompArray[explode( '_', $row->component_name )[0]] = $row;
-			}
-		}
-		return $optCompArray;
 	}
 
 

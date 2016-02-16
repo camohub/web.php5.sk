@@ -19,6 +19,13 @@ nette:
 		expiration: 14 days
 		savePath: "%tempDir%/sessions"
 
+extensions:
+    console: Kdyby\Console\DI\ConsoleExtension
+    events: Kdyby\Events\DI\EventsExtension
+    annotations: Kdyby\Annotations\DI\AnnotationsExtension
+    doctrine: Kdyby\Doctrine\DI\OrmExtension
+
+
 services:
 	- App\Model\UserManager
 	- App\Model\UserManagerFB
@@ -27,7 +34,7 @@ services:
 	authorizatorFactory: App\Model\AuthorizatorFactory
 	authorizator: @authorizatorFactory::create
 	- App\Model\Categories
-	- App\Model\BlogArticles
+	- App\Model\Articles
 	- App\Model\Users
 	- Nette\Mail\SendmailMailer
 	- Nette\Mail\Message

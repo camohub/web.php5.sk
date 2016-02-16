@@ -30,6 +30,7 @@ class DromPresenter extends BasePresenter
 
 	public function renderDefault()
 	{
+		Debugger::dump( $this->user->identity->user_name );
 
 	}
 

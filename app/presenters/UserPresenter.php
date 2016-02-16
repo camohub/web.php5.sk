@@ -31,14 +31,14 @@ class UserPresenter extends BasePresenter
 	{
 		parent::startup();
 
-		// In startup must not be any identity control like isLoggedIn.
-		// Method actionEmail must be available form confirmation email
-		// Do it in concrete method
+		// Method actionEmail must be available form confirmation email.
+		// So in startup must not be any identity control like isLoggedIn
+		// and do not use $this->user->identity->user_name.
 
 		$this->userRow = $this->usersModel->findOneBy( array( 'id' => $this->user->id ) );
 
 		$this['breadcrumbs']->add( 'Užívateľský účet', ':User:default' );
-		$this->setHeaderTags( NULL, 'Profil - ' . $this->user->identity->user_name, 'noindex, nofollow' );
+		$this->setHeaderTags( NULL, 'Profil uživateľa', 'noindex, nofollow' );
 
 	}
 
@@ -81,11 +81,6 @@ class UserPresenter extends BasePresenter
 			{
 				$this->flashMessage( 'Váš email bol už potvrdený.' );
 			}
-			/* Meanwhile this is no longer an error
-			elseif($userRow->active == 1 && $userRow->confirmation_code)
-			{
-				throw new App\Exceptions\ConfirmationEmailException('Užívateľ s id '.$userRow->id.' nemá overený email, pričom jeho konto je aktívne. Tento stav aplikácia vyhodnotila ako chybný.', 'error');
-			}*/
 		}
 		else
 		{

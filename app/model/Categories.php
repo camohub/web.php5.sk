@@ -1,8 +1,9 @@
 <?php
 namespace App\Model;
 
-use Nette,
-	Tracy\Debugger;
+use Nette;
+use Kdyby;
+use    Tracy\Debugger;
 
 
 class Categories
@@ -13,14 +14,24 @@ class Categories
 	/** @var Nette\Database\Context */
 	protected $database;
 
+	/** @var Kdyby\Doctrine\EntityManager */
+	protected $em;
+
+	/** @var Kdyby\Doctrine\EntityRepository */
+	protected $categoryRepository;
+
 
 
 	/**
 	 * @param Nette\Database\Context $db
+	 * @param Kdyby\Doctrine\EntityManager $em
 	 */
-	public function __construct( Nette\Database\Context $db )
+	public function __construct( Nette\Database\Context $db, Kdyby\Doctrine\EntityManager $em )
 	{
 		$this->database = $db;
+		$this->em = $em;
+
+		$this->categoryRepository = $em->getRepository( Entity\Category::class );
 	}
 
 
@@ -102,10 +113,13 @@ class Categories
 	 */
 	public function findOneBy( Array $params, $admin = FALSE )
 	{
-		$selection = $this->getTable()->where( $params );
-		$selection = $admin ? $selection : $selection->where( 'visible', 1 );
+		if ( ! $admin )
+		{
+			$params['visible'] = 1;
+		}
 
-		return $selection->fetch();
+		return $this->categoryRepository->findOneBy( $params );
+
 	}
 
 
@@ -203,27 +217,19 @@ class Categories
 
 	/**
 	 * @desc Find ids of category and nested categories
-	 * @param $id int
-	 * @param ids NULL
-	 * @param $arr NULL
+	 * @param $category Entity\Category
+	 * @param $ids array
 	 * @return array
 	 */
-	public function findCategoryIds( $id, $ids = NULL, $arr = NULL )
+	public function findCategoryIds( Entity\Category $category, array $ids = [ ] )
 	{
-		$ids = $ids ? $ids : array();
-		$arr = $arr ? $arr : $this->getArray();
+		$ids[] = $category->id;
 
-		$ids[] = $id;
+		$children = $this->categoryRepository->findBy( [ 'parent_id' => $category->id ] );
 
-		foreach ( $arr as $parent => $children )
+		foreach ( $children as $child )
 		{
-			if ( $parent === $id )
-			{
-				foreach ( $children as $child )
-				{
-					$ids = $this->findCategoryIds( $child->id, $ids, $arr );
-				}
-			}
+			$ids[] = $this->findCategoryIds( $child, $ids );
 		}
 
 		return $ids;

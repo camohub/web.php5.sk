@@ -10,14 +10,15 @@ use	Tracy\Debugger;
 class ArticlesPresenter extends \App\Presenters\BasePresenter
 {
 
+
 	/** @var Nette\Caching\IStorage @inject */
 	public $storage;
 
 	/** @var  App\Model\Categories @inject */
 	public $categories;
 
-	/** @var  App\Model\BlogArticles @inject */
-	public $blogArticles;
+	/** @var  App\Model\Articles @inject */
+	public $articles;
 
 	/** @var  Nette\Database\Table\ActiveRow */
 	protected $article;
@@ -30,7 +31,7 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 	public function startup()
 	{
 		parent::startup();
-		$this->optCompArray = $this->getOptionalComponents( $this->name );
+
 	}
 
 
@@ -42,22 +43,22 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 	 */
 	public function renderShow( $title )
 	{
-		if ( $category = $this->categories->findOneBy( array( 'url_title' => $title ) ) )  // Displays category.
+		if ( $category = $this->categories->findOneBy( [ 'slug' => $title ] ) )  // Displays category.
 		{
 			$session_article = $this->getSession( 'article' );
-			$session_article->category_id = $category->id;  // Enables cat. id when display article (else part).
+			$session_article->category_id = $category->id;  // Cat. id is used in else part. So is necessary to store it in session.
 
 			$this->setCategoryId( $category->id );
 
 			// Displays all articles from category and nested categories.
-			$ids = $this->categories->findCategoryIds( $category->id );
+			$ids = $this->categories->findCategoryIds( $category );
 
-			$articles = $this->blogArticles->findCategoryArticles( $ids );
+			$articles = $this->articles->findCategoryArticles( $ids );
 
-			$this->setPaginator( $articles );
+			$this->template->articles = $this->setPaginator( $articles );
 
 			$this->setHeaderTags( $metaDesc = 'web.php5.sk - najnovšie články', $title = ' Najnovšie články' );
-			$this->template->optCompArray = $this->getOptionalComponents( $this->name ) ? $this->getOptionalComponents( $this->name ) : $this->optCompArray;
+
 		}
 		else // Displays one article.
 		{
@@ -65,7 +66,7 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 
 			if ( ! $article = $this->article ) // $this->article comes from commentFormSucceeded().
 			{
-				$this->article = $article = $this->blogArticles->findOneBy( [ 'url_title' => $title ] );
+				$this->article = $article = $this->articles->findOneBy( [ 'url_title' => $title ] );
 			}
 
 			if ( ! $article )
@@ -75,7 +76,7 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 			}
 
 			$this->template->article = $article;
-			$this->template->comments = $article->related( 'blog_comments', 'blog_articles_id' )->order( 'created_at' );
+			$this->template->comments = $article->comments;
 
 			$this->template->fb = TRUE; // If is true template loads FB javascript SDK
 			$this->template->google = TRUE; // If is true template loads Google javascript API
@@ -83,8 +84,6 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 			$this['breadcrumbs']->add( $article->title, ':Articles:show ' . $article->url_title );
 
 			$this->setHeaderTags( $metaDesc = $article->meta_desc, $title = $article->title );
-
-			$this->template->optCompArray = $this->getOptionalComponents( $this->name . ' ' . $article->id ) ? $this->getOptionalComponents( $this->name . ' ' . $article->id ) : $this->optCompArray;
 
 		}
 
@@ -97,10 +96,13 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 	{
 		$vp = $this['vp'];
 		$paginator = $vp->getPaginator();
-		$paginator->itemsPerPage = 7;
-		$paginator->itemCount = $articles->count( '*' );
+		$paginator->itemsPerPage = 2;
 
-		$this->template->articles = $articles->limit( $paginator->itemsPerPage, $paginator->offset );
+		//$paginator->itemCount = $articles->count( '*' );
+		$articles->applyPaginator( $paginator );
+
+		//$this->template->articles = $articles->limit( $paginator->itemsPerPage, $paginator->offset );
+		return $articles;
 
 	}
 
@@ -140,7 +142,7 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 
 		$values = $form->getValues();
 		$title = $this->getParameter( 'title' );
-		$this->article = $article = $this->blogArticles->findOneBy( array( 'url_title' => $title ) );
+		$this->article = $article = $this->articles->findOneBy( array( 'url_title' => $title ) );
 
 
 		if ( $values->name !== '' ) // Probably robot insertion
@@ -160,7 +162,7 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 			'email'            => $this->getUser()->identity->email,
 			'content'          => $values->content,
 		);
-		$row = $this->blogArticles->insertComment( $params );
+		$row = $this->articles->insertComment( $params );
 
 		if ( $row )
 		{

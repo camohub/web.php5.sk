@@ -6,39 +6,49 @@ use Nette;
 
 
 /**
- * @desc try to insert duplicate value to fields with unique key
  * Class DuplicateEntryException
  * @package App\Exceptions
  */
-class DuplicateEntryException extends \Exception {}
+class DuplicateEntryException extends \Exception
+{
+	// try to insert duplicate value to fields with unique key
+}
 
 /**
- * @desc user have not premission to view or do something
  * Class AccessDeniedException
  * @package App\Exceptions
  */
-class AccessDeniedException extends \Exception {}
+class AccessDeniedException extends \Exception
+{
+	// user have not premission to view or do something
+}
 
 /**
- * @desc parameter suplied as an argument is wrong (typehint/range)
  * Class InvalidArgumentException
  * @package App\Exceptions
  */
-class InvalidArgumentException extends \Exception {}
+class InvalidArgumentException extends \Exception
+{
+	// parameter suplied as an argument is wrong (typehint/range)
+}
 
 /**
- * @desc something goes wrong with confirmation emails. (Ie. users acount is active, but email is not confirmed.)
  * Class ConfirmationEmailException
  * @package App\Exceptions
  */
-class ConfirmationEmailException extends \Exception {}
+class ConfirmationEmailException extends \Exception
+{
+	// something goes wrong with confirmation emails. (Ie. users acount is active, but email is not confirmed.)
+}
 
 /**
- * @desc something goes wrong but we don't know what.
  * Class GeneralException
  * @package App\Exceptions
  */
-class GeneralException extends \Exception {}
+class GeneralException extends \Exception
+{
+	// something goes wrong but we don't know what.
+}
 
 
 

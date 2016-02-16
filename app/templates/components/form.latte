@@ -1,12 +1,18 @@
 <form n:name=$form>
-<ul class=error n:if="$form->ownErrors">
-	<li n:foreach="$form->ownErrors as $error">{$error}</li>
-</ul>
 
-<table>
-<tr n:foreach="$form->controls as $input" n:class="$input->required ? required">
-	<th>{label $input /}</th>
-	<td>{input $input} <span class=error n:ifcontent>{$input->error}</span></td>
-</tr>
+	<div class="alert alert-dismissible fade in alert-danger" n:if="$form->ownErrors">
+		<div n:foreach="$form->ownErrors as $error">
+			<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+						aria-hidden="true">&times;</span></button>
+			{$error}
+		</div>
+	</div>
+
+	<table>
+		<tr n:foreach="$form->controls as $input" n:class="$input->required ? required">
+			<th>{label $input /}</th>
+			<td>{input $input} <span class=error n:ifcontent>{$input->error}</span></td>
+		</tr>
 </table>
+
 </form>

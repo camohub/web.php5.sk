@@ -23,7 +23,7 @@ class SignPresenter extends BasePresenter
 			$this->redirect( ':Articles:show' );
 		}
 
-		$this['breadcrumbs']->add( 'Prihlásiť', 'Sign:in' );
+		$this->getComponent( 'breadcrumbs' )->add( 'Prihlásiť', 'Sign:in' );
 
 		$this->template->fb = TRUE;
 		$this->setHeaderTags( NULL, NULL, $robots = 'noindex, nofolow' );

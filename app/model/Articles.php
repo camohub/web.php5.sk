@@ -1,30 +1,41 @@
 <?php
 namespace App\Model;
 
-use Nette,
-	Tracy\Debugger,
-	Symfony\Component\Config\Definition\Exception\Exception,
-	App\Exceptions,
-	Nette\Utils\Strings;
+use Nette;
+use Tracy\Debugger;
+use Symfony\Component\Config\Definition\Exception\Exception;
+use App\Exceptions;
+use Nette\Utils\Strings;
+use Kdyby;
 
 
-class BlogArticles
+class Articles extends Nette\Object
 {
 
-	CONST TABLE_NAME = 'blog_articles';
+	CONST TABLE_NAME = 'articles';
 
 
 	/** @var Nette\Database\Context */
 	protected $database;
 
+	/** @var Kdyby\Doctrine\EntityManager */
+	protected $em;
+
+	/** @var Kdyby\Doctrine\EntityRepository */
+	protected $articleRepository;
+
 
 
 	/**
 	 * @param Nette\Database\Context $db
+	 * @param Kdyby\Doctrine\EntityManager $em
 	 */
-	public function __construct( Nette\Database\Context $db )
+	public function __construct( Nette\Database\Context $db, Kdyby\Doctrine\EntityManager $em )
 	{
 		$this->database = $db;
+		$this->em = $em;
+
+		$this->articleRepository = $em->getRepository( Entity\Article::class );
 	}
 
 
@@ -63,9 +74,19 @@ class BlogArticles
 	 */
 	public function findOneBy( $params, $admin = FALSE )
 	{
-		$articles = $this->getTable()->where( $params );
-		$articles = $admin ? $articles : $articles->where( 'status', 1 );
-		return $articles->limit( 1 )->fetch();
+		if ( $admin )
+		{
+			$params['status'] = 1;
+		}
+
+		$result = $article = $this->articleRepository->createQueryBuilder()
+			->select( 'a', 'u' )
+			->from( 'App\Model\Entity\Article', 'a' )
+			->whereCriteria( $params )
+			->join( 'App\Model\Entity\User', 'u' )
+			->getQuery()->getResult();
+
+		return $result[0];
 	}
 
 
@@ -73,15 +94,23 @@ class BlogArticles
 	/**
 	 * @desc This method find all articles ids in blog_article_category which belongs to cat_ids
 	 * @param array $cat_ids
+	 * @param bool $admin
 	 * @return Nette\Database\Table\Selection
 	 */
 	public function findCategoryArticles( Array $cat_ids, $admin = FALSE )
 	{
-		$art_ids = $this->getTable( 'blog_article_category' )->where( 'categories_id', $cat_ids )->fetchPairs( NULL, 'articles_id' );
+		//$art_ids = $this->getTable( 'articles_categories' )->where( 'category_id', $cat_ids )->fetchPairs( NULL, 'article_id' );
+		//$articles = $this->findAll( $admin )->where( 'id', $art_ids );
 
-		$articles = $this->findAll( $admin )->where( 'id', $art_ids );
+		$articles = $this->articleRepository->createQueryBuilder()
+			->select( 'a' )
+			->from( 'App\Model\Entity\Article', 'a' )
+			->whereCriteria( [ 'categories.id' => $cat_ids ] )
+			->orderBy( 'a.created', 'DESC' )
+			->getQuery();
 
-		return $articles;
+		// Returns ResultSetbecause of paginator
+		return new Kdyby\Doctrine\ResultSet( $articles );
 	}
 
 

@@ -9,8 +9,8 @@ use	Nette,
 class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 {
 
-	/** @var  App\Model\BlogArticles @inject */
-	public $blogArticles;
+	/** @var  App\Model\Articles @inject */
+	public $articles;
 
 	/** @var  App\Model\Users @inject */
 	public $users;
@@ -40,7 +40,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		// $filter == $form->getValues()
 		if ( $filter = $this->getSession( 'Admin:Blog:Articles' )->filter )
 		{
-			$articles = $this->blogArticles->findAll( 'admin', FALSE );
+			$articles = $this->articles->findAll( 'admin', FALSE );
 
 			$articles = $filter->authors ? $articles->where( 'users_id', $filter->authors ) : $articles;
 			$articles = $filter->interval ? $articles->where( 'created > ?', time() - $filter->interval * 60 * 60 * 24 ) : $articles;
@@ -57,7 +57,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		}
 		else
 		{
-			$this->template->articles = $this->blogArticles->findBy( array( 'users_id' => $this->user->id ), 'admin' )->order( 'created DESC' );
+			$this->template->articles = $this->articles->findBy( array( 'users_id' => $this->user->id ), 'admin' )->order( 'created DESC' );
 		}
 	}
 
@@ -83,7 +83,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte oprávnenie editovať články.' );
 		}
 
-		$this->article = $this->blogArticles->findOneBy( array( 'id' => (int) $id ), 'admin' );
+		$this->article = $this->articles->findOneBy( array( 'id' => (int) $id ), 'admin' );
 
 		if ( ! ( $this->article->users_id == $this->user->id || $this->user->isInRole( 'admin' ) ) )
 		{
@@ -115,7 +115,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte oprávnenie editovať články.' );
 		}
 
-		$this->article = $this->blogArticles->findOneBy( array( 'id' => (int) $id ), 'admin' );
+		$this->article = $this->articles->findOneBy( array( 'id' => (int) $id ), 'admin' );
 
 		if ( ! ( $this->article->users_id == $this->user->id || $this->user->isInRole( 'admin' ) ) )
 		{
@@ -123,7 +123,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		}
 
 		$status = $this->article->status == 1 ? 0 : 1;
-		$this->blogArticles->updateArticle( array( 'status' => $status ), (int) $id );
+		$this->articles->updateArticle( array( 'status' => $status ), (int) $id );
 
 		$this->flashMessage( 'Zmenili ste vyditeľnosť článku.' );
 		$this->redirect( ':Admin:Blog:Articles:default' );
@@ -143,14 +143,14 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte oprávnenie mazať články.' );
 		}
 
-		$this->article = $this->blogArticles->findOneBy( array( 'id' => (int) $id ), 'admin' );
+		$this->article = $this->articles->findOneBy( array( 'id' => (int) $id ), 'admin' );
 
 		if ( ! ( $this->article->users_id == $this->user->id || $this->user->isInRole( 'admin' ) ) )
 		{
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte právo zmazať tento článok.' );
 		}
 
-		$this->blogArticles->delete( (int) $id );
+		$this->articles->delete( (int) $id );
 		$this->flashMessage( 'Článok bol zmazaný.' );
 		$this->redirect( ':Admin:Blog:Articles:default' );
 	}
@@ -238,7 +238,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		{
 			try
 			{
-				$this->blogArticles->updateArticle( $values, $id );
+				$this->articles->updateArticle( $values, $id );
 				$this->flashMessage( 'Článok bol upravený.' );
 			}
 			catch ( \Exception $e )
@@ -254,7 +254,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			try
 			{
 				$values['users_id'] = $this->user->id;
-				$this->blogArticles->insertArticle( $values );
+				$this->articles->insertArticle( $values );
 				$this->flashMessage( 'Článok bol vytvorený.' );
 			}
 			catch ( \Exception $e )

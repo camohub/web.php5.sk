@@ -2,7 +2,7 @@
 
 {block content}
 
-
+{* Show more articles *}
 {if isset($articles)}
 
 	{foreach $articles as $a}
@@ -17,7 +17,7 @@
 
 {/if}
 
-
+{* Show one article *}
 {if isset($article)}
 
 	<h1>{$article->title}</h1>
@@ -27,8 +27,7 @@
 	<div>{$article->perex|noescape}{$article->content|noescape}</div>
 
 	<div class="fb-like pT10" data-colorscheme="dark" data-share="true" data-show-faces="true" data-width="450"> </div>
-
-	{if $user->id == $article->users_id}
+	{if $user->id == $article->user->id}
 		<a n:href=":Admin:Blog:Articles:edit $article->id" class="small1 fR">editovať</a>
 	{/if}
 
@@ -82,7 +81,8 @@
 
 	<div class="pV30">
 		<div n:foreach="$comments as $comment" n:class="p10, bR5, $iterator->isOdd() ? bgC8">
-			<div class="small1 c3 fWB commUserName cP">{$comment->ref('users', 'users_id')->user_name}</div>
+			<div class="small1 c3 fWB commUserName cP">{$comment->user_name}
+				&nbsp;&nbsp;&nbsp; {$comment->created|date:'j. F Y'|datum:sk}</div>
 			<div class="pB10 pT5">{$comment->content|noescape}</div>
 		</div>
 	</div>

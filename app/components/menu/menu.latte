@@ -14,9 +14,9 @@
 			{var $children = $item->related( 'categories', 'parent_id' )->order( 'priority ASC') }
 			<li id="{$item->id}">
 				{if $item->url_params}
-					<a href="{plink $item->url (expand)explode(' ', $item->url_params)}">{$item->title}</a>
+					<a href="{plink $item->url (expand)explode(' ', $item->url_params)}">{$item->name}</a>
 				{else}
-					<a href="{plink $item->url}">{$item->title}</a>
+					<a href="{plink $item->url}">{$item->name}</a>
 				{/if}
 
 				{if $children->count() }

@@ -37,7 +37,8 @@
 		"facebook/php-sdk-v4" : "4.0.*",
 		"google/apiclient": "1.0.*@beta",
 		"kdyby/translation": "~2.2",
-		"nasext/visual-paginator": "~2.2"
+		"nasext/visual-paginator": "~2.2",
+		"kdyby/doctrine": "^3.0"
 	},
 	"require-dev": {
 		"nette/tester": "~1.3"
