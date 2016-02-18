@@ -71,7 +71,6 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 
 			if ( ! $article )
 			{
-
 				throw new Nette\Application\BadRequestException( 'Požadovanú stránku sa nepodarilo nájsť.' );
 			}
 

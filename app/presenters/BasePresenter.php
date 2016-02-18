@@ -7,7 +7,7 @@ use	App;
 use Kdyby;
 use Nette\Caching\Cache;
 use	Tracy\Debugger;
-use    Kdyby\Doctrine\EntityManager;
+use Kdyby\Doctrine\EntityManager;
 
 
 /**

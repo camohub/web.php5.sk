@@ -23,7 +23,7 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	protected $categories_cache;
 
 	/** @var  Array */
-	protected $getArray;
+	protected $getMenu;
 
 
 
@@ -48,10 +48,10 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		// Necessary for snippet with form (?)
 		$this->template->_form = $this['createSectionForm'];
 
-		$arr = $this->getArray = $this->categories->getArray( $admin = TRUE );
+		//$arr = $this->getArray = $this->categories->getArray( $admin = TRUE );
+		$this->getMenu = $menu = $this->categories->getMenu( $admin = TRUE );
 
-		$this->template->menuArr = $arr;
-		$this->template->section = $arr[0];
+		$this->template->section = $menu;
 	}
 
 
@@ -277,7 +277,7 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 	protected function createComponentCreateSectionForm()
 	{
-		$this->getArray = $this->getArray ? $this->getArray : $this->categories->getArray();
+		$this->getMenu = $this->getMenu ?: $this->categories->getMenu();
 
 		$form = new Nette\Application\UI\Form();
 		$form->elementPrototype->addAttributes( array( 'class' => 'ajax' ) );

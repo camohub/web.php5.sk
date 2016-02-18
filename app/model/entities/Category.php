@@ -27,6 +27,7 @@ class Category
 	public function __construct()
 	{
 		$this->articles = new ArrayCollection();
+		$this->parent = 0;
 	}
 
 
@@ -42,8 +43,20 @@ class Category
 	/** @ORM\Column(type="string", length=255) */
 	protected $url_params;
 
-	/** @ORM\Column(type="integer"), options={"unsigned"=true} */
+	/**
+	 * @ORM\Column(type="integer", nullable=true)
+	 */
 	protected $parent_id;
+
+	/**
+	 * Needs to have parent_id param to be defined.
+	 * @ORM\ManyToOne(targetEntity="Category", inversedBy="children")
+	 * @ORM\JoinColumn(name="parent_id", referencedColumnName="id", onDelete="cascade")
+	 */
+	protected $parent;
+
+	/** @ORM\OneToMany(targetEntity="Category", mappedBy="parent") */
+	protected $children;
 
 	/** @ORM\Column(type="smallint"), options={"unsigned"=true} */
 	protected $priority;

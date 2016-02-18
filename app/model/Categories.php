@@ -3,7 +3,8 @@ namespace App\Model;
 
 use Nette;
 use Kdyby;
-use    Tracy\Debugger;
+use Doctrine;
+use Tracy\Debugger;
 
 
 class Categories
@@ -37,12 +38,13 @@ class Categories
 
 
 	/**
-	 * @desc Selection for menu component.
-	 * @return Nette\Database\Table\Selection
+	 * @desc Array of entities for menu component.
+	 * @return array
 	 */
-	public function getMenu()
+	public function getMenu( $admin = FALSE )
 	{
-		return $this->findAll()->where( 'parent_id', 0 )->order( 'priority' );
+		$criteria = $admin ? [ 'parent_id =' => NULL ] : [ 'parent_id =' => NULL, 'visible =' => 1 ];
+		return $this->categoryRepository->findBy( $criteria, [ 'priority' => 'ASC' ] );
 	}
 
 
@@ -216,7 +218,7 @@ class Categories
 
 
 	/**
-	 * @desc Find ids of category and nested categories
+	 * @desc Find ids of category and nested categories. Is faster than queryBuilder because of recursion.
 	 * @param $category Entity\Category
 	 * @param $ids array
 	 * @return array
@@ -225,15 +227,44 @@ class Categories
 	{
 		$ids[] = $category->id;
 
-		$children = $this->categoryRepository->findBy( [ 'parent_id' => $category->id ] );
+		//$children = $this->categoryRepository->findBy( [ 'parent_id' => $category->id ] );
 
-		foreach ( $children as $child )
+		foreach ( $category->children as $child )
 		{
 			$ids[] = $this->findCategoryIds( $child, $ids );
 		}
 
 		return $ids;
 	}
+
+
+
+	/**
+	 * @desc Find ids of category and nested categories. Is slower that findBy in this case.
+	 * @param $id integer
+	 * @param $ids array
+	 * @return array
+	 */
+	/*public function findCategoryIds( $id, array $ids = [ ] )
+	{
+		$ids[] = $id = (int) $id;
+
+		$children = $this->categoryRepository
+			->createQueryBuilder()
+			->select( 'c.id' )
+			->from( 'App\Model\Entity\Category', 'c' )
+			->where( 'c.parent_id = :id' )
+			->setParameter( 'id', $id )
+			->getQuery()
+			->execute( null, Doctrine\ORM\Query::HYDRATE_ARRAY );
+
+		foreach ( $children as $child )
+		{
+			$ids[] = $this->findCategoryIds( $child['id'], $ids );
+		}
+
+		return $ids;
+	}*/
 
 
 

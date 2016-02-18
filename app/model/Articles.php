@@ -74,19 +74,21 @@ class Articles extends Nette\Object
 	 */
 	public function findOneBy( $params, $admin = FALSE )
 	{
-		if ( $admin )
+		if ( ! $admin )
 		{
 			$params['status'] = 1;
 		}
 
+		// QB make less queries if there is join, than repository->findOneBy lazy loading.
 		$result = $article = $this->articleRepository->createQueryBuilder()
 			->select( 'a', 'u' )
 			->from( 'App\Model\Entity\Article', 'a' )
+			->leftJoin( 'a.user', 'u' )
 			->whereCriteria( $params )
-			->join( 'App\Model\Entity\User', 'u' )
-			->getQuery()->getResult();
+			// setMaxResults bacause of getOneOrNullResult throws an exception if there is more than one result.
+			->getQuery()->setMaxResults( 1 )->getOneOrNullResult();
 
-		return $result[0];
+		return $result;
 	}
 
 

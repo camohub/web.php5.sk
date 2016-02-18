@@ -2,7 +2,7 @@
 
 {block content}
 
-<script type="text/javascript" src="{$basePath}/js/jquery-sortable-lists.min.js"></script>
+<script type="text/javascript" src="{$basePath}/js/jquery-sortable-lists.js"></script>
 <script type="text/javascript">
 $(document).ready(function()
 {
@@ -20,7 +20,24 @@ $(document).ready(function()
 		baseCss: {
 			'background-color': 'blue'
 		},
-		ignoreClass: 'ignore'
+		ignoreClass: 'ignore',
+		opener: {
+			active: true,
+			as: 'html',  // or "class" or skip if using background-image url
+			close: '<i class="fa fa-minus"></i>', // or 'fa fa-minus' or './imgs/Remove2.png'
+			open: '<i class="fa fa-plus c3"></i>', // or 'fa fa-plus' or './imgs/Add2.png'
+			openerCss: {
+				'display': 'inline-block', // Default value
+				'float': 'left', // Default value
+				'width': '18px',
+				'height': '18px',
+				'margin-bottom': '7px',
+				'margin-right': '7px',
+				'color': 'red',
+				'background-position': 'center center', // Default value
+				'background-repeat': 'no-repeat' // Default value
+			}
+		}
     });
 
 // End of sortableLists part //////////////////////////////////
@@ -134,16 +151,20 @@ function activateCreateForm(el)
 		{block menu}
 			<ul id="sortableList" n:class="!isset($nested) ? sortable"{* $nested comes from recursion *}>
 				{foreach $section as $item}
-				<li data-module="{$item->module_id}" id="menuItem_{$item->id}">
-					<div>{$item->title}
-						<a n:href="delete! $item->id" {if !$presenter->isAjax()}style="display:none"{/if} class="ignore ajax ico ico_trash fR" title="Delete"> </a>
-						{if $item->app != 1}<span onclick="activateEditForm({$item->id}, {$item->title}, this);" class="ignore ico ico_modify fR" title="Edit"> </span>{/if}
-						<a n:href="visibility! $item->id" n:class="ignore, ajax, ico, fR, $item->visible ? ico_ok : ico_no-entry" title="Display/Hide"> </a>
-					</div>
-					{if isset($menuArr[$item->id])}
-						{include menu, section => $menuArr[$item->id], nested => 1}
-					{/if}
-				</li>
+					<li data-module="{$item->module->id}" id="menuItem_{$item->id}">
+						<div>{$item->name}
+							<a n:href="delete! $item->id" {if !$presenter->isAjax()}style="display:none"{/if}
+							   class="ignore ajax ico ico_trash fR" title="Delete"> </a>
+							{if $item->app != 1}<span onclick="activateEditForm({$item->id}, {$item->name}, this);"
+													  class="ignore ico ico_modify fR" title="Edit"> </span>{/if}
+							<a n:href="visibility! $item->id"
+							   n:class="ignore, ajax, ico, fR, $item->visible ? ico_ok : ico_no-entry"
+							   title="Display/Hide"> </a>
+						</div>
+						{if $item->children->count()}
+							{include menu, section => $item->children, nested => 1}
+						{/if}
+					</li>
 				{/foreach}
 			</ul>
 		{/block}

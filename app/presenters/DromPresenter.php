@@ -2,22 +2,17 @@
 
 namespace App\Presenters;
 
-use Nette,
-	App\Model,
-	Tracy\Debugger;
+use Nette;
+use Kdyby;
+use    App\Model;
+use    Tracy\Debugger;
 
 
 class DromPresenter extends BasePresenter
 {
-	const
-		TABLE_NAME = 'users',
-		COLUMN_ID = 'id',
-		COLUMN_NAME = 'user_name',
-		COLUMN_PASSWORD = 'password',
-		COLUMN_ROLE = 'role',
-		COLUMN_EMAIL = 'email',
-		COLUMN_ACTIVE = 'active',
-		COLUMN_CONFIRMATION_CODE = 'confirmation_code';
+
+	/** @var Kdyby\Doctrine\EntityManager @inject */
+	public $em;
 
 
 	public function startup()
@@ -30,7 +25,7 @@ class DromPresenter extends BasePresenter
 
 	public function renderDefault()
 	{
-		Debugger::dump( $this->user->identity->user_name );
+		Debugger::dump( $this->em->getRepository( Model\Entity\Article::class )->getClassMetadata() );
 
 	}
 

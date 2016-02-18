@@ -3,6 +3,7 @@
 {block content}
 
 {* Show more articles *}
+
 {if isset($articles)}
 
 	{foreach $articles as $a}
@@ -18,6 +19,7 @@
 {/if}
 
 {* Show one article *}
+
 {if isset($article)}
 
 	<h1>{$article->title}</h1>
@@ -27,7 +29,7 @@
 	<div>{$article->perex|noescape}{$article->content|noescape}</div>
 
 	<div class="fb-like pT10" data-colorscheme="dark" data-share="true" data-show-faces="true" data-width="450"> </div>
-	{if $user->id == $article->user->id}
+	{if $user->id == $article->user->id()}
 		<a n:href=":Admin:Blog:Articles:edit $article->id" class="small1 fR">editovať</a>
 	{/if}
 

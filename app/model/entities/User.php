@@ -109,7 +109,7 @@ class User
 	}
 
 
-	public function getId()
+	public function id()
 	{
 		return $this->id;
 	}
