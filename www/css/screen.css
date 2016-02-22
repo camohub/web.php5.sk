@@ -1,4 +1,3 @@
-/*@c4: #568AB7;*/
 html,
 body,
 textarea,
@@ -73,17 +72,17 @@ strong {
 }
 h1 {
   font-family: Trebuchet MS, verdana;
-  color: #c23900;
+	color: #b63c3c;
   font-size: 2.2em;
   font-weight: bold;
   letter-spacing: -1px;
   margin-bottom: 15px;
 }
 h1 a {
-  color: #c23900;
+	color: #b63c3c;
 }
 h1 a:active {
-  color: #159f7e;
+	color: #3aa391;
 }
 /*h1 a { color: @c3; }*/
 h2,
@@ -96,15 +95,15 @@ h4 {
 }
 #main h2 {
   font-size: 1.35em;
-  color: #b72e00;
+	color: #3aa391;
 }
 #main h3 {
   font-size: 1.1em;
-  color: #899542;
+	color: #b63c3c;
 }
 #main h4 {
   font-size: 1em;
-  color: #899542;
+	color: #3aa391;
 }
 #main ol,
 #main ul {
@@ -113,7 +112,6 @@ h4 {
   margin: 0 0 14px;
 }
 .sidebar {
-  color: #899542;
   padding-right: 30px;
 }
 .sidebar ul {
@@ -129,7 +127,7 @@ h4 {
   font-size: 1.2em;
 }
 .sidebar a:hover {
-  color: #159f7e;
+	color: #3aa391;
   background-color: #e9eaf5;
   text-decoration: none;
 }
@@ -164,7 +162,7 @@ a {
 }
 a:hover,
 a:active {
-  color: #159f7e;
+	color: #3aa391;
   text-decoration: none;
 }
 a:focus,
@@ -173,7 +171,7 @@ a:visited {
   text-decoration: none;
 }
 ul li ul li a:hover {
-  color: #159f7e;
+	color: #3aa391;
 }
 /********** edit menu *************/
 #adminEditMenu ul.sortable,
@@ -533,11 +531,6 @@ ul li ul li a:hover {
 .c3 label {
   color: #5cb19c;
 }
-.c4,
-.color4,
-.c4 label {
-  color: #667c50;
-}
 .c5,
 .color5,
 .c5 label {
@@ -548,35 +541,25 @@ ul li ul li a:hover {
 .c6 label {
   color: #f3f5d3;
 }
+
+.c7,
+.c7 label {
+	color: #b63c3c;
+}
 .bgC1 {
   background-color: #3d4f61;
-}
-.bgC2 {
-  background-color: #a7aa4e;
-}
-.bgC3 {
-  background-color: #583678;
 }
 .bgC5 {
   background-color: #eaffeb;
 }
-.bgC6 {
-  background-color: #c0c77b;
-}
 .bgC7 {
   background-color: #d7fce5;
-}
-.bgC8 {
-  background-color: #eaffeb;
 }
 .bgC9 {
   background-color: #fff;
 }
 .bgC10 {
   background-color: #373734;
-}
-.bgI1 {
-  background: #a7aa4e url('http://web.php5.sk/www/images/bgI1.png') left top;
 }
 .bgI2 {
   background: #373734 url('http://plugins.jquery.com/jquery-wp-content/themes/jquery/images/dark-grey-tile.png');
@@ -588,37 +571,16 @@ ul li ul li a:hover {
 }
 .bor1,
 .b1 {
-  border: 1px solid #dfe0eb;
-}
-.bor2,
-.b2 {
   border: 1px solid #fff;
-}
-.bor3,
-.b3 {
-  border: 1px solid #CF9956;
 }
 .bor4,
 .b4 {
   border: 1px solid #3d4f61;
 }
-.bor5,
-.b5 {
-  border: 1px solid #7491a3;
-}
-.bor6,
-.b6 {
-  border: 1px solid red;
-}
 .bor7,
 .b7 {
   border-radius: 3px;
   border: 3px solid #81C5B3;
-}
-.bor8,
-.b8 {
-  border-radius: 3px;
-  border: 3px solid #aaf4e2;
 }
 .bR2 {
   border-radius: 2px;
@@ -714,7 +676,6 @@ ul.pagination {
 }
 .visualPaginator li a,
 .visualPaginator li span {
-  color: #899542;
   border: 0 solid transparent;
   margin: 0;
   padding: 0;
@@ -757,7 +718,6 @@ form th {
   min-width: 80px;
   vertical-align: middle;
   font-weight: normal;
-  Nborder: 1px solid red;
 }
 form th {
   text-align: right;
@@ -768,24 +728,9 @@ form .required label {
 .button1,
 a.button1 {
   background: url('http://web.php5.sk/www/images/button1.jpg') left center repeat-x;
-  color: #d3fffd;
+	color: #fff;
   border-radius: 3px;
   cursor: pointer;
-}
-.button2,
-a.button2 {
-  background: url('http://web.php5.sk/www/images/button1.jpg') left center repeat-x;
-  color: #fff;
-  margin: 0;
-  cursor: pointer;
-}
-.button1:hover,
-a.button1:hover {
-  color: #fff;
-}
-.button2:hover,
-a.button2:hover {
-  color: #fff;
 }
 .hr {
   margin-top: 40px;
@@ -852,7 +797,7 @@ table.datagrid {
 table.datagrid td,
 table.datagrid th {
   padding: 7px;
-  border: 1px solid #4ab49c;
+	border: 1px solid #3aa391;
 }
 html.js .jshidden {
   display: none;
@@ -869,12 +814,10 @@ li.breadcrumbs {
   display: inline-block;
   padding: 5px 0;
   color: #3aa391;
-  ncolor: #5a7c2f;
   font-weight: bold;
 }
 li.breadcrumbs a {
   color: #3aa391;
-  ncolor: #5a7c2f;
 }
 li.breadcrumbs a:hover {
   color: #27D2BD;
@@ -888,6 +831,12 @@ li.breadcrumbs a:hover {
 .hover3:hover {
   background-color: #e9eaf5;
 }
+
+.fa.fa-lg {
+	padding-left: 10px;
+	line-height: 1em;
+	cursor: pointer;
+}
 .ico {
   padding-left: 20px;
   display: inline-block;
@@ -897,17 +846,18 @@ li.breadcrumbs a:hover {
 .ico_modify {
   background: url('http://web.php5.sk/www/images/icons/Modify.png') 2px center no-repeat;
 }
-.ico_delete {
-  background: url('http://web.php5.sk/www/images/icons/Delete.png') 2px center no-repeat;
-}
 .ico_comment {
   background: url('http://web.php5.sk/www/images/icons/Comment.png') 2px center no-repeat;
 }
-.ico_no-entry {
-  background: url('http://web.php5.sk/www/images/icons/No-entry.png') 2px center no-repeat;
+
+.fa-minus-circle,
+.fa-trash-o {
+	color: #b63c3c;
 }
-.ico_ok {
-  background: url('http://web.php5.sk/www/images/icons/OK.png') 2px center no-repeat;
+
+.fa-check-circle,
+.fa-pencil {
+	color: green;
 }
 .ico_trash {
   background: url('http://web.php5.sk/www/images/icons/Trash.png') 2px center no-repeat;

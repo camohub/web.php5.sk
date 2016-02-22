@@ -13,12 +13,17 @@ use	Nette,
 class DromPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 {
 
+	/** @var  App\Model\Categories @inject */
+	public $categories;
+
 	
 	public function startup()
 	{
 		parent::startup();
 
 		$this['breadcrumbs']->add( 'Drom', ':Admin:Drom' );
+
+		$this->setFlexiFlash( 'hocico co pomoze.' );
 		
 	}
 
@@ -27,6 +32,8 @@ class DromPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	public function renderDefault($id)
 	{
 		$this->template->_form = $this['testForm'];
+
+
 	}
 
 
@@ -46,6 +53,23 @@ class DromPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 				->setItems(array());
 		}
 		$this->redrawControl('secondSnippet');
+	}
+
+
+
+	/**
+	 * @param string $msg
+	 * @param string $type
+	 */
+	protected function setFlexiFlash( $msg, $type = 'info' )
+	{
+		if ( ! isset( $this->template->flexiFlash ) )
+		{
+			$this->template->flexiFlash = array();
+		}
+
+		$this->template->flexiFlash[] = array( $msg, $type );
+
 	}
 
 

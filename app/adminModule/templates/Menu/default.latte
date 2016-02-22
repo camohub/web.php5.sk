@@ -8,39 +8,6 @@ $(document).ready(function()
 {
 	$('#sideMenu').find( 'ul' ).css( 'display', 'block' );
 
-// sortalbeLists part /////////////////////////////////////////
-
-	$('.sortable').sortableLists({
-		placeholderCss: {
-			'background-color': '#ff9'
-		},
-		hintCss: {
-			'background-color': '#9f9'
-		},
-		baseCss: {
-			'background-color': 'blue'
-		},
-		ignoreClass: 'ignore',
-		opener: {
-			active: true,
-			as: 'html',  // or "class" or skip if using background-image url
-			close: '<i class="fa fa-minus"></i>', // or 'fa fa-minus' or './imgs/Remove2.png'
-			open: '<i class="fa fa-plus c3"></i>', // or 'fa fa-plus' or './imgs/Add2.png'
-			openerCss: {
-				'display': 'inline-block', // Default value
-				'float': 'left', // Default value
-				'width': '18px',
-				'height': '18px',
-				'margin-bottom': '7px',
-				'margin-right': '7px',
-				'color': 'red',
-				'background-position': 'center center', // Default value
-				'background-repeat': 'no-repeat' // Default value
-			}
-		}
-    });
-
-// End of sortableLists part //////////////////////////////////
 
    	$('.editMenu').on('mousedown', function()
    	{
@@ -54,10 +21,6 @@ $(document).ready(function()
    	});
 
 
-   	$('.ico_trash')
-   		.css({'display':'inline-block'})  // I do not want to display this function if js (confirm dialog) is off
-   		.on('click', function(){ return confirm('Naozaj chcete položku zmazať?'); });
-
 // Nette.ajax extensions ///////////////////////////////////////////
 
    	$.nette.ext('menu', {
@@ -70,8 +33,9 @@ $(document).ready(function()
 			{
 				return false;
 			}
-			else if(sn.el.hasClass('ico-trash'))
+			else if ( sn.el.hasClass( 'fa-trash-o' ) )
 			{
+				return confirm( 'Naozaj chcete položku zmazať?' );
 				sn.el.addClass('stop-ajax');
 			}
 
@@ -118,7 +82,9 @@ function activateEditForm(id, title, el)
 
 function activateCreateForm(el)
 {
-	var spinner = $('#ajax-spinner').css({'display':'block'});
+	var spinner = $( '#ajax-spinner' ).css( {'display':'block'} );
+
+	$( '#createSelect' ).html( '' );
 
 	$.nette.ajax(
 	{
@@ -126,9 +92,9 @@ function activateCreateForm(el)
 		url: {link select!},
 		complete: function()
 		{
-			spinner.css({'display' : 'none'});
+			spinner.css( {'display' : 'none'} );
 		}
-	});
+	} );
 
 	var elOffset = $(el).offset(),
 		createSection = $('#createSection');
@@ -145,47 +111,58 @@ function activateCreateForm(el)
 	<div class="pV30 pH10" id="adminEditMenu">
 
 		<a class="editMenu ajax dIB button1 mV10 pH20 pV5 fWB" n:href="priority!">Uložiť zmeny</a>
-		<span onclick="activateCreateForm(this);" class="ico ico_add" title="Add new section"> </span>
+		<span onclick="activateCreateForm(this);" class="fa fa-lg fa-plus c3" title="Add new section"> </span>
 
 		{snippet sortableList}
 		{block menu}
 			<ul id="sortableList" n:class="!isset($nested) ? sortable"{* $nested comes from recursion *}>
 				{foreach $section as $item}
-					<li data-module="{$item->module->id}" id="menuItem_{$item->id}">
+					<li data-module="{ ($item->module->id ?: 0 )|noescape}" id="menuItem_{$item->id}">
 						<div>{$item->name}
 							<a n:href="delete! $item->id" {if !$presenter->isAjax()}style="display:none"{/if}
-							   class="ignore ajax ico ico_trash fR" title="Delete"> </a>
-							{if $item->app != 1}<span onclick="activateEditForm({$item->id}, {$item->name}, this);"
-													  class="ignore ico ico_modify fR" title="Edit"> </span>{/if}
+							   class="ignore ajax fa fa-lg fa-trash-o fR" title="Delete"> </a>
+							{if $item->app != 1}<a onclick="activateEditForm({$item->id}, {$item->name}, this);"
+												   class="ignore fa fa-lg fa-pencil fR" title="Edit"> </a>{/if}
 							<a n:href="visibility! $item->id"
-							   n:class="ignore, ajax, ico, fR, $item->visible ? ico_ok : ico_no-entry"
+							   n:class="ignore, ajax, fa, fa-lg, fR, $item->visible ? fa-check-circle : fa-minus-circle"
 							   title="Display/Hide"> </a>
 						</div>
-						{if $item->children->count()}
-							{include menu, section => $item->children, nested => 1}
+						{if $section = $categories->findBy( [ 'parent_id' => $item->id ], NULL, 'admin' ) }
+							{include menu, section => $section, nested => 1}
 						{/if}
 					</li>
 				{/foreach}
 			</ul>
 		{/block}
 
-		{if $presenter->isAjax()}{* Is here cause ajax renders new list without activ sortableLists *}
+			{* Script is in snippet cause ajax renders new list without activ sortableLists *}
 			<script>
-				$('.sortable').sortableLists({
-					placeholderCss: { 'background-color': '#ff9' },
-					hintCss: { 'background-color': '#9f9' },
-					baseCss: { 'background-color': 'blue' },
-					ignoreClass: 'ignore'
-				});
+				$( '.fa-trash-o' ).css( {'display':'inline-block'} );  // I do not want to display this function if js (confirm dialog) is off
 
-				$('.ico_trash', '#sortableList')
-                	.css({'display':'inline-block'})
-                	.on('click', function(){
-                		if(confirm('Naozaj chcete položku zmazať?')) return true;
-                		else return false;
-                });
+				$( '.sortable' ).sortableLists( {
+					placeholderCss: {
+						'background-color': '#ff9'
+					},
+					hintCss: {
+						'background-color': '#9f9'
+					},
+					baseCss: {
+						'background-color': 'blue'
+					},
+					ignoreClass: 'ignore',
+					opener: {
+						active: true,
+						as: 'html',  // or "class" or skip if using background-image url
+						close: '<i class="fa fa-minus c7"></i>', // or 'fa fa-minus' or './imgs/Remove2.png'
+						open: '<i class="fa fa-plus c3"></i>', // or 'fa fa-plus' or './imgs/Add2.png'
+						openerCss: {
+							'margin-bottom': '7px',
+							'margin-right': '7px',
+							'cursor': 'pointer'
+						}
+					}
+				} );
 			</script>
-		{/if}
 		{/snippet}
 
 		<a class="editMenu ajax dIB button1 mV10 pH20 pV5 fWB" n:href="priority!">Uložiť zmeny</a>
@@ -195,29 +172,32 @@ function activateCreateForm(el)
 
 	<div class="pH10">
 		<div id="createSection" class="w200 fL mR20 dN p10 bgC5 bS1">
-			<span class="ico ico_no-entry fR" onclick="$('#createSection').slideUp();"> </span>
-			<span class="editItem dIB button1 mV10 pH20 pV5 fWB">Vytvoriť sekciu</span>
+			<span class="fa fa-lg fa-minus-circle fR" onclick="$('#createSection').slideUp();"
+				  title="hide panel"> </span>
+
+			<h3 class="editItem mV10 pV5 fWB">Vytvoriť sekciu</h3>
 			<div class="c3">
 				{form createSectionForm}
-				{label title}{/label}<br>
-				{input title}
+				{label name}{/label}
+					<br>
+				{input name}
 				{snippet create_parent}
-				<br><br>
+					<br>
 				{label parent_id}{/label}<br>
 				{input parent_id}
 				{/snippet}
-				<br><br>
+					<br>
 				{input sbmt}
 				{/form}
 			</div>
 		</div>
 
 		<div id="editSection" class="w200 fL dN p10 bgC5 bS1">
-			<span class="ico ico_no-entry fR" onclick="$('#editSection').slideUp();"> </span>
-			<span class="editItem dIB button1 mV10 pH20 pV5 fWB">Editovať sekciu</span>
+			<span class="fa fa-lg fa-minus-circle fR" onclick="$('#editSection').slideUp();" title="hide panel"> </span>
+
+			<h3 class="editItem mV10 pV5 fWB">Premenovať</h3>
 			<div class="c3">
 				{form editSectionForm}
-				{label title}{/label}<br>
 				{input title}
 				{input id}
 				<br><br>

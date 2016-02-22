@@ -3,7 +3,7 @@
 	 	This var is used by main.js which opens/closes categories.
 	 	It is current category id. You can set it in presenter via $this[name]->setCategory( $id ).
 	*}
-	var category_id = {$category_id};
+	var category_id = {$current_id};
 </script>
 
 {cache 'menu_key', tags => [ 'menu_tag' ] }
@@ -18,7 +18,7 @@
 					<a href="{plink $item->url}">{$item->name}</a>
 				{/if}
 
-				{if $item->children->count() }
+				{if $section = $categories->findBy( [ 'parent_id =' => $item->id ], NULL, $admin ) }
 					{include menu, section => $item->children } {* RECURSION *}
 				{/if}
 			</li>

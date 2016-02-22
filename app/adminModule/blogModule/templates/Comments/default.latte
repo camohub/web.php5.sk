@@ -4,9 +4,9 @@
 
 <h2 class="fS15 mT20">{$article->title}</h2>
 
-<span class="fS09 fWB c4">autor: {$article->ref('users','users_id')->user_name}</span>
+<span class="fS09 fWB">autor: {$article->ref('users','users_id')->user_name}</span>
 
-<h3 class="fS12 c4 mV20">Komentáre k článku</h3>
+<h3 class="fS12 mV20">Komentáre k článku</h3>
 
 {snippet comments}
 {var $comments = $article->related('blog_comments','blog_articles_id')}

@@ -82,7 +82,7 @@
 
 
 	<div class="pV30">
-		<div n:foreach="$comments as $comment" n:class="p10, bR5, $iterator->isOdd() ? bgC8">
+		<div n:foreach="$comments as $comment" n:class="p10, bR5, $iterator->isOdd() ? bgC5">
 			<div class="small1 c3 fWB commUserName cP">{$comment->user_name}
 				&nbsp;&nbsp;&nbsp; {$comment->created|date:'j. F Y'|datum:sk}</div>
 			<div class="pB10 pT5">{$comment->content|noescape}</div>

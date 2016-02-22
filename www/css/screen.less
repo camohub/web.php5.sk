@@ -1,51 +1,33 @@
 @c0: #000000;
 @c1: #fff;
 @c2: #444;
-@c3: #c23900;
-/*@c4: #568AB7;*/
-@c4: #b72e00;
 @c5: #899542;
 @c6: #565656;
-@c7: #159f7e;
 @c8: #b63c3c;
 @c9: #056296;
 @c10: #375f8e;
 @c11: #8fe9d2;
 @c13: #5cb19c;
-@c14: #667c50;
 @c15: #cdd485;
 @c16: #f3f5d3;
 @c17: #F0F5BF;
 @c18: #3d4f61;
-@c19: #a7aa4e;
-@c20: #583678;
-@c21: @c24;
-@c22: #c0c77b;
+@c21: #eaffeb;
 @c23: #d7fce5;
-@c24: #eaffeb;
 @c25: #373734;
 @c26: #dfe0eb;
-@c27: #CF9956;
 @c28: #7491a3;
 @c29: #81C5B3;
-@c30: #aaf4e2;
 @c31: #889999;
 @c33: #df5148;
-@c34: #FF7085;
 @c35: #F5FFFE;
-@c36: #4ab49c;
 @c37: #3aa391;
-@c38: #5a7c2f;
 @c39: #27D2BD;
 @c40: #e9eaf5;
 @c41: #f5f8ff;
-@c42: #d63634;
 @c43: #023;
-@c44: #2c3300;
-@c44: #2c3300;
 @c45: #344;
 @c46: #e1e4ef;
-@c47: #d3fffd;
 
 @ff1: Trebuchet MS, verdana;
 
@@ -116,17 +98,17 @@ b, strong {
 
 h1 {
 	font-family: @ff1;
-	color: @c3;
+	color: @c8;
 	font-size: 2.2em;
 	font-weight: bold;
 	letter-spacing: -1px;
 	margin-bottom: 15px;
 
 	a {
-		color: @c3;
+		color: @c8;
 	}
 	a:active {
-		color: @c7;
+		color: @c37;
 	}
 }
 
@@ -141,17 +123,17 @@ h2, h3, h4 {
 
 #main h2 {
 	font-size: 1.35em;
-	color: @c4;
+	color: @c37;
 }
 
 #main h3 {
 	font-size: 1.1em;
-	color: @c5;
+	color: @c8;
 }
 
 #main h4 {
 	font-size: 1em;
-	color: @c5;
+	color: @c37;
 }
 
 #main ol, #main ul {
@@ -161,7 +143,6 @@ h2, h3, h4 {
 }
 
 .sidebar {
-	color: @c5;
 	padding-right: 30px;
 
 	ul {
@@ -178,7 +159,7 @@ h2, h3, h4 {
 		font-size: 1.2em;
 
 		&:hover {
-			color: @c7;
+			color: @c37;
 			background-color: @c40;
 			text-decoration: none;
 		}
@@ -225,7 +206,7 @@ a {
 	text-decoration: none;
 
 	&:hover, &:active {
-		color: @c7;
+		color: @c37;
 		text-decoration: none;
 	}
 
@@ -236,7 +217,7 @@ a {
 }
 
 ul li ul li a:hover {
-	color: @c7;
+	color: @c37;
 }
 
 /********** edit menu *************/
@@ -690,10 +671,6 @@ ul li ul li a:hover {
 	color: @c13;
 }
 
-.c4, .color4, .c4 label {
-	color: @c14;
-}
-
 .c5, .color5, .c5 label {
 	color: @c15;
 }
@@ -702,32 +679,20 @@ ul li ul li a:hover {
 	color: @c16;
 }
 
+.c7, .c7 label {
+	color: @c8;
+}
+
 .bgC1 {
 	background-color: @c18;
-}
-
-.bgC2 {
-	background-color: @c19;
-}
-
-.bgC3 {
-	background-color: @c20;
 }
 
 .bgC5 {
 	background-color: @c21;
 }
 
-.bgC6 {
-	background-color: @c22;
-}
-
 .bgC7 {
 	background-color: @c23;
-}
-
-.bgC8 {
-	background-color: @c24;
 }
 
 .bgC9 {
@@ -736,10 +701,6 @@ ul li ul li a:hover {
 
 .bgC10 {
 	background-color: @c25;
-}
-
-.bgI1 {
-	background: @c19 url('@{images}/bgI1.png') left top;
 }
 
 .bgI2 {
@@ -753,37 +714,16 @@ ul li ul li a:hover {
 }
 
 .bor1, .b1 {
-	border: 1px solid @c26;
-}
-
-.bor2, .b2 {
 	border: 1px solid @c1;
-}
-
-.bor3, .b3 {
-	border: 1px solid @c27;
 }
 
 .bor4, .b4 {
 	border: 1px solid @c18;
 }
 
-.bor5, .b5 {
-	border: 1px solid @c28;
-}
-
-.bor6, .b6 {
-	border: 1px solid red;
-}
-
 .bor7, .b7 {
 	border-radius: 3px;
 	border: 3px solid @c29;
-}
-
-.bor8, .b8 {
-	border-radius: 3px;
-	border: 3px solid @c30;
 }
 
 .bR2 {
@@ -900,7 +840,6 @@ ul.pagination {
 	font-weight: bold;
 
 	a, span {
-		color: @c5;
 		border: 0 solid transparent;
 		margin: 0;
 		padding: 0;
@@ -951,7 +890,6 @@ form th {
 	min-width: 80px;
 	vertical-align: middle;
 	font-weight: normal;
-	Nborder: 1px solid red;
 }
 
 form th {
@@ -964,24 +902,9 @@ form .required label {
 
 .button1, a.button1 {
 	background: url('@{images}/button1.jpg') left center repeat-x;
-	color: @c47;
+	color: @c1;
 	border-radius: 3px;
 	cursor: pointer;
-}
-
-.button2, a.button2 {
-	background: url('@{images}/button1.jpg') left center repeat-x;
-	color: @c1;
-	margin: 0;
-	cursor: pointer;
-}
-
-.button1:hover, a.button1:hover {
-	color: @c1;
-}
-
-.button2:hover, a.button2:hover {
-	color: @c1;
 }
 
 .hr {
@@ -1062,7 +985,7 @@ table.datagrid {
 
 table.datagrid td, table.datagrid th {
 	padding: 7px;
-	border: 1px solid @c36;
+	border: 1px solid @c37;
 }
 
 html.js .jshidden {
@@ -1082,12 +1005,10 @@ li.breadcrumbs {
 	display: inline-block;
 	padding: 5px 0;
 	color: @c37;
-	ncolor: @c38;
 	font-weight: bold;
 
 	a {
 		color: @c37;
-		ncolor: @c38;
 
 		&:hover {
 			color: @c39;
@@ -1109,6 +1030,12 @@ li.breadcrumbs {
 	background-color: @c40;
 }
 
+.fa.fa-lg {
+	padding-left: 10px;
+	line-height: 1em;
+	cursor: pointer;
+}
+
 .ico {
 	padding-left: 20px;
 	display: inline-block;
@@ -1120,20 +1047,16 @@ li.breadcrumbs {
 	background: url('@{images}/icons/Modify.png') 2px center no-repeat;
 }
 
-.ico_delete {
-	background: url('@{images}/icons/Delete.png') 2px center no-repeat;
-}
-
 .ico_comment {
 	background: url('@{images}/icons/Comment.png') 2px center no-repeat;
 }
 
-.ico_no-entry {
-	background: url('@{images}/icons/No-entry.png') 2px center no-repeat;
+.fa-minus-circle, .fa-trash-o {
+	color: @c8;
 }
 
-.ico_ok {
-	background: url('@{images}/icons/OK.png') 2px center no-repeat;
+.fa-check-circle, .fa-pencil {
+	color: green;
 }
 
 .ico_trash {

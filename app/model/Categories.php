@@ -1,16 +1,17 @@
 <?php
 namespace App\Model;
 
+use App;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Nette;
 use Kdyby;
 use Doctrine;
+use Nette\Utils\Strings;
 use Tracy\Debugger;
 
 
 class Categories
 {
-
-	CONST   TABLE_NAME = 'categories';
 
 	/** @var Nette\Database\Context */
 	protected $database;
@@ -38,32 +39,37 @@ class Categories
 
 
 	/**
-	 * @desc Array of entities for menu component.
-	 * @return array
+	 * @param $id integer
 	 */
-	public function getMenu( $admin = FALSE )
+	public function switchVisibility( $id )
 	{
-		$criteria = $admin ? [ 'parent_id =' => NULL ] : [ 'parent_id =' => NULL, 'visible =' => 1 ];
-		return $this->categoryRepository->findBy( $criteria, [ 'priority' => 'ASC' ] );
+		$item = $this->categoryRepository->find( (int) $id );
+		$item->visible = $item->visible == 1 ? 0 : 1;
+		$this->em->persist( $item );
+		$this->em->flush( $item );
 	}
 
 
 
 	/**
+	 * @desc Find ids of category and nested categories. Is faster than queryBuilder because of recursion.
+	 * @param $category Entity\Category
+	 * @param $ids array
 	 * @return array
-	 * @desc This is only example which uses getArray() insted of getMenu(). Look at the menu_array.php.
-	 * like $a[0][5] $a[0][6] where [0] is parent_id which is array of his children
 	 */
-	public function getArray( $admin = FALSE )
+	public function findCategoryIds( Entity\Category $category, array $ids = [ ] )
 	{
-		$selection = $this->findAll( $admin );
-		$arr = [];
-		while ( $row = $selection->fetch() )
+		$ids[] = $category->id;
+
+		if ( $children = $this->categoryRepository->findBy( [ 'parent_id' => $category->id ] ) )
 		{
-			$arr[$row['parent_id']][$row['id']] = $row;
+			foreach ( $children as $child )
+			{
+				$ids[] = $this->findCategoryIds( $child, $ids );
+			}
 		}
 
-		return $arr;
+		return $ids;
 	}
 
 
@@ -71,41 +77,36 @@ class Categories
 	/**
 	 * @return Nette\Database\Table\Selection
 	 */
-	protected function findAll( $admin = FALSE )
+	public function findAll( $admin = FALSE )
 	{
-		$selection = $this->getTable();
-		$selection = $admin ? $selection : $selection->where( 'visible = ?', 1 );
+		return $this->categoryRepository->findAll();
+	}
 
-		return $selection->order( 'parent_id ASC, priority ASC' );
+
+
+	/**
+	 * @return Nette\Database\Table\Selection
+	 */
+	public function findPairs( $criteria, $value = NULL, $orderBy = array(), $key = NULL )
+	{
+		return $this->categoryRepository->findPairs( $criteria, $value = NULL, $orderBy = array(), $key = NULL );
 	}
 
 
 	/**
 	 * @param array $params
+	 * @param array|NULL $order
 	 * @param bool $admin
-	 * @return Nette\Database\Table\Selection
+	 * @return array
 	 */
-	public function findBy( Array $params, $admin = FALSE )
+	public function findBy( array $params, $order = NULL, $admin = FALSE )
 	{
-		$selection = $this->getTable()->where( $params );
-		$selection = $admin ? $selection : $selection->where( 'visible = ?', 1 );
+		$params = $admin ? $params : $params + [ 'visible =' => 1 ];
+		$order = $order ?: [ 'priority' => 'ASC' ];
 
-		return $selection->order( 'parent_id ASC, priority ASC' );
+		return $this->categoryRepository->findBy( $params, $order );
 	}
 
-
-
-	/**
-	 * @param $s string (:Admin:Blog....)
-	 * @return bool|mixed|Nette\Database\Table\IRow
-	 */
-	public function findOneByUrl( $s )
-	{
-		$s = ltrim( $s, ':' );
-		$s = explode( ':', $s )[0];
-		return $this->getTable()->where( 'url LIKE ?', '%' . $s . '%' )->order( 'parent_id' )->limit( 1 )->fetch();
-
-	}
 
 
 	/**
@@ -127,179 +128,188 @@ class Categories
 
 
 	/**
-	 * @desc This method find all categories in blog_article_category which belongs to article_id
-	 * @param int $id
-	 * @admin bool $admin
-	 * @return Nette\Database\Table\Selection
-	 */
-	public function findArticleCategories( $id, $admin = FALSE )
-	{
-		$cat_ids = $this->getTable( 'blog_article_category' )->select( 'categories_id' )
-			->where( 'articles_id', $id )
-			->where( 'categories_id NOT', array( 7 ) );
-
-		$categories = $this->getTable()->where( 'id', $cat_ids );
-
-		return $admin ? $categories : $categories->where( 'visible', 1 );
-	}
-
-
-
-	/**
-	 * @desc be carefull if parent does not exist returns same row
-	 * @param $id
-	 * @param bool $admin
-	 * @return Nette\Database\Table\IRow
-	 */
-	public function getParentRow( $id, $admin = FALSE )
-	{
-		$row1 = $admin ? $this->getTable()->get( (int) $id ) : $this->getTable()->where( array( 'id' => (int) $id, 'visible' => 1 ) )->fetch();
-		$row2 = $this->getTable()->get( $row1->parent_id );
-
-		return $row2 ? $row2 : $row1;
-
-	}
-
-
-
-	/**
+	 * @desc Creats new cat. for blog module with specific params like url, module.
 	 * @param array $params
-	 * @return bool|int|Nette\Database\Table\IRow
+	 * @return Entity\Category
+	 * @throws App\Exceptions\DuplicateEntryException
+	 * @throws App\Exceptions\InvalidArgumentException
 	 */
-	public function add( Array $params )
+	public function newBlogCategory( array $params )
 	{
-		return $this->getTable()->insert( $params );
-	}
-
-
-
-	/**
-	 * @param $id
-	 * @param $params
-	 * @return int
-	 */
-	public function update( $id, $params )
-	{
-		return $this->getTable()->where( 'id', $id )->update( $params );
-	}
-
-
-	/**
-	 * @param $id
-	 * @return int
-	 */
-	public function delete( $id )
-	{
-		$ids = $this->deleteHelper( $id, $this->getArray( 'admin' ) );
-
-		return $this->getTable()->where( array( 'id' => $ids, 'app' => 0 ) )->delete();
-	}
-
-
-	/**
-	 * @return Nette\Database\Table\Selection
-	 */
-	public function findModules()
-	{
-		return $this->getTable( 'modules' );
-	}
-
-
-
-	/**
-	 * @param $params
-	 * @return bool|mixed|Nette\Database\Table\IRow
-	 */
-	public function findOneModuleBy( $params )
-	{
-		return $this->getTable( 'modules' )->where( $params )->fetch();
-	}
-
-
-
-	/**
-	 * @desc Find ids of category and nested categories. Is faster than queryBuilder because of recursion.
-	 * @param $category Entity\Category
-	 * @param $ids array
-	 * @return array
-	 */
-	public function findCategoryIds( Entity\Category $category, array $ids = [ ] )
-	{
-		$ids[] = $category->id;
-
-		//$children = $this->categoryRepository->findBy( [ 'parent_id' => $category->id ] );
-
-		foreach ( $category->children as $child )
+		if ( ! isset( $params['name'] ) )
 		{
-			$ids[] = $this->findCategoryIds( $child, $ids );
+			throw new App\Exceptions\InvalidArgumentException( '$params["name"] is required in newBlogCategory( $params ).' );
+		}
+		$params['slug'] = Strings::webalize( $params['name'] );
+		$params['url'] = ':Articles:show';
+		$params['url_params'] = $params['slug'];
+
+		$params['parent_id'] = isset( $params['parent_id'] ) ? $params['parent_id'] : NULL;
+		// parent != parent_id // NULL & "0" == FALSE
+		$params['parent'] = $params['parent_id'] != FALSE ? $this->categoryRepository->find( $params['parent_id'] ) : NULL;
+
+		$params['visible'] = 1;
+		$params['app'] = 0;
+		$params['prioryty'] = 0;
+
+		$item = $this->categoryRepository->findOneBy( array( 'slug' => $params['slug'] ) );
+
+		if ( $item )
+		{
+			throw new App\Exceptions\DuplicateEntryException( 'Kategória s názvom ' . $params['name'] . 'už existuje.', 1 );
 		}
 
-		return $ids;
+		$category = new Entity\Category();
+		$category->create( $params );
+		$this->em->persist( $category );
+		$this->em->flush();
+		//$this->em->clear();  // Was used when children collection was not set in __construct. Now is set.
+
+		return $category;
 	}
 
 
 
 	/**
-	 * @desc Find ids of category and nested categories. Is slower that findBy in this case.
-	 * @param $id integer
-	 * @param $ids array
-	 * @return array
+	 * @param $id int
+	 * @param $name string
+	 * @return int
+	 * @throws App\Exceptions\ItemNotFoundException
+	 * @throws \Exception
 	 */
-	/*public function findCategoryIds( $id, array $ids = [ ] )
+	public function updateName( $id, $name )
 	{
-		$ids[] = $id = (int) $id;
+		$item = $this->categoryRepository->find( $id );
 
-		$children = $this->categoryRepository
-			->createQueryBuilder()
-			->select( 'c.id' )
-			->from( 'App\Model\Entity\Category', 'c' )
-			->where( 'c.parent_id = :id' )
-			->setParameter( 'id', $id )
-			->getQuery()
-			->execute( null, Doctrine\ORM\Query::HYDRATE_ARRAY );
+		$slug = $url_params = Strings::webalize( $name );
 
-		foreach ( $children as $child )
+		if ( $item )
 		{
-			$ids[] = $this->findCategoryIds( $child['id'], $ids );
+			try
+			{
+				$item->name = $name;
+				$item->slug = $slug;
+				$item->url_params = $url_params;
+
+				$this->em->flush();
+				return $item;
+			}
+			catch ( UniqueConstraintViolationException $e )
+			{
+				throw new App\Exceptions\DuplicateEntryException( $e );
+			}
+		}
+		else
+		{
+			throw new App\Exceptions\ItemNotFoundException( 'Položka s názvom ' . $name . ' nebola nájdená.' );
 		}
 
-		return $ids;
-	}*/
 
+	}
+
+	public function findAssoc( $criteria, $key = NULL )
+	{
+		return $this->categoryRepository->findAssoc( $key );
+	}
+
+
+
+	public function updatePriority( $arr )
+	{
+		$pairs = $this->categoryRepository->findAssoc( 'id' );
+		$i = 1;
+		foreach ( $arr as $key => $val )
+		{
+			// if the array is large it would be better to update only changed items
+			$pairs[(int) $key]->parent_id = $val == 0 ? NULL : (int) $val;
+			$pairs[(int) $key]->priority = $i;
+			$i++;
+		}
+
+		$this->em->flush();
+	}
+
+
+
+	/**
+	 * @param $item
+	 * @return array
+	 * @throws ContainsArticleException
+	 * @throws PartOfAppException
+	 * @throws \Exception
+	 */
+	public function delete( $item )
+	{
+		$result = $this->canDelete( $item );
+
+		if ( isset( $result['app'] ) )
+		{
+			$msg = 'Item can not be deleted because item ' . $result['app'] . ' is native part of application and can not be deleted.';
+			throw new PartOfAppException( $msg );
+		}
+		if ( isset( $result['articles'] ) )
+		{
+			$msg = 'Item can not be deleted because item ' . $result['articles'] . ' contains one or more articles.';
+			throw new ContainsArticleException( $msg );
+		}
+
+		$names = [ ];
+
+		foreach ( $result['items'] as $item )
+		{
+			$names[] = $item->name;
+			$this->em->remove( $item );
+		}
+
+		$this->em->flush();
+		
+		return $names;
+	}
 
 
 //////Protected/Private///////////////////////////////////////////////////////
 
 	/**
-	 * @return Nette\Database\Table\Selection
-	 */
-	protected function getTable( $tableName = NULL )
-	{
-		return $tableName ? $this->database->table( $tableName ) : $this->database->table( self::TABLE_NAME );
-	}
-
-
-
-	/**
-	 * @desc Recursively adds nested ids to array
-	 * @param $id
-	 * @param array $getArray
-	 * @param array $ids
+	 * @desc If $result contains app or article key, it means check is invalid ans can not be deleted.
+	 * @param Entity\Category $item
+	 * @param array $result
 	 * @return array
 	 */
-	protected function deleteHelper( $id, Array $getArray, Array $ids = array() )
+	protected function canDelete( Entity\Category $item, $result = NULL )
 	{
-		$ids[] = $id;
+		$result = $result ?: [ 'items' => [ ] ];
 
-		if ( isset( $getArray[$id] ) )
+		if ( $item->articles->count() )
 		{
-			foreach ( $getArray[$id] as $row )
-			{
-				$ids = $this->deleteHelper( $row->id, $getArray, $ids );
-			}
+			$result = [ 'articles' => $item->name ];
+			return $result;
+		}
+		if ( $item->app )
+		{
+			$result = [ 'app' => $item->name ];
+			return $result;
 		}
 
-		return $ids;
+		foreach ( $item->children as $child )
+		{
+			$result = $this->canDelete( $child, $result );
+		}
+
+		$result['items'][] = $item;
+
+		return $result;
+
 	}
 
+
+}
+
+class PartOfAppException extends \Exception
+{
+	// Entity or nested entity is part of application and so it can not be deleted
+}
+
+class ContainsArticleException extends \Exception
+{
+	// Entity or nested entity contains one or more articles and so it can not be deleted.
 }

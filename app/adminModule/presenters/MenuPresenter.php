@@ -5,12 +5,13 @@ namespace App\AdminModule\Presenters;
 
 
 use Nette;
-use	App;
-use	Nette\Application\UI\Form;
+use App;
+use Doctrine;
+use Nette\Application\UI\Form;
 use Nette\Caching\Cache;
-use	Nette\Utils\Strings;
 use App\Exceptions\AccessDeniedException;
-use	Tracy\Debugger;
+use App\Exceptions\DuplicateEntryException;
+use Tracy\Debugger;
 
 
 class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
@@ -22,8 +23,8 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	/** @var  @var Nette\Caching\Cache */
 	protected $categories_cache;
 
-	/** @var  Array */
-	protected $getMenu;
+	/** @var  array */
+	protected $menu;
 
 
 
@@ -49,9 +50,10 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		$this->template->_form = $this['createSectionForm'];
 
 		//$arr = $this->getArray = $this->categories->getArray( $admin = TRUE );
-		$this->getMenu = $menu = $this->categories->getMenu( $admin = TRUE );
+		$this->menu = $this->categories->findBy( [ 'parent_id =' => NULL ], NULL, TRUE );
 
-		$this->template->section = $menu;
+		$this->template->section = $this->menu;
+		$this->template->categories = $this->categories;
 	}
 
 
@@ -60,68 +62,44 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	 */
 	public function handlePriority()
 	{
-		$iterator = 1;
-		$error = FALSE; // for ajax
 		try
 		{
-			foreach ( $_GET['menuItem'] as $key => $val )
-			{
-				// if the array is large it would be better to update only changed items
-				$this->categories->update( (int) $key, array( 'parent_id' => (int) $val, 'priority' => $iterator ) );
-				$iterator++;
-			}
-			if ( ! $this->isAjax() )
-			{
-				$this->flashMessage( 'Zmeny v menu boli uložené.' );
-			}
-
+			$this->categories->updatePriority( $_GET['menuItem'] );
 			$this->cleanCache();
 
+			if ( ! $this->isAjax() )
+			{
+				$this->flashMessage( 'Poradie položiek bolo upravené.' );
+				$this->redirect( 'this' );
+			}
+			else
+			{
+				$this->setFlexiFlash( 'Poradie položiek bolo upravené.' );
+				$this->redrawControl( 'menu' );
+				$this->redrawControl( 'flexiFlash' );
+				return;
+			}
 		}
 		catch ( \Exception $e )
 		{
 			Debugger::log( $e->getMessage(), 'error' );
-			if ( ! $this->isAjax() )
-			{
-				$this->flashMessage( 'Pri ukladaní údajov došlo k chybe.' );
-			}
-			$error = TRUE;
+			$msg = 'Pri ukladaní údajov došlo k chybe.';
+			$this->isAjax() ? $this->setFlexiFlash( $msg, 'error' ) : $this->flashMessage( $msg, 'error' );
 		}
-
-		if ( $this->isAjax() )
-		{
-			if ( $error )
-			{
-				$this->setFlexiFlash( 'Poradie položiek bolo upravené' );
-			}
-			else
-			{
-				$this->setFlexiFlash( 'Poradie položiek bolo upravené' );
-			}
-
-			$this->redrawControl( 'menu' );
-			$this->redrawControl( 'flexiFlash' );
-			return;
-		}
-
-		$this->redirect( 'this' );
-
 	}
 
 
 	/**
 	 * @secured
-	 * TODO: Unused???
 	 */
 	public function handleSelect()
 	{
-		if ( ! $this->getArray )
+		if ( ! $this->menu )
 		{
-			$this->getArray = $this->categories->getArray();
+			$this->menu = $this->categories->findBy( [ 'parent_id =' => NULL ], NULL, TRUE );
 		}
-		$getArray = $this->getArray;
 
-		$params = $this->getCategoriesSelectParams( $getArray, $getArray[0] );
+		$params = $this->getCategoriesSelectParams( $this->menu );
 
 		$this['createSectionForm']['parent_id']->setItems( $params );
 
@@ -130,30 +108,32 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 
 	/**
-	 * @param $id
+	 * @param $id integer
 	 * @secured
 	 */
 	public function handleVisibility( $id )
 	{
-		$row = $this->categories->findOneBy( array( 'id' => (int) $id ), 'admin' );
-
-		$visible = $row->visible == 1 ? 0 : 1;
-		$this->categories->update( (int) $id, array( 'visible' => $visible ) );
-
-		$this->cleanCache();
+		try
+		{
+			$this->categories->switchVisibility( $id );
+			$this->cleanCache();
+			$msg = 'Viditeľnosť položky bola upravená.';
+			$this->isAjax() ? $this->setFlexiFlash( $msg, 'success' ) : $this->flashMessage( $msg, 'success' );
+		}
+		catch ( \Exception $e )
+		{
+			Debugger::log( $e->getMessage(), 'error' );
+			$msg = 'Pri ukladaní údajov došlo k chybe.';
+			$this->isAjax() ? $this->setFlexiFlash( $msg, 'error' ) : $this->flashMessage( $msg, 'error' );
+		}
 
 		if ( $this->isAjax() )
 		{
-			$this->setFlexiFlash( 'Viditeľnosť položky bola upravená' );
 			$this->redrawControl( 'sortableList' );
 			$this->redrawControl( 'menu' );
 			$this->redrawControl( 'flexiFlash' );
 
 			return;
-		}
-		else
-		{
-			$this->flashMessage( 'Viditeľnosť položky bola upravená.' );
 		}
 
 		$this->redirect( ':Admin:Menu:default' );
@@ -167,49 +147,47 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	 */
 	public function handleDelete( $id )
 	{
-		$row = $this->categories->findOneBy( array( 'id' => (int) $id ), 'admin' );
-		if ( $row && $row->app == 1 )
-		{
-			if ( $this->isAjax() )
-			{
-				$this->setFlexiFlash( 'Položka je natívnou súčasťou aplikácie. Neni možné ju zmazať. Môžete ju ale skryť.', TRUE );
-			}
-			else
-			{
-				$this->flashMessage( 'Položka je natívnou súčasťou aplikácie. Neni možné ju zmazať. Môžete ju ale skryť.' );
-			}
-		}
-		else
-		{
-			if ( $row )
-			{
-				$count = $this->categories->delete( (int) $id );
-				$this->cleanCache();
+		$item = $this->categories->findOneBy( array( 'id' => (int) $id ), 'admin' );
 
-				if ( $this->isAjax() )
-				{
-					$this->setFlexiFlash( 'Položka s názvom ' . $row->title . ' bola odstránená. Počet odstránených položiek ' . $count );
-				}
-				else
-				{
-					$this->flashMessage( 'Položka s názvom ' . $row->title . ' bola odstránená. Počet odstránených položiek ' . $count );
-				}
-			}
-		}
+		$this->cleanCache();
 
 		if ( $this->isAjax() )
 		{
 			$this->redrawControl( 'menu' );
 			$this->redrawControl( 'sortableList' );
-			if ( $row )
+			if ( $item )
 			{
 				$this->redrawControl( 'flexiFlash' );
 			} // Double click makes double deletion => second del. has not $row
-
-			return;
 		}
 
-		$this->redirect( ':Admin:Menu:default' );
+		try
+		{
+			$names = $result = $this->categories->delete( $item );
+			$this->setFlexiFlash( 'Item ' . join( ', ', $names ) . ' has been deleted.' );
+
+			if ( $this->isAjax() )
+			{
+				return;
+			}
+
+			$this->redirect( ':Admin:Menu:default' );
+		}
+		catch ( App\Model\PartOfAppException $e )
+		{
+			$this->setFlexiFlash( $e->getMessage(), 'error' );
+		}
+		catch ( App\Model\ContainsArticleException $e )
+		{
+			$this->setFlexiFlash( $e->getMessage(), 'error' );
+		}
+		catch ( \Exception $e )
+		{
+			Debugger::log( $e->getMessage() );
+			$this->setFlexiFlash( 'Pri ukladaní údajov došlo k chybe.', 'error' );
+		}
+
+		return;
 
 	}
 
@@ -219,29 +197,29 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 	/**
 	 * @desc produces an array of categories in format required by form->select
-	 * @param $wholeArr
-	 * @param $secArr
+	 * @param $section
 	 * @param array $params
 	 * @param int $lev
 	 * @return array
 	 */
-	protected function getCategoriesSelectParams( $wholeArr, $secArr, $params = array(), $lev = 0 )
+	protected function getCategoriesSelectParams( $section, $params = array(), $lev = 0 )
 	{
 		if ( ! $params )
 		{
 			$params[0] = 'Sekcia Top';
 		}
-		foreach ( $secArr as $row )
+		foreach ( $section as $item )
 		{
-			$params[$row->id] = str_repeat( '>', $lev * 1 ) . $row->title;
-			if ( isset( $wholeArr[$row->id] ) )
+			$params[$item->id] = str_repeat( '>', $lev * 1 ) . $item->name;
+			if ( $item->children->count() )
 			{
-				$params = $this->getCategoriesSelectParams( $wholeArr, $wholeArr[$row->id], $params, $lev + 1 );
+				$params = $this->getCategoriesSelectParams( $item->children, $params, $lev + 1 );
 			}
 		}
 
 		return $params;
 	}
+
 
 
 	/**
@@ -277,18 +255,19 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 	protected function createComponentCreateSectionForm()
 	{
-		$this->getMenu = $this->getMenu ?: $this->categories->getMenu();
+		$this->menu = $this->menu ?: $this->categories->findBy( [ 'parent_id =' => NULL ], NULL, TRUE );
 
 		$form = new Nette\Application\UI\Form();
 		$form->elementPrototype->addAttributes( array( 'class' => 'ajax' ) );
 
-		$form->addText( 'title', 'Zvoľte názov' )
+		$form->addText( 'name', 'Zvoľte názov' )
 			->addRule( Form::FILLED, 'Pole meno musí byť vyplnené.' )
 			->setAttribute( 'class', 'b4 c3 w100P' );
 
 
 		$form->addSelect( 'parent_id', 'Vyberte pozíciu' )
-			->setAttribute( 'class', 'w100P' );
+			->setAttribute( 'class', 'w100P' )
+			->setAttribute( 'id', 'createSelect' );
 
 		$form->addSubmit( 'sbmt', 'Uložiť' )
 			->setAttribute( 'class', 'dIB button1 pH20 pV5' );
@@ -301,22 +280,7 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 	public function createSectionFormSucceeded( $form )
 	{
-		if ( $this->isAjax() )
-		{
-			$values = $form->getHttpData();
-		}
-		else
-		{
-			$values = $form->getValues();
-		}
-
-		unset( $values['sbmt'] );
-		unset( $values['do'] );
-
-		$values['priority'] = 0;
-		$values['url_title'] = Strings::webalize( $values['title'] );
-		$values['url'] = ':Articles:show';
-		$values['url_params'] = $values['url_title'];
+		$values = $this->isAjax() ? $form->getHttpData() : $form->getValues();
 
 		if ( $this->isAjax() ) // Is before try block cause catch returns
 		{
@@ -325,48 +289,30 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			$this->redrawControl( 'flexiFlash' );
 		}
 
-		$row = $this->categories->findOneBy( array( 'url_title' => $values['url_title'] ) );
-		if ( $row ) // Duplicate entry
-		{
-			if ( $this->isAjax() )
-			{
-				$this->setFlexiFlash( 'Kategória s názvom ' . $values['title'] . ' už existuje. Musíte vybrať iný názov.', 'error' );
-			}
-			else
-			{
-				$this->flashMessage( 'Kategória s názvom ' . $values['title'] . ' už existuje. Musíte vybrať iný názov.', 'error' );
-			}
-
-			return $form;
-		}
-
 		try
 		{
-			$this->categories->add( $values );
+			$this->categories->newBlogCategory( $values );
 			$this->cleanCache();
+		}
+		catch ( DuplicateEntryException $e )
+		{
+			$this->setFlexiFlash( 'Kategória s názvom ' . $values['name'] . ' už existuje. Musíte vybrať iný názov.', 'error' );
+			return $form;
 		}
 		catch ( \Exception $e )
 		{
 			Debugger::log( $e->getMessage(), 'error' );
-
-			if ( ! $this->isAjax() )
-			{
-				$this->flashMessage( 'Pri ukladaní došlo k chybe. ', 'error' );
-				return;
-			}
-
-			$this->setFlexiFlash( 'Pri ukladaní došlo k chybe.', 'error' );
-
+			$this->flashMessage( 'Pri ukladaní došlo k chybe. ', 'error' );
 			return $form;
 		}
 
+		$this->setFlexiFlash( 'Sekcia bola vytvorená.' );
+
 		if ( $this->isAjax() )
 		{
-			$this->setFlexiFlash( 'Sekcia bola vytvorená.' );
 			return;
 		}
 
-		$this->flashMessage( 'Sekcia bola vytvorená.' );
 		$this->redirect( 'this' );
 
 	}
@@ -380,7 +326,7 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		$form = new Form();
 		$form->elementPrototype->addAttributes( array( 'class' => 'ajax' ) );
 
-		$form->addText( 'title', 'Zmeňte názov' )
+		$form->addText( 'title', 'Premenovať sekciu' )
 			->addRule( Form::FILLED, 'Pole názov musí byť vyplnené' )
 			->setAttribute( 'class', 'w100P b4 c3' );
 
@@ -409,8 +355,6 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			$values = $form->getValues();
 		}
 
-		$url_title = $url_params = Strings::webalize( $values->title );
-
 		if ( $this->isAjax() )
 		{
 			$this->redrawControl( 'menu' );
@@ -418,49 +362,34 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			$this->redrawControl( 'flexiFlash' );
 		}
 
-
-		$row = $this->categories->findOneBy( array( 'url_title = ?' => $url_title ) );
-		if ( $row )
-		{
-			if ( $this->isAjax() )
-			{
-				$this->setFlexiFlash( 'Kategória s názvom ' . $values->title . ' už existuje. Musíte vybrať iný názov.', 'error' );
-				return;
-			}
-
-			$this->flashMessage( 'Kategória s názvom ' . $values->title . ' už existuje. Musíte vybrať iný názov.', 'error' );
-
-			return $form;
-		}
-
 		try
 		{
-			$this->categories->update( (int) $values->id, array( 'title' => $values->title, 'url_title' => $url_title, 'url_params' => $url_params ) );
+			$this->categories->updateName( $values->id, $values->title );
 			$this->cleanCache();
+		}
+		catch ( App\Exceptions\ItemNotFoundException $e )
+		{
+			$this->setFlexiFlash( $e->getMessage(), 'error' );
+			return $form;
+		}
+		catch ( DuplicateEntryException $e )
+		{
+			$this->setFlexiFlash( 'Položka s názvom ' . $values->title . ' už existuje. Musíte vybrať iný názov.', 'error' );
+			return $form;
 		}
 		catch ( \Exception $e )
 		{
 			Debugger::log( $e->getMessage(), 'error' );
-
-			if ( $this->isAjax() )
-			{
-				$this->setFlexiFlash( 'Pri ukladaní údajov došlo k chybe.', 'error' );
-				$this->redrawControl( 'flexiFlash' );
-				return;
-			}
-
-			$this->flashMessage( 'Pri ukladaní údajov do databázy došlo k chybe. Kontaktujte administrátora.', 'error' );
-
+			$this->setFlexiFlash( 'Pri ukladaní údajov došlo k chybe.', 'error' );
 			return $form;
 		}
 
+		$this->setFlexiFlash( 'Sekcia bola upravená.' );
+
 		if ( $this->isAjax() )
 		{
-			$this->setFlexiFlash( 'Sekcia bola upravená.' );
 			return;
 		}
-
-		$this->flashMessage( 'Sekcia bola upravená.' );
 
 		$this->redirect( 'this' );
 

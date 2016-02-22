@@ -11,7 +11,7 @@ use Nette;
  */
 class DuplicateEntryException extends \Exception
 {
-	// try to insert duplicate value to fields with unique key
+	// Try to insert duplicate value to fields with unique key
 }
 
 /**
@@ -20,7 +20,7 @@ class DuplicateEntryException extends \Exception
  */
 class AccessDeniedException extends \Exception
 {
-	// user have not premission to view or do something
+	// //User have not premission to view or do something
 }
 
 /**
@@ -29,7 +29,7 @@ class AccessDeniedException extends \Exception
  */
 class InvalidArgumentException extends \Exception
 {
-	// parameter suplied as an argument is wrong (typehint/range)
+	// Parameter suplied as an argument is wrong (typehint/range)
 }
 
 /**
@@ -38,7 +38,7 @@ class InvalidArgumentException extends \Exception
  */
 class ConfirmationEmailException extends \Exception
 {
-	// something goes wrong with confirmation emails. (Ie. users acount is active, but email is not confirmed.)
+	// Something goes wrong with confirmation emails. (Ie. users acount is active, but email is not confirmed.)
 }
 
 /**
@@ -47,7 +47,17 @@ class ConfirmationEmailException extends \Exception
  */
 class GeneralException extends \Exception
 {
-	// something goes wrong but we don't know what.
+	// Something goes wrong but we don't know what.
+}
+
+/**
+ * Class ItemNotFoundException
+ * @package App\Exceptions
+ */
+class ItemNotFoundException extends \Exception
+{
+	// Item was not found.
+	public $code = 404;
 }
 
 

@@ -25,7 +25,7 @@ class DromPresenter extends BasePresenter
 
 	public function renderDefault()
 	{
-		Debugger::dump( $this->em->getRepository( Model\Entity\Article::class )->getClassMetadata() );
+		Debugger::dump( $this->em->getRepository( Model\Entity\Category::class )->find() );
 
 	}
 

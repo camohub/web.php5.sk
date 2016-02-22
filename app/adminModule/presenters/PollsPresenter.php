@@ -98,7 +98,7 @@ class PollsPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 		$form->addTextArea('title', 'Názov ankety')
 			->setRequired('Zadajte prosím názov ankety. Pole nemôže ostať prázdne.')
-			->setAttribute('class', 'w75P mV10 b8')
+			->setAttribute( 'class', 'w75P mV10 b7' )
 			->setDefaultValue(isset($poll[$id]) ? $poll[$id] : '');
 
 		if($id)
@@ -109,7 +109,7 @@ class PollsPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 				if($key == $id) continue;
 				$old_questions->addTextArea($key, 'XXX')
 					->setRequired()
-					->setAttribute('class', 'w75P mV10 b8')
+					->setAttribute( 'class', 'w75P mV10 b7' )
 					->setDefaultValue($val);
 			}
 		}
@@ -119,7 +119,7 @@ class PollsPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		{
 			$q = $questions->addTextArea($item,'Otázka '.$item);
 			if($item == 1 && !$id) $q->setRequired('Anketa musí obsahovať minimálne jednu otázku. Doplňte ju prosím.');
-			$q->setAttribute('class', 'mV10 w75P b8 '.(($item == 1) ? ' dB ' : ' dN ' ) ); // Showed by javascript
+			$q->setAttribute( 'class', 'mV10 w75P b7 ' . ( ( $item == 1 ) ? ' dB ' : ' dN ' ) ); // Showed by javascript
 		}
 
 		$form->addSubmit('sbmt', 'Uložiť')

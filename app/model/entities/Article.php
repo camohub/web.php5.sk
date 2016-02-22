@@ -28,7 +28,7 @@ class Article
 
 	public function __construct()
 	{
-		$this->articles = new ArrayCollection();
+		$this->comments = new ArrayCollection();
 		$this->roles = new ArrayCollection();
 	}
 
