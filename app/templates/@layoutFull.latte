@@ -44,7 +44,7 @@
 				<ul>
 				{if $presenter->user->isLoggedIn()}
 					{if $user->isAllowed('administration', 'view')}
-					<li><a n:href=":Drom:default">Drom</a></li>
+						<li><a n:href=":Admin:Drom:default">Drom</a></li>
 					<li><a n:href=":Admin:Default:default" rel="nofollow">Administrácia</a></li>
 					{/if}
 					<li><a n:href=":Sign:out" rel="nofollow">Odhlásiť</a></li>

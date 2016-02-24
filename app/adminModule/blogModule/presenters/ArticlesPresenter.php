@@ -1,10 +1,11 @@
 <?php
 namespace App\AdminModule\BlogModule\Presenters;
 
-use	Nette,
+use    Nette,
 	App,
 	Nette\Application\UI\Form,
 	Tracy\Debugger;
+use Symfony\Component\Config\Definition\Exception\Exception;
 
 class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 {
@@ -18,7 +19,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	/** @var  App\Model\Categories @inject */
 	public $categories;
 
-	/** @var  Nette\Database\Table\ActiveRow */
+	/** @var  App\Model\Entity\Article */
 	public $article;
 
 	/** @var  Nette\Database\Table\Selection */
@@ -40,24 +41,16 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		// $filter == $form->getValues()
 		if ( $filter = $this->getSession( 'Admin:Blog:Articles' )->filter )
 		{
-			$articles = $this->articles->findAll( 'admin', FALSE );
+			$this->template->articles = $this->articles->findBy( $filter['criteria'], $filter['order'], NULL, NULL, 'admin' );
 
-			$articles = $filter->authors ? $articles->where( 'users_id', $filter->authors ) : $articles;
-			$articles = $filter->interval ? $articles->where( 'created > ?', time() - $filter->interval * 60 * 60 * 24 ) : $articles;
-			$articles = $filter->order ? $articles->order( implode( ',', $filter->order ) ) : $articles;
-			// if items are not ordered by date
-			$articles = ( $filter->order && ( in_array( 'created DESC', $filter->order ) || in_array( 'created ASC', $filter->order ) ) ) ? $articles : $articles->order( 'created DESC' );
-
-			$this->template->articles = $articles;
-
-			if ( ! $filter->remember )  // if filter is not in session, settings will be lost for every redirect to renderDefault
+			if ( ! isset( $filter['remember'] ) )  // if filter is not in session, settings will be lost for every redirect to renderDefault
 			{
 				unset( $this->getSession( 'Admin:Blog:Articles' )->filter );
 			}
 		}
 		else
 		{
-			$this->template->articles = $this->articles->findBy( array( 'users_id' => $this->user->id ), 'admin' )->order( 'created DESC' );
+			$this->template->articles = $this->articles->findBy( [ 'user.id =' => $this->user->id ], [ 'created' => 'DESC' ], NULL, NULL, 'admin' );
 		}
 	}
 
@@ -83,22 +76,16 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte oprávnenie editovať články.' );
 		}
 
-		$this->article = $this->articles->findOneBy( array( 'id' => (int) $id ), 'admin' );
+		$this->article = $this->articles->find( (int) $id );
 
-		if ( ! ( $this->article->users_id == $this->user->id || $this->user->isInRole( 'admin' ) ) )
+		if ( ! ( $this->article->user->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
 		{
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte právo editovať tento článok.' );
 		}
 
-		$this['articleForm']->setDefaults( $this->article );
-
-
-		$artCats = $this->categories->findArticleCategories( $id )->fetchPairs( NULL, 'id' );
-
-		$this['articleForm']['category']->setDefaultValue( $artCats );
+		$this['articleForm']->setDefaults( $this->articles->setDefaults( $this->article ) );
 
 		$this['breadcrumbs']->add( 'Editovať', ':Admin:Blog:Articles:edit' );
-
 
 	}
 
@@ -117,13 +104,21 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 		$this->article = $this->articles->findOneBy( array( 'id' => (int) $id ), 'admin' );
 
-		if ( ! ( $this->article->users_id == $this->user->id || $this->user->isInRole( 'admin' ) ) )
+		if ( ! ( $this->article->user->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
 		{
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte právo editovať tento článok.' );
 		}
 
-		$status = $this->article->status == 1 ? 0 : 1;
-		$this->articles->updateArticle( array( 'status' => $status ), (int) $id );
+		try
+		{
+			$this->articles->switchVisibility( $this->article );
+		}
+		catch ( \Exception $e )
+		{
+			Debugger::log( $e->getMessage() . 'in ' . $e->getFile() . ' on line ' . $e->getLine() );
+			$this->flashMessage( 'Pri upravovaní údajov došlo k chybe.', Debugger::ERROR );
+			return;
+		}
 
 		$this->flashMessage( 'Zmenili ste vyditeľnosť článku.' );
 		$this->redirect( ':Admin:Blog:Articles:default' );
@@ -143,14 +138,14 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte oprávnenie mazať články.' );
 		}
 
-		$this->article = $this->articles->findOneBy( array( 'id' => (int) $id ), 'admin' );
+		$this->article = $this->articles->find( (int) $id );
 
-		if ( ! ( $this->article->users_id == $this->user->id || $this->user->isInRole( 'admin' ) ) )
+		if ( ! ( $this->article->user->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
 		{
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte právo zmazať tento článok.' );
 		}
 
-		$this->articles->delete( (int) $id );
+		$this->articles->delete( $this->article );
 		$this->flashMessage( 'Článok bol zmazaný.' );
 		$this->redirect( ':Admin:Blog:Articles:default' );
 	}
@@ -162,25 +157,23 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 	/**
 	 * @desc produces an array of categories in format required by form->select
-	 * @param $wholeArr
-	 * @param $secArr
+	 * @param array $arr
 	 * @param array $params
 	 * @param int $lev
 	 * @return array
 	 */
-	protected function getCategoriesSelectParams( $wholeArr, $secArr, $params = array(), $lev = 0 )
+	protected function getCategoriesSelectParams( array $arr, $params = [ ], $lev = 0 )
 	{
-		foreach ( $secArr as $row )
+		foreach ( $arr as $item )
 		{
-			if ( $row->id == 7 )
+			if ( $item->id != 7 )  // 7 == Najnovšie and it is not optional value
 			{
-				continue;
-			} // 7 == Najnovšie and it is not optional value
+				$params[$item->id] = str_repeat( '>', $lev * 1 ) . $item->name;
+			}
 
-			$params[$row->id] = str_repeat( '>', $lev * 1 ) . $row->title;
-			if ( isset( $wholeArr[$row->id] ) )
+			if ( $arr = $this->categories->findBy( [ 'parent_id =' => $item->id ], NULL, 'admin' ) )
 			{
-				$params = $this->getCategoriesSelectParams( $wholeArr, $wholeArr[$row->id], $params, $lev + 1 );
+				$params = $this->getCategoriesSelectParams( $arr, $params, $lev + 1 );
 			}
 		}
 
@@ -211,12 +204,15 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			->setRequired( 'Nenapísali ste žiaden text. Bez neho nebude formulár odoslaný.' )
 			->setAttribute( 'class', 'show-hidden-error area500 editor' );
 
-		$catArray = $this->categories->getArray( 'admin' );
-		$sParams = $this->getCategoriesSelectParams( $catArray, $catArray[0] );
+		$cats = $this->categories->findBy( [ 'parent_id =' => NULL ], NULL, 'admin' );
+		$selParams = $this->getCategoriesSelectParams( $cats );
 
-		$form->addMultiSelect( 'category', 'Vyberte kategóriu', $sParams, 8 )
+		$form->addMultiSelect( 'categories', 'Vyberte kategóriu', $selParams, 8 )
 			->setRequired( 'Aplikácia vyžaduje, aby bola vybratá kategória pre článok.' )
 			->setAttribute( 'class', 'w200 b7' );
+
+		$form->addCheckbox( 'status', ' Zverejniť' )
+			->setDefaultValue( 1 );
 
 		$form->addSubmit( 'sbmt', 'Uložiť' );
 
@@ -231,8 +227,8 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	{
 		$values = $form->getValues();
 		$id = (int) $this->getParameter( 'id' );
-		$values->perex = preg_replace( '/<pre>/', '<pre class="prettyprint custom">', $values->perex );
-		$values->content = preg_replace( '/<pre>/', '<pre class="prettyprint custom">', $values->content );
+		$values->perex = preg_replace( '#<pre>#', '<pre class="prettyprint custom">', $values->perex );
+		$values->content = preg_replace( '#<pre>#', '<pre class="prettyprint custom">', $values->content );
 
 		if ( $id )
 		{
@@ -241,10 +237,15 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 				$this->articles->updateArticle( $values, $id );
 				$this->flashMessage( 'Článok bol upravený.' );
 			}
+			catch ( App\Exceptions\DuplicateEntryException $e )
+			{
+				$this->flashMessage( $e->getMessage(), 'error' );
+				return $form;
+			}
 			catch ( \Exception $e )
 			{
 				$form->addError( 'Pri ukladaní článku došlo k chybe.' );
-				Debugger::log( $e->getMessage(), Debugger::ERROR );
+				Debugger::log( $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine(), Debugger::ERROR );
 				return $form;
 			}
 			$this->redirect( 'this' );
@@ -253,9 +254,14 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		{
 			try
 			{
-				$values['users_id'] = $this->user->id;
-				$this->articles->insertArticle( $values );
+				$values['user_id'] = $this->user->id;
+				$this->articles->createArticle( $values );
 				$this->flashMessage( 'Článok bol vytvorený.' );
+			}
+			catch ( App\Exceptions\DuplicateEntryException $e )
+			{
+				$this->flashMessage( $e->getMessage(), 'error' );
+				return $form;
 			}
 			catch ( \Exception $e )
 			{
@@ -278,11 +284,13 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		$form->addMultiSelect( 'authors', 'Autori', $authors, 7 )
 			->setAttribute( 'class', 'b7' );
 
+		// Order of select items is critical.
+		// order by created ASC, user_name ASC !== order by user_name ASC, created ASC.
 		$form->addMultiSelect( 'order', 'Zoradiť podľa', array(
-			'users.user_name DESC' => 'Meno zostupne',
-			'users.user_name ASC'  => 'Meno vzostupne',
-			'created DESC'         => 'Vytvorený zostupne',
-			'created ASC'          => 'Vytvorený vzostupne',
+			'user.user_name DESC' => 'Meno zostupne',
+			'user.user_name ASC'  => 'Meno vzostupne',
+			'created DESC'        => 'Vytvorený zostupne',
+			'created ASC'         => 'Vytvorený vzostupne',
 		), 7 )
 			->setAttribute( 'class', 'b7' );
 
@@ -292,7 +300,8 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 		$form->addCheckbox( 'remember', ' Zapamätať si nastavenia' );
 
-		$form->addSubmit( 'sbmt', 'Filtrovať' );
+		$form->addSubmit( 'sbmt', 'Filtrovať' )
+			->setAttribute( 'class', 'button1' );
 
 		$form->onSuccess[] = $this->filterFormSucceeded;
 
@@ -308,19 +317,36 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 	public function filterFormSucceeded( $form )
 	{
+		$values = $form->getValues();
+
+		$criteria = [ ];
+		$order = [ ];
+
+		$criteria['user.id ='] = $values['authors'] ? $values['authors'] : $this->user->id;
+
+		if ( $values['interval'] )
+		{
+			$criteria['created >'] = date( 'Y-m-d H:i:s', time() - $values['interval'] * 60 * 60 * 24 );
+		}
+
+		foreach ( $values->order as $item )
+		{
+			list( $key, $val ) = explode( ' ', $item );
+			$order[$key] = $val;
+		}
+		if ( ! array_key_exists( 'created', $order ) )
+		{
+			$order['created'] = 'DESC';
+		}
+
+		$filter = [ 'criteria' => $criteria, 'order' => $order ];
+
 		$articleSession = $this->getSession( 'Admin:Blog:Articles' );
 		$articleSession->setExpiration( 0 );
-		$articleSession->filter = $form->getValues();
+		$articleSession->filter = $filter;
 	}
 
 ////protected//////////////////////////////////////////////////////
-
-	protected function getCategories()
-	{
-		$cats = new App\Model\Categories( $this->database );
-
-
-	}
 
 
 }

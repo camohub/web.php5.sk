@@ -153,12 +153,13 @@ h4 {
   margin: 0;
   padding-bottom: 20px;
 }
-a.current {
-  color: #b63c3c;
-}
 a {
   color: #056296;
   text-decoration: none;
+}
+
+a.current {
+	color: #b63c3c;
 }
 a:hover,
 a:active {
@@ -541,7 +542,6 @@ ul li ul li a:hover {
 .c6 label {
   color: #f3f5d3;
 }
-
 .c7,
 .c7 label {
 	color: #b63c3c;
@@ -794,6 +794,10 @@ table.datagrid {
   background-color: #F5FFFE;
   color: #3d4f61;
 }
+
+table.datagrid th {
+	background-color: #dfe0eb;
+}
 table.datagrid td,
 table.datagrid th {
   padding: 7px;
@@ -831,10 +835,10 @@ li.breadcrumbs a:hover {
 .hover3:hover {
   background-color: #e9eaf5;
 }
-
 .fa.fa-lg {
 	padding-left: 10px;
 	line-height: 1em;
+	vertical-align: 0;
 	cursor: pointer;
 }
 .ico {
@@ -849,12 +853,10 @@ li.breadcrumbs a:hover {
 .ico_comment {
   background: url('http://web.php5.sk/www/images/icons/Comment.png') 2px center no-repeat;
 }
-
 .fa-minus-circle,
 .fa-trash-o {
 	color: #b63c3c;
 }
-
 .fa-check-circle,
 .fa-pencil {
 	color: green;

@@ -111,7 +111,7 @@ function activateCreateForm(el)
 	<div class="pV30 pH10" id="adminEditMenu">
 
 		<a class="editMenu ajax dIB button1 mV10 pH20 pV5 fWB" n:href="priority!">Uložiť zmeny</a>
-		<span onclick="activateCreateForm(this);" class="fa fa-lg fa-plus c3" title="Add new section"> </span>
+		<span onclick="activateCreateForm(this);" class="fa fa-lg fa-plus c3" title="Create new section"> </span>
 
 		{snippet sortableList}
 		{block menu}
@@ -125,7 +125,7 @@ function activateCreateForm(el)
 												   class="ignore fa fa-lg fa-pencil fR" title="Edit"> </a>{/if}
 							<a n:href="visibility! $item->id"
 							   n:class="ignore, ajax, fa, fa-lg, fR, $item->visible ? fa-check-circle : fa-minus-circle"
-							   title="Display/Hide"> </a>
+							   title="Visible/Hidden"> </a>
 						</div>
 						{if $section = $categories->findBy( [ 'parent_id' => $item->id ], NULL, 'admin' ) }
 							{include menu, section => $section, nested => 1}
@@ -173,7 +173,7 @@ function activateCreateForm(el)
 	<div class="pH10">
 		<div id="createSection" class="w200 fL mR20 dN p10 bgC5 bS1">
 			<span class="fa fa-lg fa-minus-circle fR" onclick="$('#createSection').slideUp();"
-				  title="hide panel"> </span>
+				  title="Hide panel"> </span>
 
 			<h3 class="editItem mV10 pV5 fWB">Vytvoriť sekciu</h3>
 			<div class="c3">
@@ -193,7 +193,7 @@ function activateCreateForm(el)
 		</div>
 
 		<div id="editSection" class="w200 fL dN p10 bgC5 bS1">
-			<span class="fa fa-lg fa-minus-circle fR" onclick="$('#editSection').slideUp();" title="hide panel"> </span>
+			<span class="fa fa-lg fa-minus-circle fR" onclick="$('#editSection').slideUp();" title="Hide panel"> </span>
 
 			<h3 class="editItem mV10 pV5 fWB">Premenovať</h3>
 			<div class="c3">

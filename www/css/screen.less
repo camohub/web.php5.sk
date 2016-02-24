@@ -197,13 +197,13 @@ h2, h3, h4 {
 
 }
 
-a.current {
-	color: @c8;
-}
-
 a {
 	color: @c9;
 	text-decoration: none;
+
+	&.current {
+		color: @c8;
+	}
 
 	&:hover, &:active {
 		color: @c37;
@@ -981,11 +981,15 @@ ul.error {
 table.datagrid {
 	background-color: @c35;
 	color: @c18;
-}
 
-table.datagrid td, table.datagrid th {
-	padding: 7px;
-	border: 1px solid @c37;
+	th {
+		background-color: @c26;
+	}
+
+	td, th {
+		padding: 7px;
+		border: 1px solid @c37;
+	}
 }
 
 html.js .jshidden {
@@ -1033,6 +1037,7 @@ li.breadcrumbs {
 .fa.fa-lg {
 	padding-left: 10px;
 	line-height: 1em;
+	vertical-align: 0;
 	cursor: pointer;
 }
 

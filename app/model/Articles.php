@@ -1,12 +1,15 @@
 <?php
+
 namespace App\Model;
 
+
 use Nette;
-use Tracy\Debugger;
-use Symfony\Component\Config\Definition\Exception\Exception;
-use App\Exceptions;
-use Nette\Utils\Strings;
 use Kdyby;
+use Nette\Utils\Strings;
+use App\Exceptions;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Symfony\Component\Config\Definition\Exception\Exception;
+use Tracy\Debugger;
 
 
 class Articles extends Nette\Object
@@ -24,6 +27,12 @@ class Articles extends Nette\Object
 	/** @var Kdyby\Doctrine\EntityRepository */
 	protected $articleRepository;
 
+	/** @var Kdyby\Doctrine\EntityRepository */
+	protected $userRepository;
+
+	/** @var Kdyby\Doctrine\EntityRepository */
+	protected $categoryRepository;
+
 
 
 	/**
@@ -36,41 +45,58 @@ class Articles extends Nette\Object
 		$this->em = $em;
 
 		$this->articleRepository = $em->getRepository( Entity\Article::class );
+		$this->userRepository = $em->getRepository( Entity\User::class );
+		$this->categoryRepository = $em->getRepository( Entity\Category::class );
 	}
+
+
+
+	/**
+	 * @param int $id
+	 * @return Entity\Article
+	 */
+	public function find( $id )
+	{
+		return $this->articleRepository->find( (int) $id );
+	}
+
 
 
 	/**
 	 * @param bool $admin
 	 * @param bool $order
-	 * @return Nette\Database\Table\Selection
+	 * @return array
 	 */
 	public function findAll( $admin = FALSE, $order = TRUE )
 	{
-		$articles = $admin ? $this->getTable() : $this->getTable()->where( 'status', 1 );
-		$articles = $order ? $articles->order( 'created DESC' ) : $articles;
-		return $articles;
+		return $this->articleRepository->findAll();
 	}
 
 
 	/**
-	 * @param $params
+	 * @param array $params
+	 * @param null $order
+	 * @param null $limit
+	 * @param null $offset
 	 * @param bool $admin
-	 * @param bool $order
-	 * @return Nette\Database\Table\Selection
+	 * @return array
 	 */
-	public function findBy( $params, $admin = FALSE, $order = TRUE )
+	public function findBy( array $params, $order = NULL, $limit = NULL, $offset = NULL, $admin = FALSE )
 	{
-		$articles = $this->getTable()->where( $params );
-		$articles = $admin ? $articles : $articles->where( 'status', 1 );
-		$articles = $order ? $articles->order( 'created ASC' ) : $articles;
-		return $articles;
+		if ( ! $admin )
+		{
+			$params['status ='] = 1;
+		}
+		$order = $order ? $order : [ 'created' => 'DESC' ];
+
+		return $this->articleRepository->findBy( $params, $order, $limit, $offset );
 	}
 
 
 	/**
 	 * @param $params
 	 * @param bool $admin
-	 * @return bool|mixed|Nette\Database\Table\IRow
+	 * @return Null|Entity\Article
 	 */
 	public function findOneBy( $params, $admin = FALSE )
 	{
@@ -101,13 +127,12 @@ class Articles extends Nette\Object
 	 */
 	public function findCategoryArticles( Array $cat_ids, $admin = FALSE )
 	{
-		//$art_ids = $this->getTable( 'articles_categories' )->where( 'category_id', $cat_ids )->fetchPairs( NULL, 'article_id' );
-		//$articles = $this->findAll( $admin )->where( 'id', $art_ids );
+		$criteria = $admin ? [ 'categories.id' => $cat_ids ] : [ 'categories.id' => $cat_ids, 'status =' => 1 ];
 
 		$articles = $this->articleRepository->createQueryBuilder()
 			->select( 'a' )
 			->from( 'App\Model\Entity\Article', 'a' )
-			->whereCriteria( [ 'categories.id' => $cat_ids ] )
+			->whereCriteria( $criteria )
 			->orderBy( 'a.created', 'DESC' )
 			->getQuery();
 
@@ -126,104 +151,166 @@ class Articles extends Nette\Object
 		return $this->getTable( 'blog_comments' )->insert( $params );
 	}
 
+	
+	/**
+	 * @param $ent Entity\Article|int
+	 * @return array
+	 */
+	public function setDefaults( $ent )
+	{
+		if ( ! $ent instanceof Entity\Article )
+		{
+			$ent = $this->articleRepository->find( (int) $ent );
+		}
+		return $arr = $ent->getArray();
+
+	}
+
 
 
 	/**
-	 * @param $params
-	 * @throws Exceptions\InvalidArgumentException
-	 * @throws Exceptions\GeneralException
+	 * @param array $values
 	 * @return bool|int|Nette\Database\Table\IRow
+	 * @throws Exceptions\DuplicateEntryException
+	 * @throws Exceptions\GeneralException
+	 * @throws Exceptions\InvalidArgumentException
 	 */
-	public function insertArticle( $params )
+	function createArticle( $values )
 	{
-		if ( ! isset( $params['category'] ) || ! $params['category'] )
+		if ( ! isset( $values['categories'], $values['title'], $values['perex'], $values['meta_desc'], $values['content'], $values['user_id'] ) )
 		{
-			throw new Exceptions\InvalidArgumentException( 'Params does not contain category parameter. In BlogArticles insertArticle($params).' );
+			throw new Exceptions\InvalidArgumentException( 'Values does not contain some of required parameter: title, perex, content, meta_desc, user_id or category. In Articles->insertArticle($params).' );
+		}
+		if ( ! $values['categories'] )
+		{
+			throw new Exceptions\InvalidArgumentException( 'Params does not contain category parameter. In Articles->insertArticle($params).' );
 		}
 
-		$categories = $params['category']; // Cause is necessary to set values of blog_article_category table and unset $params['category']
-		unset( $params['category'] );
+		$params = [ ];
 
-		if ( ! in_array( 7, $categories ) )
+		$params['categories'] = $values['categories'];
+		if ( ! in_array( 7, $params['categories'] ) )
 		{
-			$categories[] = 7;
-		} // Add 7(Najnovšie)
-
-		$params['created'] = time();
-		$params['url_title'] = Strings::webalize( $params['title'] );
+			$params['categories'][] = 7;
+		}
+		$params['categories'] = $this->categoryRepository->findBy( [ 'id =' => $params['categories'] ] );
+		$params['user'] = $this->userRepository->find( (int) $values['user_id'] );
+		$params['title'] = $values['title'];
+		$params['url_title'] = Strings::webalize( $values['title'] );
+		$params['meta_desc'] = $values['meta_desc'];
+		$params['perex'] = $values['perex'];
+		$params['content'] = $values['content'];
+		$params['status'] = $values['status'];
+		$params['created'] = new Nette\Utils\DateTime();
 
 		try
 		{
-			$row = $this->getTable()->insert( $params );
-
-			foreach ( $categories as $cat )
-			{
-				$this->getTable( 'blog_article_category' )->insert( array( 'articles_id' => $row->id, 'categories_id' => $cat ) );
-			}
+			$article = new Entity\Article();
+			$article->create( $params );
+			$this->em->persist( $article );
+			$this->em->flush();
+		}
+		catch ( UniqueConstraintViolationException $e )
+		{
+			throw new Exceptions\DuplicateEntryException( 'Article with title ' . $values['title'] . ' already exists. You have to change.' );
 		}
 		catch ( \Exception $e )
 		{
-			throw new Exceptions\GeneralException( 'BlogArticles->insertArticle() fails on: ' . $e->getMessage() );
+			throw new Exceptions\GeneralException( 'Articles->insertArticle() fails on: ' . $e->getMessage() );
 		}
 
-		return $row;
+		return $article;
 
 	}
 
 
 	/**
-	 * @param $params array
+	 * @param $values array
 	 * @param $id int
 	 * @throws Exceptions\InvalidArgumentException
 	 * @throws Exceptions\GeneralException
 	 * @return int
 	 */
-	public function updateArticle( $params, $id )
+	public function updateArticle( $values, $id )
 	{
-		if ( ! isset( $params['category'] ) || ! $params['category'] )
+		if ( ! isset( $values['categories'] ) || ! $values['categories'] )
 		{
-			throw new Exceptions\InvalidArgumentException( 'Params does not contain category parameter. In BlogArticles insertArticle($params).' );
+			throw new Exceptions\InvalidArgumentException( 'Values does not contain category parameter. In Articles insertArticle($params).' );
 		}
 
-		$categories = $params['category']; // Cause is necessary to set values of blog_article_category table and unset $params['category']
-		unset( $params['category'] );
+		$params = [ ];
 
-		$categories = array_diff( $categories, array( 7 ) ); // Ensures that cat. 7 wont be inserted again cause delete() below do not deletes 7.
-
-		$params['url_title'] = Strings::webalize( $params['title'] );
+		// Ensures that cat. 7 wont be inserted again cause delete() below do not deletes 7.
+		if ( isset( $values['categories'] ) )
+		{
+			$params['categories'] = $values['categories'];
+			if ( ! in_array( 7, $params['categories'] ) )  // Cause collection will be completely rewritten.
+			{
+				$params['categories'][] = 7;
+			}
+			$params['categories'] = $this->categoryRepository->findBy( [ 'id =' => $params['categories'] ] );
+		}
+		if ( isset( $values['title'] ) )
+		{
+			$params['title'] = $values['title'];
+			$params['url_title'] = Strings::webalize( $values['title'] );
+		}
+		if ( isset( $values['meta_desc'] ) )
+		{
+			$params['meta_desc'] = $values['meta_desc'];
+		}
+		if ( isset( $values['perex'] ) )
+		{
+			$params['perex'] = $values['perex'];
+		}
+		if ( isset( $values['content'] ) )
+		{
+			$params['content'] = $values['content'];
+		}
+		if ( isset( $values['status'] ) )
+		{
+			$params['status'] = $values['status'];
+		}
 
 		try
 		{
-			$this->getTable()->where( 'id', $id )->update( $params );
-
-			$this->getTable( 'blog_article_category' )// Delete old values
-			->where( 'articles_id', $id )
-				->where( 'categories_id NOT', array( 7 ) )
-				->delete();
-
-			foreach ( $categories as $cat )
-			{
-				$this->getTable( 'blog_article_category' )->insert( array( 'articles_id' => $id, 'categories_id' => $cat ) );
-			}
+			$article = $this->articleRepository->find( $id );
+			$article->update( $params );
+			$this->em->flush( $article );
 		}
 		catch ( \Exception $e )
 		{
-			throw new Exceptions\GeneralException( 'BlogArticles->updateArticle() fails on: ' . $e->getMessage() );
+			throw new Exceptions\GeneralException( $e->getMessage() );
 		}
 
-
-		$row = $this->getTable()->where( 'id', $id )->update( $params );
 	}
 
 
 
 	/**
-	 * @param $id
+	 * @param $article int|Entity\Article
 	 * @return int
 	 */
-	public function delete( $id )
+	public function delete( $article )
 	{
-		return $this->getTable()->where( 'id', $id )->delete();
+		if ( is_int( $article ) )
+		{
+			$article = $this->articleRepository->find( (int) $article );
+		}
+		$this->em->remove( $article );
+		$this->em->flush( $article );
+	}
+
+
+
+	public function switchVisibility( $article )
+	{
+		if ( is_int( $article ) )
+		{
+			$article = $this->find( (int) $article );
+		}
+		$article->status = $article->status == 0 ? 1 : 0;
+		$this->em->flush( $article );
 	}
 
 

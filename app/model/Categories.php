@@ -2,11 +2,11 @@
 namespace App\Model;
 
 use App;
-use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Nette;
 use Kdyby;
 use Doctrine;
 use Nette\Utils\Strings;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Tracy\Debugger;
 
 
@@ -89,7 +89,7 @@ class Categories
 	 */
 	public function findPairs( $criteria, $value = NULL, $orderBy = array(), $key = NULL )
 	{
-		return $this->categoryRepository->findPairs( $criteria, $value = NULL, $orderBy = array(), $key = NULL );
+		return $this->categoryRepository->findPairs( $criteria, $value, $orderBy, $key );
 	}
 
 
@@ -262,7 +262,7 @@ class Categories
 		}
 
 		$this->em->flush();
-		
+
 		return $names;
 	}
 

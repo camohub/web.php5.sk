@@ -1,9 +1,11 @@
 <?php
+
 namespace App\Model;
 
 use App;
 use Nette;
 use Nette\Security\Passwords;
+use Kdyby;
 use Tracy\Debugger;
 
 
@@ -16,14 +18,23 @@ class Users
 	/** @var Nette\Database\Context */
 	protected $database;
 
+	/** @var Kdyby\Doctrine\EntityManager */
+	protected $em;
+
+	/** @var Kdyby\Doctrine\EntityRepository */
+	protected $usersRepository;
+
 
 
 	/**
 	 * @param Nette\Database\Context $db
 	 */
-	public function __construct( Nette\Database\Context $db )
+	public function __construct( Nette\Database\Context $db, Kdyby\Doctrine\EntityManager $em )
 	{
 		$this->database = $db;
+		$this->em = $em;
+
+		$this->usersRepository = $em->getRepository( Entity\User::class );
 	}
 
 
