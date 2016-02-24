@@ -1,10 +1,10 @@
 <?php
 namespace App\Presenters;
 
-use	Nette;
-use	App;
-use	App\Model;
-use	Tracy\Debugger;
+use    Nette;
+use    App;
+use    App\Model;
+use    Tracy\Debugger;
 
 
 class ArticlesPresenter extends \App\Presenters\BasePresenter
@@ -107,7 +107,6 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 
 
 
-
 /////component/////////////////////////////////////////////////////////////////////////
 
 	protected function createComponentCommentForm()
@@ -140,38 +139,37 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 		}
 
 		$values = $form->getValues();
-		$title = $this->getParameter( 'title' );
-		$this->article = $article = $this->articles->findOneBy( array( 'url_title' => $title ) );
 
-
-		if ( $values->name !== '' ) // Probably robot insertion
+		if ( $values->name ) // Probably robot insertion
 		{
 			$this->redirect( 'this' );
-			return;
 		}
+
+		$title = $this->getParameter( 'title' );
+		$this->article = $article = $this->articles->findOneBy( [ 'url_title =' => $title ] );
 
 		$values->content = htmlspecialchars( $values->content, ENT_QUOTES | ENT_HTML401 );
 		$values->content = preg_replace( '/\*\*([^*]+)\*\*/', '<b>$1</b>', $values->content );
 		$values->content = preg_replace( '/```\\n?([^`]+)```/', '<pre class="prettyprint custom"><code>$1</code></pre>', $values->content );
 
-		$params = array(
-			'blog_articles_id' => $article->id,
-			'users_id'         => $this->getUser()->id,
-			'name'             => $this->getUser()->identity->user_name,
-			'email'            => $this->getUser()->identity->email,
-			'content'          => $values->content,
-		);
-		$row = $this->articles->insertComment( $params );
+		$params = [
+			'article' => $article,
+			'user_id' => $this->getUser()->id,
+			'content' => $values->content,
+		];
 
-		if ( $row )
+		try
 		{
+			$this->articles->insertComment( $params );
 			$this->flashMessage( 'Ďakujeme za komentár', 'success' );
-			$this->redirect( 'this' );
 		}
-		else
+		catch ( \Exception $e )
 		{
 			$form->addError( 'Došlo k chybe. Váš komentár sa nepodarilo odoslať. Skúste to prosím neskôr.' );
 		}
+
+		$this->redirect( 'this' );
+
 	}
 
 }

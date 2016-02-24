@@ -5,6 +5,7 @@ namespace App\Model\Entity;
 
 
 use Doctrine\ORM\Mapping as ORM;
+use Nette\Utils\DateTime;
 
 
 /**
@@ -46,5 +47,16 @@ class Comment
 
 	/** @ORM\Column(type="datetime") */
 	protected $created;
+
+
+	public function create( $params )
+	{
+		$this->content = $params['content'];
+		$this->user = $params['user'];
+		$this->email = $this->user->getEmail();
+		$this->user_name = $this->user->getUserName();
+		$this->article = $params['article'];
+		$this->created = new DateTime();
+	}
 	
 }

@@ -41,9 +41,13 @@
 	{if $user->isAllowed('comment', 'add')}
 		{form commentForm}
 			<span class="c3">{label content}{/label}</span> <span id="showCommentHelp" class="ico ico_hint"> </span>
-			<ul class="errors" n:if="$form->hasErrors()">
-					<li n:foreach="$form->errors as $error">{$error}</li>
-			</ul>
+			<div class="alert alert-dismissible fade in alert-danger" n:if="$form->ownErrors">
+				<div n:foreach="$form->ownErrors as $error">
+					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
+								aria-hidden="true">&times;</span></button>
+					{$error}
+				</div>
+			</div>
 			<div id="commentHelp" class="pA dN bgC9 bS1 p5">**<b>Tučný text</b>**<br>```Kód programu```</div>
 			<div class="dN">{* Name is a trap to the robots *}{label name}{/label}{input name}</div>
 			<div class="required">{input content}</div>

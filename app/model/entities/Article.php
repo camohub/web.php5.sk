@@ -62,7 +62,7 @@ class Article extends Nette\Object
 
 	/**
 	 * @ORM\OneToMany(targetEntity="Comment", mappedBy="article", cascade={"remove"})
-	 * @ORM\OrderBy({"created" = "DESC"})
+	 * @ORM\OrderBy({"created" = "ASC"})
 	 */
 	protected $comments;
 
@@ -96,7 +96,7 @@ class Article extends Nette\Object
 		if ( isset( $params['title'] ) )
 		{
 			$this->title = $params['title'];
-			$this->url_title = $params['title'];
+			$this->url_title = $params['url_title'];
 		}
 		if ( isset( $params['meta_desc'] ) )
 		{

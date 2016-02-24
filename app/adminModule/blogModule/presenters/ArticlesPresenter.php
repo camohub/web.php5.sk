@@ -155,33 +155,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 ////protected////////////////////////////////////////////////////////////////
 
 
-	/**
-	 * @desc produces an array of categories in format required by form->select
-	 * @param array $arr
-	 * @param array $params
-	 * @param int $lev
-	 * @return array
-	 */
-	protected function getCategoriesSelectParams( array $arr, $params = [ ], $lev = 0 )
-	{
-		foreach ( $arr as $item )
-		{
-			if ( $item->id != 7 )  // 7 == Najnovšie and it is not optional value
-			{
-				$params[$item->id] = str_repeat( '>', $lev * 1 ) . $item->name;
-			}
-
-			if ( $arr = $this->categories->findBy( [ 'parent_id =' => $item->id ], NULL, 'admin' ) )
-			{
-				$params = $this->getCategoriesSelectParams( $arr, $params, $lev + 1 );
-			}
-		}
-
-		return $params;
-	}
-
-
-////component/////////////////////////////////////////////////////////////////////
+////component////////////////////////////////////////////////////////////////
 
 	public function createComponentArticleForm()
 	{
@@ -204,10 +178,8 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			->setRequired( 'Nenapísali ste žiaden text. Bez neho nebude formulár odoslaný.' )
 			->setAttribute( 'class', 'show-hidden-error area500 editor' );
 
-		$cats = $this->categories->findBy( [ 'parent_id =' => NULL ], NULL, 'admin' );
-		$selParams = $this->getCategoriesSelectParams( $cats );
-
-		$form->addMultiSelect( 'categories', 'Vyberte kategóriu', $selParams, 8 )
+		$catSel = $this->categories->toSelect( 'admin' );
+		$form->addMultiSelect( 'categories', 'Vyberte kategóriu', $catSel, 8 )
 			->setRequired( 'Aplikácia vyžaduje, aby bola vybratá kategória pre článok.' )
 			->setAttribute( 'class', 'w200 b7' );
 
@@ -280,7 +252,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	{
 		$form = new Form;
 
-		$authors = $this->users->findAll( 'admin' )->fetchPairs( 'id', 'user_name' );
+		$authors = $this->users->toSelect();
 		$form->addMultiSelect( 'authors', 'Autori', $authors, 7 )
 			->setAttribute( 'class', 'b7' );
 

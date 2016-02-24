@@ -75,6 +75,39 @@ class Categories
 
 
 	/**
+	 * @desc produces an array of categories in format required by form->select
+	 * @param bool $admin
+	 * @param array $arr
+	 * @param array $result
+	 * @param int $lev
+	 * @return array
+	 */
+	public function toSelect( $admin, $arr = [ ], $result = [ ], $lev = 0 )
+	{
+		if ( ! $arr )  // First call.
+		{
+			$arr = $this->findBy( [ 'parent_id =' => NULL ], [ 'priority' => 'ASC' ], $admin );
+		}
+
+		foreach ( $arr as $item )
+		{
+			if ( $item->id != 7 )  // 7 == Najnovšie and it is not optional value
+			{
+				$result[$item->id] = str_repeat( '>', $lev * 1 ) . $item->name;
+			}
+
+			if ( $arr = $this->findBy( [ 'parent_id =' => $item->id ], [ 'priority' => 'ASC' ], $admin ) )
+			{
+				$result = $this->toSelect( $admin, $arr, $result, $lev + 1 );
+			}
+		}
+
+		return $result;
+	}
+
+
+
+	/**
 	 * @return Nette\Database\Table\Selection
 	 */
 	public function findAll( $admin = FALSE )
@@ -144,8 +177,9 @@ class Categories
 		$params['url'] = ':Articles:show';
 		$params['url_params'] = $params['slug'];
 
-		$params['parent_id'] = isset( $params['parent_id'] ) ? $params['parent_id'] : NULL;
-		// parent != parent_id // NULL & "0" == FALSE
+		// If parent_id is not set or is 0 => NULL
+		$params['parent_id'] = isset( $params['parent_id'] ) && $params['parent_id'] != 0 ? $params['parent_id'] : NULL;
+		// parent != parent_id
 		$params['parent'] = $params['parent_id'] != FALSE ? $this->categoryRepository->find( $params['parent_id'] ) : NULL;
 
 		$params['visible'] = 1;
@@ -159,10 +193,17 @@ class Categories
 			throw new App\Exceptions\DuplicateEntryException( 'Kategória s názvom ' . $params['name'] . 'už existuje.', 1 );
 		}
 
+		$sameLevelCats = $this->findBy( [ 'parent_id =' => $params['parent_id'] ], NULL, 'admin' );
+		foreach ( $sameLevelCats as $cat )
+		{
+			$cat->priority++;
+		}
+
 		$category = new Entity\Category();
 		$category->create( $params );
 		$this->em->persist( $category );
-		$this->em->flush();
+		$sameLevelCats[] = $category;
+		$this->em->flush( $sameLevelCats );  // All categories + new one
 		//$this->em->clear();  // Was used when children collection was not set in __construct. Now is set.
 
 		return $category;

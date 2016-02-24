@@ -28,6 +28,7 @@ class Users
 
 	/**
 	 * @param Nette\Database\Context $db
+	 * @param Kdyby\Doctrine\EntityManager $em
 	 */
 	public function __construct( Nette\Database\Context $db, Kdyby\Doctrine\EntityManager $em )
 	{
@@ -42,10 +43,18 @@ class Users
 	/**
 	 * @return Nette\Database\Table\Selection
 	 */
-	public function findAll( $admin = NULL )
+	public function findAll()
 	{
-		$users = $admin ? $this->getTable() : $this->getTable()->where( 'active', 1 );
-		return $users->order( 'user_name ASC' );
+		return $this->usersRepository->findAll();
+	}
+
+
+	/**
+	 * @return array
+	 */
+	public function toSelect()
+	{
+		return $this->usersRepository->findPairs( 'user_name', [ 'user_name' => 'ASC' ], 'id' );
 	}
 
 

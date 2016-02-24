@@ -119,6 +119,11 @@ class User
 		return $this->user_name;
 	}
 
+	public function getEmail()
+	{
+		return $this->email;
+	}
+
 	public function getRoles()
 	{
 		return $this->roles;

@@ -18,9 +18,6 @@ class Articles extends Nette\Object
 	CONST TABLE_NAME = 'articles';
 
 
-	/** @var Nette\Database\Context */
-	protected $database;
-
 	/** @var Kdyby\Doctrine\EntityManager */
 	protected $em;
 
@@ -36,12 +33,10 @@ class Articles extends Nette\Object
 
 
 	/**
-	 * @param Nette\Database\Context $db
 	 * @param Kdyby\Doctrine\EntityManager $em
 	 */
-	public function __construct( Nette\Database\Context $db, Kdyby\Doctrine\EntityManager $em )
+	public function __construct( Kdyby\Doctrine\EntityManager $em )
 	{
-		$this->database = $db;
 		$this->em = $em;
 
 		$this->articleRepository = $em->getRepository( Entity\Article::class );
@@ -123,7 +118,7 @@ class Articles extends Nette\Object
 	 * @desc This method find all articles ids in blog_article_category which belongs to cat_ids
 	 * @param array $cat_ids
 	 * @param bool $admin
-	 * @return Nette\Database\Table\Selection
+	 * @return array
 	 */
 	public function findCategoryArticles( Array $cat_ids, $admin = FALSE )
 	{
@@ -143,12 +138,17 @@ class Articles extends Nette\Object
 
 
 	/**
-	 * @param array $params
+	 * @param $params
 	 * @return bool|int|Nette\Database\Table\IRow
 	 */
-	public function insertComment( Array $params )
+	public function insertComment( $params )
 	{
-		return $this->getTable( 'blog_comments' )->insert( $params );
+		$params['user'] = $this->userRepository->find( $params['user_id'] );
+
+		$comment = new Entity\Comment();
+		$comment->create( $params );
+		$this->em->persist( $comment );
+		$this->em->flush( $comment );
 	}
 
 	
@@ -316,13 +316,5 @@ class Articles extends Nette\Object
 
 ////Protected/Private//////////////////////////////////////////////////////
 
-	/**
-	 * @param null $table
-	 * @return Nette\Database\Table\Selection
-	 */
-	protected function getTable( $table = NULL )
-	{
-		return $this->database->table( $table ? $table : self::TABLE_NAME );
-	}
 
 }

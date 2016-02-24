@@ -170,24 +170,25 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			{
 				return;
 			}
-
-			$this->redirect( ':Admin:Menu:default' );
 		}
 		catch ( App\Model\PartOfAppException $e )
 		{
 			$this->setFlexiFlash( $e->getMessage(), 'error' );
+			return;
 		}
 		catch ( App\Model\ContainsArticleException $e )
 		{
 			$this->setFlexiFlash( $e->getMessage(), 'error' );
+			return;
 		}
 		catch ( \Exception $e )
 		{
-			Debugger::log( $e->getMessage() );
+			Debugger::log( $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() );
 			$this->setFlexiFlash( 'Pri ukladaní údajov došlo k chybe.', 'error' );
+			return;
 		}
 
-		return;
+		$this->redirect( ':Admin:Menu:default' );
 
 	}
 
