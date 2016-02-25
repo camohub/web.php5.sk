@@ -38,13 +38,6 @@ class SignPresenter extends BasePresenter
 		$this->getUser()->logout();
 		$this->flashMessage( 'Boli ste odhlásený.' );
 
-		$this->setReferer( 'signOutReferer' );
-
-		if ( $url = $this->getReferer( 'signOutReferer' ) )
-		{
-			$this->redirectUrl( $url );
-		}
-
 		$this->redirect( 'Articles:show' );
 	}
 

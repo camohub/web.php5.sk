@@ -153,18 +153,18 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	 */
 	protected function getReferer( $id = '' )
 	{
-		$refSes = $this->getSession( $id );
+		$refSess = $this->getSession( $id );
+		$url = $refSess->url;
 
-		if ( ! $id || ! $url = $refSes->url )
+		if ( ! $id || ! $url )
 		{
 			return FALSE;
 		}
 
-		$url = $this->getSession( $id )->url;
 		$url .= ( parse_url( $url, PHP_URL_QUERY ) ? '&' : '?' );
 		$url .= self::FLASH_KEY . '=' . $this->getParameter( self::FLASH_KEY );
 
-		unset( $refSes->url );
+		unset( $refSess->url );
 
 		return $url;
 	}
