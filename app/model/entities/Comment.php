@@ -48,6 +48,9 @@ class Comment
 	/** @ORM\Column(type="datetime") */
 	protected $created;
 
+	/** @ORM\Column(type="boolean", options={"unsigned":true, "default":false}) */
+	protected $deleted;
+
 
 	public function create( $params )
 	{
@@ -57,6 +60,16 @@ class Comment
 		$this->user_name = $this->user->getUserName();
 		$this->article = $params['article'];
 		$this->created = new DateTime();
+	}
+
+
+
+	public function update( $params )
+	{
+		if ( isset( $params['content'] ) )
+		{
+			$this->content = $params['content'];
+		}
 	}
 	
 }

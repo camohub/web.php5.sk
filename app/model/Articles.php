@@ -8,7 +8,6 @@ use Kdyby;
 use Nette\Utils\Strings;
 use App\Exceptions;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
-use Symfony\Component\Config\Definition\Exception\Exception;
 use Tracy\Debugger;
 
 

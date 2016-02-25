@@ -36,6 +36,7 @@ services:
 	- App\Model\Categories
 	- App\Model\Articles
 	- App\Model\Users
+	- App\Model\Comments
 	- Nette\Mail\SendmailMailer
 	- Nette\Mail\Message
 
