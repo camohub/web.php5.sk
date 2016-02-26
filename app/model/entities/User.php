@@ -6,13 +6,16 @@ namespace App\Model\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use Nette\Utils\ArrayHash;
 use Tracy\Debugger;
 
 
 /**
  * @ORM\Entity
- * @ORM\Table(name="users", options={"collate"="utf8_slovak_ci"})
+ * @ORM\Table(
+ *     name="users",
+ *     options={"collate"="utf8_slovak_ci"},
+ *     uniqueConstraints={@ORM\UniqueConstraint(columns={"user_name", "email", "resource"})}
+ * )
  */
 class User
 {
@@ -21,10 +24,10 @@ class User
 	use \Kdyby\Doctrine\Entities\Attributes\Identifier;
 
 
-	/** @ORM\Column(type="string", length=30, unique=true) */
+	/** @ORM\Column(type="string", length=30) */
 	protected $user_name;
 
-	/** @ORM\Column(type="string", length=50, unique=true) */
+	/** @ORM\Column(type="string", length=50) */
 	protected $email;
 
 	/** @ORM\Column(type="string", length=255, nullable=true) */
@@ -38,6 +41,9 @@ class User
 
 	/** @ORM\Column(type="string", length=40, nullable=true) */
 	protected $confirmation_code;
+
+	/** @ORM\Column(type="string", length=20) */
+	protected $resource;
 
 	/** @ORM\Column(type="text", nullable=true) */
 	protected $social_network_params;
@@ -54,7 +60,7 @@ class User
 	private $roles;
 
 
-	public function __construct( ArrayHash $params )
+	public function __construct( $params = [ ] )
 	{
 		$this->articles = new ArrayCollection();
 		$this->roles = new ArrayCollection();
@@ -76,8 +82,9 @@ class User
 		$this->user_name = $params['user_name'];
 		$this->password = $params['password'];
 		$this->email = $params['email'];
-		$this->active = 0;
+		$this->active = isset( $params['active'] ) ? $params['active'] : 0;
 		$this->confirmation_code = isset( $params['confirmation_code'] ) ? $params['confirmation_code'] : NULL;
+		$this->resource = $params['resource'];
 		$this->social_network_params = isset( $params['social_network_params'] ) ? $params['social_network_params'] : NULL;
 
 		foreach ( $params['roles'] as $role )
@@ -104,7 +111,7 @@ class User
 			'email'                 => $this->email,
 			'active'                => $this->active,
 			'created'               => $this->created,
-			'social_network_params' => $this->social_network_params,
+			'social_network_params' => $this->social_network_params ? unserialize( $this->social_network_params ) : NULL,
 		];
 	}
 
@@ -141,7 +148,7 @@ class User
 
 	public function getSocialNetworkParams()
 	{
-		return $this->social_network_params;
+		return $this->$this->social_network_params ? unserialize( $this->social_network_params ) : NULL;
 	}
 
 	public function getConfirmationCode()

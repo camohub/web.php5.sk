@@ -2,10 +2,13 @@
 
 namespace App\Presenters;
 
-use Nette,
-	App,
-	Facebook,
-	Tracy\Debugger;
+
+use Google_Client;
+use Google_Service_Plus;
+use Nette;
+use    App;
+use    Facebook;
+use    Tracy\Debugger;
 
 
 /**
@@ -35,7 +38,7 @@ class SigngooglePresenter extends BasePresenter
 
 		try
 		{
-			$client = new \Google_Client();
+			$client = new Google_Client();
 			$client->setClientId( self::APP_ID );
 			$client->setClientSecret( self::APP_SECRET );
 			$client->setRedirectUri( self::REDIRECT_URI );
@@ -46,7 +49,7 @@ class SigngooglePresenter extends BasePresenter
 
 			//$client->getAuth(); // TODO: unused for now????
 
-			$plus = new \Google_Service_Plus( $client );
+			$plus = new Google_Service_Plus( $client );
 
 			$me = $plus->people->get( 'me' );
 		}
@@ -64,22 +67,24 @@ class SigngooglePresenter extends BasePresenter
 				$user_email = $email->value;
 			}
 		}
-		if ( !isset( $user_email ) )
+		if ( ! isset( $user_email ) )
 		{
 			$this->sendJson( array( 'errCode' => 0, 'error' => 'Aplikácia vyžaduje na prihlásenie emailovú adresu. Email musíte pre aplikáciu povoliť.' ) );
 		}
 
-		$social_network_params = 'network=>Google+'
-			. '***id=>' . $me->getId()
-			. '***name=>' . $me->getDisplayName()
-			. '***image=>' . $me->getImage()->url
-			. '***url=>' . $me->getUrl();
+		$social_network_params = [
+			'network'   => 'Google+',
+			'id'        => $me->getId(),
+			'user_name' => $me->getDisplayName(),
+			'image'     => $me->getImage()->url,
+			'url'       => $me->getUrl(),
+		];
 
-		$userArr = array(
+		$userArr = [
 			'email'                 => $user_email,
 			'user_name'             => $me->getDisplayName(),
-			'social_network_params' => $social_network_params,
-		);
+			'social_network_params' => serialize( $social_network_params ),
+		];
 
 		try
 		{
@@ -97,28 +102,28 @@ class SigngooglePresenter extends BasePresenter
 		}
 		catch ( App\Exceptions\DuplicateEntryException $e )
 		{
-			Debugger::log( 'SigngooglePresenter:actionIn e3 fails on:' . $e->getMessage() );
-			$this->sendJson( array( 'errCode' => 0, 'error' => $e->getCode() == 1 ? 'Pri pokuse registrovať Váš email došlo k chybe. Tento email je už registrovaný.' : $e->getMessage() ) );
+			Debugger::log( 'SigngooglePresenter:actionIn fails on: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() );
+			$this->sendJson( [ 'errCode' => 1, 'error' => 'Pri pokuse registrovať Vás došlo k chybe. Toto meno, alebo email je už registrovaný.' ] );
 
 		}
 		catch ( App\Exceptions\AccessDeniedException $e )
 		{
 			// Be careful what can be displayed.
-			Debugger::log( 'SigngooglePresenter:actionIn e4 fails on:' . $e->getMessage() );
-			$this->sendJson( array( 'errCode' => 0, 'error' => $e->getMessage() ) );
+			Debugger::log( 'SigngooglePresenter:actionIn e4 fails on: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() );
+			$this->sendJson( [ 'errCode' => 2, 'error' => $e->getMessage() ] );
 
 		}
 		catch ( \Exception $e )
 		{
 			// Be careful whan can be displayed.
-			Debugger::log( 'SigngooglePresenter:actionIn e4 fails on:' . $e->getMessage() );
-			$this->sendJson( array( 'errCode' => 0, 'error' => 'Prihlasovanie cez Google+ zlyhalo.' ) );
+			Debugger::log( 'SigngooglePresenter:actionIn e4 fails on: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() );
+			$this->sendJson( [ 'errCode' => 3, 'error' => 'Prihlasovanie cez Google+ zlyhalo.' ] );
 		}
 
 		$this->flashMessage( 'Ste prihlásený ako ' . $this->user->identity->user_name );
 		// sendJson must not be in try block cause it throws an Nette\Application\AbortException
 		// _fid is flash messages id. It is necessary for redirect which makes js.
-		$this->sendJson( array( 'ok' => 'loged in', '_fid' => $this->params[self::FLASH_KEY] ) );
+		$this->sendJson( [ 'ok' => 'loged in', '_fid' => $this->params[self::FLASH_KEY] ] );
 
 
 	}
@@ -129,22 +134,3 @@ class SigngooglePresenter extends BasePresenter
 
 }
 
-class test
-{
-	public $jeden = 'jeden';
-	public $dva = 'dva';
-	public $tri = NULL;
-	public $styri = 'styri';
-
-	public function __construct()
-	{
-		$this->tri = new test2();
-	}
-}
-
-class test2
-{
-	public $jeden = 'jeden';
-	public $dva = 'dva';
-	public $styri = 'styri';
-}

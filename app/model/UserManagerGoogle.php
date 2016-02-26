@@ -2,11 +2,12 @@
 
 namespace App\Model;
 
-use Nette,
-	App,
-	Exceptions,
-	Nette\Utils\Strings,
-	Nette\Security\Passwords;
+
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Nette;
+use App;
+use Kdyby;
+use Tracy\Debugger;
 
 
 /**
@@ -14,30 +15,23 @@ use Nette,
  */
 class UserManagerGoogle extends Nette\Object
 {
-	/** Exception error code */
-	const IDENTITY_NOT_FOUND = 1,
-		INVALID_CREDENTIAL = 2,
-		FAILURE = 3,
-		NOT_APPROVED = 4;
+
+	/** @var  Kdyby\Doctrine\EntityManager */
+	protected $em;
+
+	/** @var Kdyby\Doctrine\EntityRepository */
+	protected $userRepository;
+
+	/** @var Kdyby\Doctrine\EntityRepository */
+	protected $roleRepository;
 
 
-	const TABLE_NAME = 'users',
-		ROLE = 3,
-		COLUMN_ID = 'id',
-		COLUMN_NAME = 'user_name',
-		COLUMN_PASSWORD = 'password',
-		COLUMN_EMAIL = 'email',
-		COLUMN_ACTIVE = 'active',
-		COLUMN_SOC_NET_PARAMS = 'social_network_params';
 
-
-	/** @var Nette\Database\Context */
-	private $database;
-
-
-	public function __construct(Nette\Database\Context $database)
+	public function __construct( Kdyby\Doctrine\EntityManager $em )
 	{
-		$this->database = $database;
+		$this->em = $em;
+		$this->userRepository = $em->getRepository( Entity\User::class );
+		$this->roleRepository = $em->getRepository( Entity\Role::class );
 	}
 
 
@@ -47,20 +41,25 @@ class UserManagerGoogle extends Nette\Object
 	 * @throws App\Exceptions\DuplicateEntryException
 	 * @throws \Exception
 	 */
-	public function authenticate(array $credentials)
+	public function authenticate( array $credentials )
 	{
 		// $email, $user_name, $social_network_params
-		extract($credentials);
+		extract( $credentials );
 
-		$row = $this->database->table(self::TABLE_NAME)->where(array(self::COLUMN_EMAIL => $email, self::COLUMN_NAME => $user_name, self::COLUMN_PASSWORD => NULL))->fetch();
+		$user = $this->userRepository->findOneBy( [
+			'email ='    => $email,
+			'password =' => NULL,
+			'resource =' => 'Google+',
+		] );
 
-		if (!$row) {
-			$row = $this->add($credentials);
+		if ( ! $user )
+		{
+			$user = $this->add( $credentials );
 		}
 
-		$userArr = $row->toArray();
+		$userArr = $user->getArray();
 
-		return new Nette\Security\Identity($row[self::COLUMN_ID], array('registered'), $userArr);
+		return new Nette\Security\Identity( $user->getId(), [ 'registered' ], $userArr );
 	}
 
 
@@ -71,59 +70,60 @@ class UserManagerGoogle extends Nette\Object
 	 * @throws App\Exceptions\DuplicateEntryException
 	 * @throws \Exception
 	 */
-	public function add($params, $trial = 1)
+	public function add( $params, $trial = 1 )
 	{
-		extract($params);
+		extract( $params );
 
-		$user_name = $trial === 1 ? $user_name : $user_name .' '. $trial;
-		$password = NULL;
-
-		$this->database->beginTransaction();
-		try {
-			$row = $this->database->table(self::TABLE_NAME)->insert(array(
-							self::COLUMN_NAME => $user_name,
-							self::COLUMN_PASSWORD => $password,
-							self::COLUMN_EMAIL => $email,
-							self::COLUMN_ACTIVE => 1,
-							self::COLUMN_SOC_NET_PARAMS => $social_network_params,
-			));
-
-			if($trial > 30) throw new \Exception('Unexpected error. Variable $trial in UserManagerGoogle->add() reached value 30.');
+		if ( $trial !== 1 )
+		{
+			$user_name = $user_name . ' ' . $trial;
 		}
-		catch(\PDOException $e)	{
-			// This catch ONLY checks duplicate entry to fields with UNIQUE KEY
-			$this->database->rollBack();
-			$info = $e->errorInfo;
 
-			// mysql==1062  sqlite==19  postgresql==23505
-			if ($info[0] == 23000 && $info[1] == 1062)
+		// if name already exists call add() with the name + $trial value // it makes e.g. Jozef Mak 3
+		if ( $this->userRepository->findOneBy( [ 'user_name =' => $user_name ] ) )
+		{
+			return $this->add( $params, ++$trial );
+		}
+
+		$this->em->beginTransaction();
+		try
+		{
+			if ( $trial > 30 )
 			{
-				// if duplicate is name calls add() and the name join with $trial value // it makes ie. Jozef Mak 3
-				if( $this->database->table(self::TABLE_NAME)->where('user_name = ?', $params['user_name'])->fetch() )
-				{
-					$this->add($params, ++$trial);
-				}
-				// else duplicate email throws exception
-				elseif( $this->database->table(self::TABLE_NAME)->where('email = ?', $params['email'])->fetch() )
-				{
-					$msg = 'email';	$code = 1;
-					throw new App\Exceptions\DuplicateEntryException($msg, $code);
-				}
-
+				throw new \Exception( 'Unexpected error. Variable $trial in UserManagerGoogle->add() reached value 30.' );
 			}
-			else { throw $e; }
-		}
 
-		try	{
-			$this->database->table('users_acl_roles')->insert(array('users_id' => $row->id, 'acl_roles_id' => self::ROLE));
+			$user = new Entity\User();
+			$roles = $this->roleRepository->findBy( [ 'name =' => 'registered' ] );
+			$user->create( [
+				'user_name'             => $user_name,
+				'password'              => NULL,
+				'email'                 => $email,
+				'active'                => 1,
+				'resource'              => 'Google+',
+				'social_network_params' => $social_network_params,
+				'roles'                 => $roles,
+			] );
+
+			$this->em->persist( $user );
+			$this->em->flush( $user );
 		}
-		catch(\Exception $e) {
-			$this->database->rollBack();
+		catch ( UniqueConstraintViolationException $e )
+		{
+			$this->em->rollback();
+			// if duplicate is name calls add() and the name join with $trial value // it makes ie. Jozef Mak 3
+			$msg = 'email or name';
+			$code = 1;
+			throw new App\Exceptions\DuplicateEntryException( $msg, $code );
+		}
+		catch ( \Exception $e )
+		{
+			$this->em->rollback();
 			throw $e;
 		}
 
-		$this->database->commit();
-		return $row;
+		$this->em->commit();
+		return $user;
 
 	}
 

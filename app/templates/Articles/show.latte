@@ -40,7 +40,8 @@
 
 	{if $user->isAllowed('comment', 'add')}
 		{form commentForm}
-			<span class="c3">{label content}{/label}</span> <span id="showCommentHelp" class="ico ico_hint"> </span>
+			<span class="c3">{label content}{/label}<i id="showCommentHelp"
+													   class="fa fa-lg fa-question-circle"></i></span>
 			<div class="alert alert-dismissible fade in alert-danger" n:if="$form->ownErrors">
 				<div n:foreach="$form->ownErrors as $error">
 					<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
@@ -83,9 +84,7 @@
 		<!--a href="#" onclick="googleSignOut();">Sign out</a-->
 		<div id ="loginStatus"><!-- element to show social login errors --></div>
 	{/if}
-
-
-	<div class="pV30">
+	<div class="pV30" id="comments">
 		<div n:foreach="$comments as $comment" n:class="p10, bR5, $iterator->isOdd() ? bgC5">
 			<div class="small1 c3 fWB commUserName cP">
 				{$comment->user_name}&nbsp;&nbsp;&nbsp; {$comment->created|date:'j. F Y'|datum:sk}
@@ -102,8 +101,9 @@
 			area.val(area.val() + '**' + $(this).text() + '** ').focus();
 		});
 
-		$('#showCommentHelp').on('mouseover', function(){ $('#commentHelp').css('display', 'block'); });
-		$('#showCommentHelp').on('mouseout', function(){ $('#commentHelp').css('display', 'none'); });
+		$( '#showCommentHelp' )
+				.on( 'mouseenter', function() { $( '#commentHelp' ).css( 'display', 'block' ); } )
+				.on( 'mouseleave', function() { $( '#commentHelp' ).css( 'display', 'none' ); } );
 
 	</script>
 

@@ -14,7 +14,8 @@ use Nette,
 class SignfbPresenter extends BasePresenter
 {
 	/** Facebook credentials */
-	CONST    APPID = '1452969908332494',
+	CONST
+		APPID = '1452969908332494',
 		APPSECRET = '5a328a8e5bb2e4ac565c2449d0d50f54';
 
 	/** @var  App\Model\UserManagerFB @inject */
@@ -67,16 +68,18 @@ class SignfbPresenter extends BasePresenter
 				$this->sendJson( array( 'errCode' => 1, 'error' => 'Prihlasovanie cez Facebook API zlyhalo.' ) );
 			}
 
-			$social_network_params = 'network=>Facebook'
-				. '***id=>' . $fbUser->getProperty( 'id' )
-				. '***name=>' . $fbUser->getProperty( 'name' )
-				. '***url=>' . $fbUser->getProperty( 'link' );
+			$social_network_params = [
+				'network' => 'Facebook',
+				'id'      => $fbUser->getProperty( 'id' ),
+				'name'    => $fbUser->getProperty( 'name' ),
+				'url=>'   => $fbUser->getProperty( 'link' ),
+			];
 
-			$userArr = array(
+			$userArr = [
 				'email'                 => $fbUser->getProperty( 'email' ), // email|NULL
 				'user_name'             => $fbUser->getProperty( 'name' ),
-				'social_network_params' => $social_network_params,
-			);
+				'social_network_params' => serialize( $social_network_params ),
+			];
 
 			if ( empty( $userArr['email'] ) )
 			{
