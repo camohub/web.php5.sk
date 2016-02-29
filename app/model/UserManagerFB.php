@@ -65,7 +65,7 @@ class UserManagerFB extends Nette\Object
 	 * @desc $trial is increased in recursion if user_name already exists. It produces Fero Mrkva 3
 	 * @param $params
 	 * @param int $trial
-	 * @return bool|int|Nette\Database\Table\IRow
+	 * @return Entity\User
 	 * @throws App\Exceptions\DuplicateEntryException
 	 * @throws \Exception
 	 */

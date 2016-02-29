@@ -66,7 +66,7 @@ class UserManagerGoogle extends Nette\Object
 	/**
 	 * @param $params
 	 * @param int $trial
-	 * @return bool|int|Nette\Database\Table\IRow
+	 * @return Entity\User
 	 * @throws App\Exceptions\DuplicateEntryException
 	 * @throws \Exception
 	 */

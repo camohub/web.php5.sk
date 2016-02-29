@@ -14,9 +14,6 @@ use Tracy\Debugger;
 class Articles extends Nette\Object
 {
 
-	CONST TABLE_NAME = 'articles';
-
-
 	/** @var Kdyby\Doctrine\EntityManager */
 	protected $em;
 
@@ -57,11 +54,9 @@ class Articles extends Nette\Object
 
 
 	/**
-	 * @param bool $admin
-	 * @param bool $order
 	 * @return array
 	 */
-	public function findAll( $admin = FALSE, $order = TRUE )
+	public function findAll()
 	{
 		return $this->articleRepository->findAll();
 	}
@@ -138,7 +133,6 @@ class Articles extends Nette\Object
 
 	/**
 	 * @param $params
-	 * @return bool|int|Nette\Database\Table\IRow
 	 */
 	public function insertComment( $params )
 	{
@@ -169,7 +163,7 @@ class Articles extends Nette\Object
 
 	/**
 	 * @param array $values
-	 * @return bool|int|Nette\Database\Table\IRow
+	 * @return Entity\Article
 	 * @throws Exceptions\DuplicateEntryException
 	 * @throws Exceptions\GeneralException
 	 * @throws Exceptions\InvalidArgumentException

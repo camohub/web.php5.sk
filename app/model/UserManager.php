@@ -19,7 +19,6 @@ use Tracy\Debugger;
 class UserManager extends Nette\Object implements Nette\Security\IAuthenticator
 {
 	const
-		TABLE_NAME = 'users',
 		COL_ID = 'id',
 		COL_NAME = 'user_name',
 		COL_PASSWORD = 'password',
@@ -59,8 +58,6 @@ class UserManager extends Nette\Object implements Nette\Security\IAuthenticator
 	{
 		list( $user_name, $password ) = $credentials;
 
-		//$row = $this->database->table(self::TABLE_NAME)->where(self::COL_NAME, $user_name)->where(self::COL_PASSWORD.' NOT', NULL)->fetch();
-
 		$user = $this->userRepository->findOneBy( [ self::COL_NAME => $user_name, self::COL_PASSWORD . ' not' => NULL ] );
 
 		if ( ! $user )
@@ -80,9 +77,6 @@ class UserManager extends Nette\Object implements Nette\Security\IAuthenticator
 		}
 		elseif ( Passwords::needsRehash( $user->getPassword() ) )
 		{
-			/*$user->update( array(
-				self::COL_PASSWORD => Passwords::hash( $password ),
-			) );*/
 			$user->password = Passwords::hash( $password );
 			$this->em->persist( $user );
 			$this->em->flush();
@@ -104,7 +98,7 @@ class UserManager extends Nette\Object implements Nette\Security\IAuthenticator
 	 * @desc Do not use it for users from social networks. They have its own manager classes.
 	 * @param $params
 	 * @param bool $admin
-	 * @return bool|int|Nette\Database\Table\IRow
+	 * @return Entity\User
 	 * @throws App\Exceptions\DuplicateEntryException
 	 * @throws \Exception
 	 */

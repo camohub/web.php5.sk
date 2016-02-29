@@ -13,9 +13,6 @@ use Tracy\Debugger;
 class Categories
 {
 
-	/** @var Nette\Database\Context */
-	protected $database;
-
 	/** @var Kdyby\Doctrine\EntityManager */
 	protected $em;
 
@@ -25,14 +22,11 @@ class Categories
 
 
 	/**
-	 * @param Nette\Database\Context $db
 	 * @param Kdyby\Doctrine\EntityManager $em
 	 */
-	public function __construct( Nette\Database\Context $db, Kdyby\Doctrine\EntityManager $em )
+	public function __construct( Kdyby\Doctrine\EntityManager $em )
 	{
-		$this->database = $db;
 		$this->em = $em;
-
 		$this->categoryRepository = $em->getRepository( Entity\Category::class );
 	}
 
@@ -108,7 +102,8 @@ class Categories
 
 
 	/**
-	 * @return Nette\Database\Table\Selection
+	 * @param bool $admin
+	 * @return array
 	 */
 	public function findAll( $admin = FALSE )
 	{
@@ -118,7 +113,7 @@ class Categories
 
 
 	/**
-	 * @return Nette\Database\Table\Selection
+	 * @return array
 	 */
 	public function findPairs( $criteria, $value = NULL, $orderBy = array(), $key = NULL )
 	{
@@ -145,7 +140,7 @@ class Categories
 	/**
 	 * @param array $params
 	 * @param bool $admin
-	 * @return bool|mixed|Nette\Database\Table\IRow
+	 * @return mixed|null|object
 	 */
 	public function findOneBy( Array $params, $admin = FALSE )
 	{
