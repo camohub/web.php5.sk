@@ -17,8 +17,17 @@ use Doctrine\Common\Collections\ArrayCollection;
 class Role
 {
 
-	use \Kdyby\Doctrine\Entities\MagicAccessors;
+	//use \Kdyby\Doctrine\Entities\MagicAccessors;
 	use \Kdyby\Doctrine\Entities\Attributes\Identifier;
+
+
+	/** @ORM\Column(type="string", length=25) */
+	protected $name;
+
+	/**
+	 * @ORM\ManyToMany(targetEntity="User", mappedBy="roles")
+	 */
+	protected $users;
 
 
 	public function __construct()
@@ -27,13 +36,16 @@ class Role
 	}
 
 
-	/** @ORM\Column(type="string", length=25) */
-	protected $name;
+	public function getName()
+	{
+		return $this->name;
+	}
 
-	/**
-	 * @ORM\ManyToMany(targetEntity="User", mappedBy="roles", cascade={"persist"})
-	 */
-	protected $users;
+
+	public function getUsers()
+	{
+		return $this->users;
+	}
 
 	
 }

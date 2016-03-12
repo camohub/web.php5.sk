@@ -7,11 +7,9 @@
 {if isset($articles)}
 
 	{foreach $articles as $a}
-		<h1><a n:href=":Articles:show 'title' => $a->url_title">{$a->title}</a></h1>
-
-		<div class="content">{$a->perex|noescape}</div>
-
-		<div class="small1 pT10 pB20">{$a->created|date:'j. F Y'|datum:sk}</div>
+		<h1><a n:href=":Articles:show 'title' => $a->getUrlTitle()">{$a->getTitle()}</a></h1>
+		<div class="content">{$a->getPerex()|noescape}</div>
+		<div class="small1 pT10 pB20">{$a->getCreated()|date:'j. F Y'|datum:sk}</div>
 	{/foreach}
 
 	{control vp}
@@ -21,15 +19,12 @@
 {* Show one article *}
 
 {if isset($article)}
-
-	<h1>{$article->title}</h1>
-
-	<div class="small1">{$article->created|date:'j. F Y'|datum:sk}</div>
-
-	<div>{$article->perex|noescape}{$article->content|noescape}</div>
+	<h1>{$article->getTitle()}</h1>
+	<div class="small1">{$article->getCreated()|date:'j. F Y'|datum:sk}</div>
+	<div>{$article->getPerex()|noescape}{$article->getContent()|noescape}</div>
 
 	<div class="fb-like pT10" data-colorscheme="dark" data-share="true" data-show-faces="true" data-width="450"> </div>
-	{if $user->id == $article->user->id()}
+	{if $user->id == $article->getUser()->getId()}
 		<a n:href=":Admin:Blog:Articles:edit $article->id" class="small1 fR">editovať</a>
 	{/if}
 
@@ -86,11 +81,13 @@
 	{/if}
 	<div class="pV30" id="comments">
 		<div n:foreach="$comments as $comment" n:class="p10, bR5, $iterator->isOdd() ? bgC5">
-			<div class="small1 c3 fWB commUserName cP">
-				{$comment->user_name}&nbsp;&nbsp;&nbsp; {$comment->created|date:'j. F Y'|datum:sk}
+			<div class="small1 c3 fWB">
+				<span class="commUserName cP">{$comment->getUserName()}</span>&nbsp;&nbsp;&nbsp; {$comment->getCreated()|date:'j. F Y'|datum:sk}
 			</div>
 			<div class="pB10 pT5">
-				{if $comment->deleted}<i class="c3">Komentár bol zmazaný.</i>{else}{$comment->content|noescape}{/if}
+				{if $comment->getDeleted()}
+					<i class="c3">Komentár bol zmazaný.</i>
+				{else}{$comment->getContent()|noescape}{/if}
 			</div>
 		</div>
 	</div>

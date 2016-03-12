@@ -38,7 +38,7 @@ class Categories
 	public function switchVisibility( $id )
 	{
 		$item = $this->categoryRepository->find( (int) $id );
-		$item->visible = $item->visible == 1 ? 0 : 1;
+		$item->setVisible( $item->getVisible() == 1 ? 0 : 1 );
 		$this->em->persist( $item );
 		$this->em->flush( $item );
 	}
@@ -53,9 +53,9 @@ class Categories
 	 */
 	public function findCategoryIds( Entity\Category $category, array $ids = [ ] )
 	{
-		$ids[] = $category->id;
+		$ids[] = $category->getId();
 
-		if ( $children = $this->categoryRepository->findBy( [ 'parent_id' => $category->id ] ) )
+		if ( $children = $this->categoryRepository->findBy( [ 'parent_id' => $category->getId() ] ) )
 		{
 			foreach ( $children as $child )
 			{
@@ -85,12 +85,12 @@ class Categories
 
 		foreach ( $arr as $item )
 		{
-			if ( $item->id != 7 )  // 7 == Najnovšie and it is not optional value
+			if ( $item->getId() != 7 )  // 7 == Najnovšie and it is not optional value
 			{
-				$result[$item->id] = str_repeat( '>', $lev * 1 ) . $item->name;
+				$result[$item->getId()] = str_repeat( '>', $lev * 1 ) . $item->getName();
 			}
 
-			if ( $arr = $this->findBy( [ 'parent_id =' => $item->id ], [ 'priority' => 'ASC' ], $admin ) )
+			if ( $arr = $this->findBy( [ 'parent_id =' => $item->getId() ], [ 'priority' => 'ASC' ], $admin ) )
 			{
 				$result = $this->toSelect( $admin, $arr, $result, $lev + 1 );
 			}
@@ -191,7 +191,7 @@ class Categories
 		$sameLevelCats = $this->findBy( [ 'parent_id =' => $params['parent_id'] ], NULL, 'admin' );
 		foreach ( $sameLevelCats as $cat )
 		{
-			$cat->priority++;
+			$cat->setPriority( $cat->getPriority() + 1 );
 		}
 
 		$category = new Entity\Category();
@@ -223,9 +223,9 @@ class Categories
 		{
 			try
 			{
-				$item->name = $name;
-				$item->slug = $slug;
-				$item->url_params = $url_params;
+				$item->setName( $name );
+				$item->setSlug( $slug );
+				$item->setUrlParams( $url_params );
 
 				$this->em->flush();
 				return $item;
@@ -250,15 +250,15 @@ class Categories
 
 
 
-	public function updatePriority( $arr )
+	public function updatePriority( array $arr )
 	{
 		$pairs = $this->categoryRepository->findAssoc( 'id' );
 		$i = 1;
 		foreach ( $arr as $key => $val )
 		{
 			// if the array is large it would be better to update only changed items
-			$pairs[(int) $key]->parent_id = $val == 0 ? NULL : (int) $val;
-			$pairs[(int) $key]->priority = $i;
+			$pairs[(int) $key]->setParentId( $val == 0 ? NULL : (int) $val );
+			$pairs[(int) $key]->setPriority( $i );
 			$i++;
 		}
 
@@ -293,7 +293,7 @@ class Categories
 
 		foreach ( $result['items'] as $item )
 		{
-			$names[] = $item->name;
+			$names[] = $item->getName();
 			$this->em->remove( $item );
 		}
 
@@ -315,18 +315,18 @@ class Categories
 	{
 		$result = $result ?: [ 'items' => [ ] ];
 
-		if ( $item->articles->count() )
+		if ( $item->getArticles()->count() )
 		{
-			$result = [ 'articles' => $item->name ];
+			$result = [ 'articles' => $item->getName() ];
 			return $result;
 		}
-		if ( $item->app )
+		if ( $item->getApp() )
 		{
-			$result = [ 'app' => $item->name ];
+			$result = [ 'app' => $item->getName() ];
 			return $result;
 		}
 
-		foreach ( $item->children as $child )
+		foreach ( $item->getChildren() as $child )
 		{
 			$result = $this->canDelete( $child, $result );
 		}

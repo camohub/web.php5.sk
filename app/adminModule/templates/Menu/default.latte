@@ -56,7 +56,14 @@ $(document).ready(function()
     	},
 		error: function ()
 		{
-			alert( 'Pri spracovaní požiadavky došlo k  chybe.' );
+			$( '#snippet--flexiFlash' ).html(
+					'<div class="flexiFlash">' +
+					'<div class="alert alert-dismissible fade in alert-danger">' +
+					'<button type="button" class="close" data-dismiss="alert" aria-label="Close">' +
+					'<span aria-hidden="true">×</span></button>Pri spracovaní požiadavky došlo k  chybe.' +
+					'</div>' +
+					'</div>'
+			);
 		}
     });
 
@@ -117,17 +124,18 @@ function activateCreateForm(el)
 		{block menu}
 			<ul id="sortableList" n:class="!isset($nested) ? sortable"{* $nested comes from recursion *}>
 				{foreach $section as $item}
-					<li data-module="{ ($item->module->id ?: 0 )|noescape}" id="menuItem_{$item->id}">
-						<div>{$item->name}
-							<a n:href="delete! $item->id" {if !$presenter->isAjax()}style="display:none"{/if}
+					<li data-module="{ ($item->module->id ?: 0 )|noescape}" id="menuItem_{$item->getId()}">
+						<div>{$item->getName()}
+							<a n:href="delete! $item->getId()" {if !$presenter->isAjax()}style="display:none"{/if}
 							   class="ignore ajax fa fa-lg fa-trash-o fR" title="Delete"> </a>
-							{if $item->app != 1}<a onclick="activateEditForm({$item->id}, {$item->name}, this);"
+							{if $item->getApp() != 1}<a
+								onclick="activateEditForm({$item->getId()}, {$item->getName()}, this);"
 												   class="ignore fa fa-lg fa-pencil fR" title="Edit"> </a>{/if}
-							<a n:href="visibility! $item->id"
-							   n:class="ignore, ajax, fa, fa-lg, fR, $item->visible ? fa-check-circle : fa-minus-circle"
+							<a n:href="visibility! $item->getId()"
+							   n:class="ignore, ajax, fa, fa-lg, fR, $item->getVisible() ? fa-check-circle : fa-minus-circle"
 							   title="Visible/Hidden"> </a>
 						</div>
-						{if $section = $categories->findBy( [ 'parent_id' => $item->id ], NULL, 'admin' ) }
+						{if $section = $categories->findBy( [ 'parent_id' => $item->getId() ], NULL, 'admin' ) }
 							{include menu, section => $section, nested => 1}
 						{/if}
 					</li>

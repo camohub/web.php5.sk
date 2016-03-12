@@ -4,19 +4,14 @@ namespace App\Model;
 
 use App;
 use Nette;
-use Nette\Security\Passwords;
 use Kdyby;
+use Nette\Security\Passwords;
+use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Tracy\Debugger;
 
 
 class Users
 {
-
-	CONST   TABLE_NAME = 'users';
-
-
-	/** @var Nette\Database\Context */
-	protected $database;
 
 	/** @var Kdyby\Doctrine\EntityManager */
 	protected $em;
@@ -24,18 +19,20 @@ class Users
 	/** @var Kdyby\Doctrine\EntityRepository */
 	protected $usersRepository;
 
+	/** @var Kdyby\Doctrine\EntityRepository */
+	protected $rolesRepository;
+
 
 
 	/**
-	 * @param Nette\Database\Context $db
 	 * @param Kdyby\Doctrine\EntityManager $em
 	 */
-	public function __construct( Nette\Database\Context $db, Kdyby\Doctrine\EntityManager $em )
+	public function __construct( Kdyby\Doctrine\EntityManager $em )
 	{
-		$this->database = $db;
 		$this->em = $em;
 
 		$this->usersRepository = $em->getRepository( Entity\User::class );
+		$this->rolesRepository = $em->getRepository( Entity\Role::class );
 	}
 
 
@@ -61,176 +58,127 @@ class Users
 	/**
 	 * @param array $params
 	 * @param bool $admin
-	 * @return FALSE|Nette\Database\Table\IRow
+	 * @return App\Model\Entity\User
 	 */
 	public function findOneBy( Array $params, $admin = FALSE )
 	{
-		$users = $this->getTable()->where( $params );
-		$users = $admin ? $users : $users->where( 'active', 1 );
-		return $users->limit( 1 )->fetch();
+		if ( ! $admin )
+		{
+			$params['active ='] = 1;
+		}
+
+		return $this->usersRepository->findOneBy( $params );
+
 	}
 
 
+
 	/**
-	 * @return Nette\Database\Table\Selection
+	 * @param array $params
+	 * @param int|App\model\Entity\User $user
+	 * @return int
+	 * @throws App\Exceptions\DuplicateEntryException
+	 * @throws \Exception
 	 */
-	public function findAllRoles()
+	public function updateUser( array $params, $user )
 	{
-		return $this->getTable( 'acl_roles' );
+		if ( is_numeric( $user ) )
+		{
+			$user = $this->usersRepository->find( (int) $user );
+		}
+
+		try
+		{
+			$user->update( $params );
+			$this->em->flush( $user );
+			return $user;
+		}
+		catch ( UniqueConstraintViolationException $e )
+		{
+			// if/elseif returns the name of problematic field and value
+			if ( isset( $params['user_name'] ) && $this->usersRepository->findOneBy( [ 'user_name =' => $params['user_name'] ] ) )
+			{
+				$msg = 'user_name';
+				$code = 1;
+			}
+			elseif ( isset( $params['email'] ) && $this->usersRepository->findOneBy( [ 'email =' => $params['email'] ] ) )
+			{
+				$msg = 'email';
+				$code = 2;
+			}
+
+			throw new App\Exceptions\DuplicateEntryException( $msg, $code );
+		}
+
 	}
 
 
 	/**
 	 * @param int $id
-	 * @param bool $admin
-	 * @return Nette\Database\Table\Selection
-	 */
-	public function findUserRoles( $id, $admin = FALSE )
-	{
-		return $this->getTable( 'users_acl_roles' )->where( 'users_id = ?', (int) $id );
-	}
-
-
-	/**
-	 * @param array $params
-	 * @param $id
-	 * @return int
-	 * @throws App\Exceptions\DuplicateEntryException
-	 */
-	public function updateUser( Array $params, $id )
-	{
-		try
-		{
-			return $this->getTable()->where( 'id', (int) $id )->update( $params );
-		}
-		catch ( \PDOException $e )
-		{
-			// This catch ONLY checks duplicate entry to fields with UNIQUE KEY
-			$info = $e->errorInfo;
-
-			// mysql==1062  sqlite==19  postgresql==23505
-			if ( $info[0] == 23000 && $info[1] == 1062 )
-			{
-				// if/elseif returns the name of problematic field and value
-				if ( $this->database->table( self::TABLE_NAME )->where( 'user_name = ?', $params['user_name'] )->fetch() )
-				{
-					$msg = 'user_name';
-					$code = 1;
-				}
-				elseif ( $this->database->table( self::TABLE_NAME )->where( 'email = ?', $params['email'] )->fetch() )
-				{
-					$msg = 'email';
-					$code = 2;
-				}
-
-				throw new App\Exceptions\DuplicateEntryException( $msg, $code );
-
-			}
-			else
-			{
-				throw $e;
-			}
-		}
-	}
-
-
-	/**
-	 * @param array $set
-	 * @param array $cond
-	 * @return int
-	 * @throws App\Exceptions\DuplicateEntryException
-	 */
-	public function updateUserBy( Array $set, Array $cond )
-	{
-		try
-		{
-			return $this->getTable()->where( $cond )->update( $set );
-		}
-		catch ( \PDOException $e )
-		{
-			// This catch ONLY checks duplicate entry to fields with UNIQUE KEY
-			$info = $e->errorInfo;
-
-			// mysql==1062  sqlite==19  postgresql==23505
-			if ( $info[0] == 23000 && $info[1] == 1062 )
-			{
-				// if/elseif returns the name of problematic field and value
-				if ( $this->database->table( self::TABLE_NAME )->where( 'user_name = ?', $set['user_name'] )->fetch() )
-				{
-					$msg = 'user_name';
-					$code = 1;
-				}
-				elseif ( $this->database->table( self::TABLE_NAME )->where( 'email = ?', $set['email'] )->fetch() )
-				{
-					$msg = 'email';
-					$code = 2;
-				}
-
-				throw new App\Exceptions\DuplicateEntryException( $msg, $code );
-
-			}
-			else
-			{
-				throw $e;
-			}
-		}
-
-	}
-
-
-	/**
-	 * @param $id
-	 * @param $roles
+	 * @param array $roles
 	 * @throws \Exception
 	 */
-	public function setUsersRoles( $id, $roles )
+	public function setUserRoles( $id, $roles )
 	{
-		$table = $this->getTable( 'users_acl_roles' );
+		$user = $this->usersRepository->find( (int) $id );
+		$roles = $this->rolesRepository->findBy( [ 'name =' => $roles ] );
 
 		foreach ( $roles as $role )
 		{
-			$table->insert( array( 'users_id' => (int) $id, 'acl_roles_id' => (int) $role ) );
+			$user->addRole( $role );
 		}
 
 	}
 
 
 	/**
-	 * @param $id
+	 * @param int|App\Model\Entity\User $user
 	 * @param array $credentials
 	 * @return bool
 	 * @throws App\Exceptions\AccessDeniedException
 	 * @throws App\Exceptions\InvalidArgumentException
 	 */
-	public function updatePassword( $id, Array $credentials )
+	public function updatePassword( $user, Array $credentials )
 	{
-		if ( ! $user = $this->findOneBy( array( 'id' => (int) $id ) ) )
+		if ( is_numeric( $user ) )
 		{
-			throw new App\Exceptions\InvalidArgumentException( 'Param $id did not match any user in database', 'error' );
+			$user = $this->usersRepository->find( (int) $user );
 		}
 
-		if ( ! Passwords::verify( $credentials['password'], $user->password ) )
+		if ( ! Passwords::verify( $credentials['password'], $user->getPassword() ) )
 		{
-			throw new App\Exceptions\AccessDeniedException;
+			throw new App\Exceptions\AccessDeniedException();
 		}
 
 		$newPassword = Passwords::hash( $credentials['newPassword'] );
 
-		$count = $this->updateUser( array( 'password' => $newPassword ), (int) $id );
+		$this->updateUser( [ 'password' => $newPassword ], $user );
 
-		return $count ? TRUE : FALSE;
+	}
+
+
+	public function confirmEmail( $id, $code )
+	{
+		$user = $this->usersRepository->findOneBy( [ 'id =' => (int) $id, 'confirmation_code =' => $code ] );
+
+		if ( ! $user )
+		{
+			throw new App\Exceptions\ConfirmationEmailException( 'Odkaz bol neplatný. Užívateľ s daným kódom neexistuje.', 1 );
+		}
+
+		$user->update( [
+			'confirmation_code' => NULL,
+			'active'            => 1,
+		] );
+		$this->em->flush( $user );
+
+		return $user;
+
 	}
 
 
 
 //////////Protected/Private/////////////////////////////////////////////////
 
-	/**
-	 * @return Nette\Database\Table\Selection
-	 */
-	protected function getTable( $table = NULL )
-	{
-		return $this->database->table( $table ? $table : self::TABLE_NAME );
-	}
 
 }

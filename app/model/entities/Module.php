@@ -14,11 +14,22 @@ use Doctrine\ORM\Mapping as ORM;
 class Module
 {
 
-	use \Kdyby\Doctrine\Entities\MagicAccessors;
+	//use \Kdyby\Doctrine\Entities\MagicAccessors;
 	use \Kdyby\Doctrine\Entities\Attributes\Identifier;
 
 
 	/** @ORM\Column(type="string", length=30) */
-	protected $name = "No value";
+	protected $name;
+
+	/**
+	 * @ORM\OneToMany(targetEntity="Image", mappedBy="module")
+	 */
+	protected $images;
+
+
+	public function __construct( $params = [ ] )
+	{
+		$this->name = isset( $params['name'] ) ? $params['name'] : 'No value';
+	}
 	
 }

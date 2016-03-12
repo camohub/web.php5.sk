@@ -1,44 +1,45 @@
 <?php
 
 
-
 namespace App\AdminModule\Presenters;
 
 
-
-use	Nette,
-	App,
-	Nette\Application\UI\Form,
-	Nette\Utils\Image,
-	Tracy\Debugger;
+use Nette;
+use App;
+use Nette\Application\UI\Form;
+use Tracy\Debugger;
 
 
-
-class ImagesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
+class ImagesPresenter extends BaseAdminPresenter
 {
 
-	/** @var  App\Model\Images */
-	protected $imagesModel;
+	CONST ITEMS_PER_PAGE = 4;
+
+
+	/** @var  App\Model\Images  @inject */
+	public $images;
 
 
 
 	public function startup()
 	{
-		if(!$this->user->isAllowed('image', 'add'))
-		{
-			throw new App\Exceptions\AccessDeniedException('Nemáte oprávnenie editovať obrázky.');
-		}
 		parent::startup();
 
-		$this->imagesModel = new App\Model\Images($this->database);
-
+		if ( ! $this->user->isAllowed( 'image', 'add' ) )
+		{
+			throw new App\Exceptions\AccessDeniedException( 'Nemáte oprávnenie editovať obrázky.' );
+		}
 	}
 
 
 
 	public function renderBlog()
 	{
-		$this['breadcrumbs']->add('Obrázky - blog', ':Admin:Images:blog');
+		$images = $this->images->findBlogImages();
+
+		$this->template->images = $this->setPaginator( $images );
+
+		$this['breadcrumbs']->add( 'Obrázky - blog', ':Admin:Images:blog' );
 
 	}
 
@@ -50,20 +51,65 @@ class ImagesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	}
 
 
+	/**
+	 * @param $id
+	 * @throws App\Exceptions\AccessDeniedException
+	 * @secured
+	 */
+	public function handleDelete( $id )
+	{
+		if ( ! $this->user->isAllowed( 'image', 'delete' ) )
+		{
+			throw new App\Exceptions\AccessDeniedException( 'Nemáte oprávnenie mazať obrázky.' );
+		}
+
+		try
+		{
+			$this->images->delete( $id );
+			$this->flashMessage( 'Obrázok bol zmazaný.' );
+		}
+		catch ( \Exception $e )
+		{
+			$this->flashMessage( 'Pri mazaní obrázku došlo k chybe.', 'error' );
+			return;
+		}
+
+		$this->redirect( 'this' );
+	}
+
+
+//////protected//////////////////////////////////////////////////////
+
+
+	private function setPaginator( $images )
+	{
+		$vp = $this['vp'];
+		$paginator = $vp->getPaginator();
+		$paginator->itemsPerPage = self::ITEMS_PER_PAGE;
+
+		//$paginator->itemCount = $articles->count( '*' );
+		$images->applyPaginator( $paginator );
+
+		//$this->template->articles = $articles->limit( $paginator->itemsPerPage, $paginator->offset );
+		return $images;
+
+	}
+
+
 //////Control/////////////////////////////////////////////////////////
 
 	public function createComponentInsertForm()
 	{
 		$form = new Form();
 
-		$form->addUpload('images', 'Vyberte obrázok', TRUE)
-			->setRequired('Nevybrali ste žiadny obrázok.')
-			->addRule(Form::IMAGE, 'Obrázok musí biť JPEG, PNG nebo GIF.')
-			->addRule(Form::MAX_FILE_SIZE, 'Maximální velikost souboru je 200 kB.', 200 * 1024 /* v bytech */)
-			->setAttribute('class', 'button1 fWB');
+		$form->addUpload( 'images', 'Vyberte obrázok', TRUE )
+			->setRequired( 'Nevybrali ste žiadny obrázok.' )
+			->addRule( Form::IMAGE, 'Obrázok musí biť JPEG, PNG nebo GIF.' )
+			->addRule( Form::MAX_FILE_SIZE, 'Maximální velikost souboru je 1000 kB.', 1000 * 1024 /* v bytech */ )
+			->setAttribute( 'class', 'button1 fWB' );
 
-		$form->addSubmit('sbmt', 'Ulož')
-			->setAttribute('class', 'button1 fWB');
+		$form->addSubmit( 'sbmt', 'Ulož' )
+			->setAttribute( 'class', 'button1 fWB' );
 
 		$form->onSuccess[] = $this->insertFormSucceeded;
 
@@ -73,91 +119,43 @@ class ImagesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 
 
-	public function insertFormSucceeded($form)
+	public function insertFormSucceeded( $form )
 	{
 
 		$images = $form->getValues()->images;
 
-		if(count($images) > 5)
+		if ( count( $images ) > 7 )
 		{
-			$this->flashMessage('Naraz nemôžete ukladať viac ako 5 obrázkov.', 'error');
+			$this->flashMessage( 'Naraz môžete ukladať maxim8lne 7 obrázkov.', 'error' );
 			return;
 		}
 
-		$path = $this->context->parameters['wwwDir'] . '/images/blog';
-
-		if(!is_dir($path) && !mkdir($path, 0777)) // Dir blog does not exist and can not be created
+		try
 		{
-			$this->flashMessage('Aplikácii sa nepodarilo vytvoriť adresár pre obrázky. Skúste to prosím znova, alebo kontaktuje adminstrátora.', 'error');
-			Debugger::log('ImagesPresenter->insertFormSucceeded fails on: Directory www/images/blog could not be created. Script probably have not enough rights.', 'error');
+			$result = $this->images->insert( $images );
 		}
-		if(!is_dir($path.'/thumbnails') && !mkdir($path.'/thumbnails', 0777))
+		catch ( \Exception $e )
 		{
-			$this->flashMessage('Aplikácii sa nepodarilo vytvoriť adresár thumbnails. Skúste to prosím znova, alebo kontaktuje adminstrátora.', 'error');
-			Debugger::log('ImagesPresenter->insertFormSucceeded fails on: Directory www/images/blog/thumbnails could not be created. Script probably have not enough rights.', 'error');
+			Debugger::log( $e->getMessage(), 'error' );
+			$this->flashMessage( 'Pri ukladaní obrázkov, došlo k chybe.', 'error' );
+			return;
 		}
 
-		$errors = 0;
-		foreach($images as $image)
+		if ( $result['errors'] )
 		{
-			if($image->isOk())
+			foreach ( $result['errors'] as $error )
 			{
-				$name = $image->getName();
-				$sName = $image->getSanitizedName();
-				$tmpName = $image->getTemporaryFile();
-
-				try {
-					$this->database->beginTransaction();
-
-					try {
-						$this->imagesModel->insert(array('module_id' => 1, 'name' => $sName));
-					}
-					catch(App\Exceptions\DuplicateEntryException $e)
-					{
-						$this->flashMessage('Súbor s názvom '.$name.' už existuje. Súbor nebol uložený, pretože by ste prepísali iný súbor.', 'error');
-						$this->database->rollBack();
-						continue;
-					}
-
-					$img = Image::fromFile($tmpName);
-					$x = $img->width;
-					$y = $img->height;
-
-					if($x > 900 || $y > 900)
-					{
-						$img->resize(900, 900);  // Keeps ratio => one of the sides can be shorter, but none will be longer
-					}
-					$img->save($path . '/' .$sName);
-
-					if($x > 150)
-					{
-						$img->resize(150, NULL);  // Width will be 150px and height keeps ratio
-					}
-					$img->save($path . '/thumbnails/' .$sName);
-
-					$this->flashMessage('Obrázok '.$sName.' bol uložený na server.');
-					$this->database->commit();
-				}
-				catch(\Exception $e) {
-					$this->database->rollBack();
-					Debugger::log($e->getMessage(), 'ERROR');
-					$this->flashMessage('Pri ukladaní súboru '.$name.' došlo k chybe. Súbor nebol uložený.');
-					unlink($path.'/'.$sName);  // if something is saved, delete it
-					unlink($path.'/thumbnails/'.$sName);
-				}
-			}
-			else
-			{
-				$errors++;
+				$this->flashMessage( $error, 'error' );
 			}
 		}
 
-		if($errors)
+		if ( $result['saved_items'] )
 		{
-			$s = $errors == 1 ? ' súbor ' : ($errors < 5 ? ' súbory ' : ' súborov ');
-			$this->flashMessage($errors.$s.'sa nepodarilo uložiť na server.', 'error');
+			$this->flashMessage( 'Súbor ' . join( ', ', $result['saved_items'] ) . ' bol úspešne uložený na server.' );
 		}
-		$this->redirect('this');
+
+		return;
+		//$this->redirect( 'this' );
 
 	}
 

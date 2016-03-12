@@ -26,7 +26,7 @@ use Tracy\Debugger;
 class Article extends Nette\Object
 {
 
-	use Kdyby\Doctrine\Entities\MagicAccessors;
+	//use Kdyby\Doctrine\Entities\MagicAccessors;
 	use Kdyby\Doctrine\Entities\Attributes\Identifier;
 
 
@@ -135,14 +135,76 @@ class Article extends Nette\Object
 		$arr['categories'] = [ ];
 		foreach ( $this->categories as $category )
 		{
-			if ( $category->id == 7 )
+			if ( $category->getId() == 7 )
 			{
 				continue;
 			}
-			$arr['categories'][] = $category->id;
+			$arr['categories'][] = $category->getId();
 		}
 
 		return $arr;
 	}
-	
+
+
+	public function getUrlTitle()
+	{
+		return $this->url_title;
+	}
+
+
+	public function getTitle()
+	{
+		return $this->title;
+	}
+
+
+	public function getContent()
+	{
+		return $this->content;
+	}
+
+
+	public function getPerex()
+	{
+		return $this->perex;
+	}
+
+
+	public function getMetaDesc()
+	{
+		return $this->meta_desc;
+	}
+
+
+	public function getCreated()
+	{
+		return $this->created;
+	}
+
+
+	public function getStatus()
+	{
+		return $this->status;
+	}
+
+
+	public function getUser()
+	{
+		return $this->user;
+	}
+
+
+	public function getComments()
+	{
+		return $this->comments;
+	}
+
+
+	public function getCategories()
+	{
+		return $this->categories;
+	}
+
+
+
 }

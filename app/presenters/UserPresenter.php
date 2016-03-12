@@ -15,15 +15,15 @@ class UserPresenter extends BasePresenter
 {
 
 	/** @var  App\Model\Users */
-	protected $usersModel;
+	protected $users;
 
 	/** @var  App\Model\Users */
-	protected $userRow;
+	protected $userEnt;
 
 
-	public function __construct( Users $usersModel )
+	public function __construct( Users $users )
 	{
-		$this->usersModel = $usersModel;
+		$this->users = $users;
 	}
 
 
@@ -32,10 +32,17 @@ class UserPresenter extends BasePresenter
 		parent::startup();
 
 		// Method actionEmail must be available form confirmation email.
-		// So in startup must not be any identity control like isLoggedIn
-		// and do not use $this->user->identity->user_name.
+		// Do not use $this->user->identity->user_name.
+		if ( $this->getParameter( 'action' ) !== 'email' )
+		{
+			if ( ! $this->user->isLoggedIn() )
+			{
+				$this->flashMessage( 'Nie ste prihlásený. Ak chcete pristupovať k Vašemu účtu musíte sa prihlásiť.' );
+				$this->redirect( ':Sign:in' );
+			}
+		};
 
-		$this->userRow = $this->usersModel->findOneBy( array( 'id' => $this->user->id ) );
+		$this->userEnt = $this->users->findOneBy( [ 'id =' => $this->user->id ] );
 
 		$this['breadcrumbs']->add( 'Užívateľský účet', ':User:default' );
 		$this->setHeaderTags( NULL, 'Profil uživateľa', 'noindex, nofollow' );
@@ -45,13 +52,7 @@ class UserPresenter extends BasePresenter
 
 	public function renderDefault()
 	{
-		if ( ! $this->user->isLoggedIn() )
-		{
-			$this->flashMessage( 'Nie ste prihlásený. Ak chcete pristupovať k Vašemu účtu musíte sa prihlásiť.' );
-			$this->redirect( ':Sign:in' );
-		}
-		$this->template->userRow = $this->userRow;
-
+		$this->template->userEnt = $this->userEnt;
 	}
 
 
@@ -61,56 +62,37 @@ class UserPresenter extends BasePresenter
 		// This method must be available from confirmation email.
 
 		$code = $this->getParameter( 'code' );
-		$set = array( 'active' => 1, 'confirmation_code' => NULL );
-		$cond = array( 'id' => (int) $id, 'confirmation_code' => $code );
-		$count = $this->usersModel->updateUserBy( $set, $cond );
 
-		if ( ! $count )
+		try
 		{
-			$userRow = $this->usersModel->findOneBy( array( 'id' => (int) $id ), 'admin' );
-
-			if ( ! $userRow )
-			{
-				$this->flashMessage( 'Odkaz bol neplatný. Daný užívateľ neexistuje. Ak máte pochybnosti o prebehnutej transakcii, kontaktujte prosím administrátora.', 'error' );
-			}
-			elseif ( $userRow->active == 0 && $userRow->confirmation_code )
-			{
-				$this->flashMessage( 'Odkaz bol neplatný. Email sa nepodarilo potvdiť. Skontrolujte, či nemáte ešte jeden takýto email v schránke, alebo kontaktujte administrátora.', 'error' );
-			}
-			elseif ( $userRow->active == 1 && ! $userRow->confirmation_code )
-			{
-				$this->flashMessage( 'Váš email bol už potvrdený.' );
-			}
-		}
-		else
-		{
+			$user = $this->users->confirmEmail( $id, $code );
 			$this->flashMessage( 'Váš email bol potvrdený.' );
 		}
+		catch ( App\Exceptions\ConfirmationEmailException $e )
+		{
+			$this->flashMessage( 'Odkaz bol neplatný. Skontrolujte, či nemáte ešte jeden takýto email v schránke, alebo či váš účet už nieje aktívny.', 'error' );
+			return;
+		}
+		catch ( \Exception $e )
+		{
+			Debugger::log( $e->getMessage() );
+			$this->flashMessage( 'Pri potvrdzovaní emailu došlo k chybe. Skúste sa prihlásiť, prípadne kontaktujte administrátora.', 'error' );
+			return;
+		}
 
-		$this->redirect( ':Articles:show' );
+		$this->redirect( ':Sign:in' );
 
 	}
 
 
 	public function actionPassword()
 	{
-		if ( ! $this->user->isLoggedIn() )
-		{
-			$this->flashMessage( 'Nie ste prihlásený. Ak chcete pristupovať ku Vašemu účtu, musíte sa prihlásiť.' );
-			$this->redirect( ':Sign:in' );
-		}
 		$this['breadcrumbs']->add( 'Zmeniť heslo', ':User:password' );
-
 	}
 
 
 	public function actionName()
 	{
-		if ( ! $this->user->isLoggedIn() )
-		{
-			$this->flashMessage( 'Nie ste prihlásený. Ak chcete pristupovať ku Vašemu účtu, musíte sa prihlásiť.' );
-			$this->redirect( ':Sign:in' );
-		}
 		$this['breadcrumbs']->add( 'Zmeniť meno', ':User:name' );
 	}
 
@@ -147,36 +129,27 @@ class UserPresenter extends BasePresenter
 	public function passwordChangeFormSucceeded( $form )
 	{
 		$values = $form->getValues();
-		$id = $this->user->id;
 
-		$credentials = array(
+		$credentials = [
 			'password'    => $values['password'],
 			'newPassword' => $values['newPassword'],
-		);
-
-		$this->database->beginTransaction();
+		];
 
 		try
 		{
-			$this->usersModel->updatePassword( $id, $credentials );
+			$this->users->updatePassword( $this->userEnt, $credentials );
 		}
 		catch ( App\Exceptions\AccessDeniedException $e )
 		{
-			$this->database->rollBack();
-
 			$this->flashMessage( 'Zadali ste neplatné údaje. Skúste to prosím ešte raz.', 'error' );
 			return;
 		}
 		catch ( \Exception $e )
 		{
-			$this->database->rollBack();
-
 			Debugger::log( $e->getMessage(), 'error' );
 			$this->flashMessage( 'Pri pokuse zmeniť heslo došlo k chybe. Otestujte prosím svoje údaje.', 'error' );
 			return;
 		}
-
-		$this->database->commit();
 
 		$this->flashMessage( 'Vaše heslo bolo úspešne zmenené.' );
 		$this->redirect( ':User:default' );
@@ -195,7 +168,7 @@ class UserPresenter extends BasePresenter
 
 		$form->addText( 'user_name', 'Meno' )
 			->setRequired( 'Pole %label nesmie byť prázdne. Vyplňte ho prosím.' )
-			->setDefaultValue( $this->userRow->user_name );
+			->setDefaultValue( $this->userEnt->getUserName() );
 
 		$form->addSubmit( 'sbmt', 'Uložiť' );
 
@@ -211,11 +184,16 @@ class UserPresenter extends BasePresenter
 
 		try
 		{
-			$this->usersModel->updateUserBy( array( 'user_name' => $values->user_name ), array( 'id' => $this->user->id ) );
+			$this->users->updateUser( [ 'user_name' => $values->user_name ], $this->userEnt );
 		}
 		catch ( App\Exceptions\DuplicateEntryException $e )
 		{
 			$this->flashMessage( 'Užívateľské meno ' . $values->user_name . ' je už obsadené. Zvoľte si prosím iné.', 'error' );
+			return;
+		}
+		catch ( \Exception $e )
+		{
+			$this->flashMessage( $e->getMessage(), 'error' );
 			return;
 		}
 

@@ -62,23 +62,18 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	 */
 	public function handlePriority()
 	{
+		if ( $this->isAjax() )
+		{
+			$this->redrawControl( 'menu' );
+			$this->redrawControl( 'flexiFlash' );
+		}
+
 		try
 		{
 			$this->categories->updatePriority( $_GET['menuItem'] );
 			$this->cleanCache();
 
-			if ( ! $this->isAjax() )
-			{
-				$this->flashMessage( 'Poradie položiek bolo upravené.' );
-				$this->redirect( 'this' );
-			}
-			else
-			{
-				$this->setFlexiFlash( 'Poradie položiek bolo upravené.' );
-				$this->redrawControl( 'menu' );
-				$this->redrawControl( 'flexiFlash' );
-				return;
-			}
+			$this->setFlexiFlash( 'Poradie položiek bolo upravené.' );
 		}
 		catch ( \Exception $e )
 		{
@@ -86,6 +81,14 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			$msg = 'Pri ukladaní údajov došlo k chybe.';
 			$this->isAjax() ? $this->setFlexiFlash( $msg, 'error' ) : $this->flashMessage( $msg, 'error' );
 		}
+
+		if ( $this->isAjax() )
+		{
+			return;
+		}
+
+		$this->redirect( 'this' );
+
 	}
 
 
@@ -116,6 +119,7 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		try
 		{
 			$this->categories->switchVisibility( $id );
+
 			$this->cleanCache();
 			$msg = 'Viditeľnosť položky bola upravená.';
 			$this->isAjax() ? $this->setFlexiFlash( $msg, 'success' ) : $this->flashMessage( $msg, 'success' );
@@ -129,8 +133,8 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 		if ( $this->isAjax() )
 		{
-			$this->redrawControl( 'sortableList' );
 			$this->redrawControl( 'menu' );
+			$this->redrawControl( 'sortableList' );
 			$this->redrawControl( 'flexiFlash' );
 
 			return;
@@ -147,7 +151,7 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	 */
 	public function handleDelete( $id )
 	{
-		$item = $this->categories->findOneBy( array( 'id' => (int) $id ), 'admin' );
+		$item = $this->categories->findOneBy( [ 'id' => (int) $id ], 'admin' );
 
 		$this->cleanCache();
 
@@ -211,10 +215,10 @@ class MenuPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		}
 		foreach ( $section as $item )
 		{
-			$params[$item->id] = str_repeat( '>', $lev * 1 ) . $item->name;
-			if ( $item->children->count() )
+			$params[$item->getId()] = str_repeat( '>', $lev * 1 ) . $item->getName();
+			if ( $item->getChildren()->count() )
 			{
-				$params = $this->getCategoriesSelectParams( $item->children, $params, $lev + 1 );
+				$params = $this->getCategoriesSelectParams( $item->getChildren(), $params, $lev + 1 );
 			}
 		}
 

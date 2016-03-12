@@ -41,7 +41,7 @@ class Comments
 		{
 			throw new InvalidArgumentException( 'Argument content is not set.' );
 		}
-		if ( is_int( $ent ) )
+		if ( is_numeric( $ent ) )
 		{
 			$ent = $this->commentRepository->find( (int) $ent );
 		}
@@ -56,7 +56,7 @@ class Comments
 	 */
 	public function switchVisibility( $ent )
 	{
-		if ( is_int( $ent ) )
+		if ( is_numeric( $ent ) )
 		{
 			$ent = $this->commentRepository->find( (int) $ent );
 		}

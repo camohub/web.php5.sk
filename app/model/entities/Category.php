@@ -6,7 +6,6 @@ namespace App\Model\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
-use Doctrine\Common\Collections\Criteria;
 
 
 /**
@@ -21,7 +20,7 @@ use Doctrine\Common\Collections\Criteria;
 class Category
 {
 
-	use \Kdyby\Doctrine\Entities\MagicAccessors;
+	//use \Kdyby\Doctrine\Entities\MagicAccessors;
 	use \Kdyby\Doctrine\Entities\Attributes\Identifier;
 
 
@@ -55,13 +54,13 @@ class Category
 	 */
 	protected $children;
 
-	/** @ORM\Column(type="smallint"), options={"unsigned"=true} */
+	/** @ORM\Column(type="smallint", options={"unsigned"=true}) */
 	protected $priority;
 
-	/** @ORM\Column(type="smallint"), nullable=true, options={"unsigned"=true, "default"=1} */
+	/** @ORM\Column(type="smallint", nullable=false, options={"unsigned"=true, "default"=1}) */
 	protected $visible;
 
-	/** @ORM\Column(type="smallint"), nullable=false, options={"comment"="If app == 1 itme can't be deleted cause it is default part of application."} */
+	/** @ORM\Column(type="smallint", nullable=false, options={"unsigned"=true, "comment"="If app == 1 itme can't be deleted cause it is default part of application."}) */
 	protected $app;
 
 	/**
@@ -71,7 +70,7 @@ class Category
 	protected $module;
 
 	/**
-	 * @ORM\ManyToMany(targetEntity="Article", mappedBy="categories", cascade={"persist"})
+	 * @ORM\ManyToMany(targetEntity="Article", mappedBy="categories")
 	 */
 	protected $articles;
 
@@ -99,6 +98,101 @@ class Category
 
 	}
 
+
+	public function getName()
+	{
+		return $this->name;
+	}
+
+
+	public function getSlug()
+	{
+		return $this->slug;
+	}
+
+
+	public function getUrl()
+	{
+		return $this->url;
+	}
+
+
+	public function getUrlParams()
+	{
+		return $this->url_params;
+	}
+
+
+	public function getPriority()
+	{
+		return $this->priority;
+	}
+
+
+	public function getChildren()
+	{
+		return $this->children;
+	}
+
+
+	public function getParent()
+	{
+		return $this->parent;
+	}
+
+
+	public function getArticles()
+	{
+		return $this->articles;
+	}
+
+
+	public function getVisible()
+	{
+		return $this->visible;
+	}
+
+
+	public function getApp()
+	{
+		return $this->app;
+	}
+
+
+	public function setVisible( $to )
+	{
+		$this->visible = (int) $to;
+	}
+
+
+	public function setParentId( $id )
+	{
+		$this->parent_id = $id;  // Do not use (int) because of NULL.
+	}
+
+
+	public function setPriority( $to )
+	{
+		$this->priority = (int) $to;
+	}
+
+
+	public function setName( $name )
+	{
+		$this->name = $name;
+	}
+
+
+	public function setUrlParams( $url_params )
+	{
+		$this->url_params = $url_params;
+	}
+
+
+	public function setSlug( $slug )
+	{
+		$this->slug = $slug;
+	}
 
 
 

@@ -60,6 +60,17 @@ class ItemNotFoundException extends \Exception
 	public $code = 404;
 }
 
+/**
+ * Class ItemNotFoundException
+ * @package App\Exceptions
+ */
+class CreateDirectoryException extends \Exception
+{
+	// Something goes wrong with mkdir() call.
+}
+
+
+
 
 
 

@@ -91,7 +91,7 @@ class Articles extends Nette\Object
 	{
 		if ( ! $admin )
 		{
-			$params['status'] = 1;
+			$params['status ='] = 1;
 		}
 
 		// QB make less queries if there is join, than repository->findOneBy lazy loading.
@@ -125,7 +125,7 @@ class Articles extends Nette\Object
 			->orderBy( 'a.created', 'DESC' )
 			->getQuery();
 
-		// Returns ResultSetbecause of paginator
+		// Returns ResultSet because of paginator.
 		return new Kdyby\Doctrine\ResultSet( $articles );
 	}
 
@@ -286,7 +286,7 @@ class Articles extends Nette\Object
 	 */
 	public function delete( $article )
 	{
-		if ( is_int( $article ) )
+		if ( is_numeric( $article ) )
 		{
 			$article = $this->articleRepository->find( (int) $article );
 		}
@@ -298,7 +298,7 @@ class Articles extends Nette\Object
 
 	public function switchVisibility( $article )
 	{
-		if ( is_int( $article ) )
+		if ( is_numeric( $article ) )
 		{
 			$article = $this->find( (int) $article );
 		}

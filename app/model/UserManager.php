@@ -2,6 +2,7 @@
 
 namespace App\Model;
 
+
 use Nette;
 use App;
 use Kdyby;
@@ -87,7 +88,7 @@ class UserManager extends Nette\Object implements Nette\Security\IAuthenticator
 		$rolesArr = [ ];
 		foreach ( $user->getRoles() as $role )
 		{
-			$rolesArr[] = $role->name;
+			$rolesArr[] = $role->getName();
 		}
 
 		return new Nette\Security\Identity( $user->getId(), $rolesArr, $userArr );
@@ -116,6 +117,7 @@ class UserManager extends Nette\Object implements Nette\Security\IAuthenticator
 
 		$params[self::COL_PASSWORD] = Passwords::hash( $params['password'] );
 		$params[self::COL_CONFIRMATION_CODE] = $code = Random::generate( 10, '0-9a-zA-Z' );
+		$params['resource'] = 'App';
 
 		try
 		{

@@ -37,6 +37,7 @@ services:
 	- App\Model\Articles
 	- App\Model\Users
 	- App\Model\Comments
+	- App\Model\Images(%wwwDir%)
 	- Nette\Mail\SendmailMailer
 	- Nette\Mail\Message
 

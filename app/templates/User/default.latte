@@ -2,16 +2,16 @@
 
 {block content}
 
-<h1 class="mT30 fS2">Účet - {$userRow->user_name}</h1>
+<h1 class="mT30 fS2">Účet - {$userEnt->getUserName()}</h1>
 
 <div class="small1">
- 	<div><b>Meno:</b> {$userRow->user_name}</div>
-  	<div><b>Registrovaný:</b> {$userRow->created}</div>
-  	<div><b>Účet aktívny:</b> {$userRow->active ? áno : nie}</div>
+	<div><b>Meno:</b> {$userEnt->getUserName()}</div>
+	<div><b>Registrovaný:</b> {$userEnt->getCreated()|date:'j. F Y'|datum:sk}</div>
+	<div><b>Účet aktívny:</b> {$userEnt->getActive() ? áno : nie}</div>
 </div>
 
 <div class="pV10">
-	{if $userRow->password}
+	{if $userEnt->getPassword()}
   	<div><a n:href=":User:password">Zmeniť heslo</a></div>
   	<div><a n:href=":User:name">Zmeniť meno</a></div>
   	{/if}

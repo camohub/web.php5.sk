@@ -2,20 +2,31 @@
 
 {block content}
 
-<div class="bgC5 mT10 c3">
-	<div class="p10">
+<div class="row mT10 c3">
+	<div class="col-xs-12 pV20">
 		{form insertForm}
 
 			<ul class="error" n:if="$form->hasErrors()">
 					<li n:foreach="$form->errors as $error">{$error}</li>
 			</ul>
-
-			{input images}<br>
-			<span class="small1">Viac obrázkov naraz vyberiete stlačením klávesy ctrl. Maximálny počet je 5 obrázkov.</span>
-			<br><br>
-
-			{input sbmt}
+		{input images}
+			<div class="small1 pV10">Viac obrázkov naraz vyberiete stlačením klávesy ctrl. Maximálny počet je 5
+				obrázkov.
+			</div>
+		{input sbmt}
 
 		{/form}
 	</div>
 </div>
+
+<div class="row">
+	{foreach $images as $i}
+		<div class="col-xs-12 col-sm-6 col-md-3">
+			<a n:href="delete! $i->getId()" class="pA tR0 c7 fWB">x</a>
+			<img src="{$basePath}/images/app/mediums/{$i->getName()}" class="img-responsive center-block">
+		</div>
+	{/foreach}
+</div>
+
+{control vp}
+

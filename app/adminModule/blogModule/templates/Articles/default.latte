@@ -50,10 +50,10 @@
 </div>
 
 <script>
-$('.ico_trash','table.datagrid').on('click', function()
+	$( '.ico_trash, .fa-trash-o', 'table.datagrid' ).on( 'click', function()
 {
 	var title = $(this).closest('tr').find('td:first').text();
-	if(confirm('Naozaj chcete zmazať článok: ' + title + '?'))
+	if ( confirm( 'Naozaj chcete zmazať článok: ' + title + '?' ) )
 	{
 		return true;
 	}

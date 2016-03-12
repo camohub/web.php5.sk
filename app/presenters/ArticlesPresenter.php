@@ -46,9 +46,9 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 		if ( $category = $this->categories->findOneBy( [ 'slug' => $title ] ) )  // Displays category.
 		{
 			$session_article = $this->getSession( 'article' );
-			$session_article->category_id = $category->id;  // Cat. id is used in else part. So is necessary to store it in session.
+			$session_article->category_id = $category->getId();  // Cat. id is used in else part. So is necessary to store it in session.
 
-			$this->setCategoryId( $category->id );
+			$this->setCategoryId( $category->getId() );
 
 			// Displays all articles from category and nested categories.
 			$ids = $this->categories->findCategoryIds( $category );
@@ -75,14 +75,14 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 			}
 
 			$this->template->article = $article;
-			$this->template->comments = $article->comments;
+			$this->template->comments = $article->getComments();
 
 			$this->template->fb = TRUE; // If is true template loads FB javascript SDK
 			$this->template->google = TRUE; // If is true template loads Google javascript API
 
-			$this['breadcrumbs']->add( $article->title, ':Articles:show ' . $article->url_title );
+			$this['breadcrumbs']->add( $article->getTitle(), ':Articles:show ' . $article->getUrlTitle() );
 
-			$this->setHeaderTags( $metaDesc = $article->meta_desc, $title = $article->title );
+			$this->setHeaderTags( $metaDesc = $article->getMetaDesc(), $title = $article->getTitle() );
 
 		}
 
@@ -165,7 +165,9 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 		}
 		catch ( \Exception $e )
 		{
+			Debugger::log( $e->getMessage(), 'error' );
 			$form->addError( 'Došlo k chybe. Váš komentár sa nepodarilo odoslať. Skúste to prosím neskôr.' );
+			return;
 		}
 
 		$this->redirect( 'this' );

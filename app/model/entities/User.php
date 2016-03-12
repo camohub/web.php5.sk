@@ -75,7 +75,7 @@ class User
 
 	/**
 	 * @param $params
-	 * @param bool|FALSE $admin
+	 * @param bool $admin
 	 */
 	public function create( $params, $admin = FALSE )
 	{
@@ -92,6 +92,28 @@ class User
 			$this->addRole( $role );
 		}
 
+	}
+
+
+	public function update( $params )
+	{
+		if ( isset( $params['user_name'] ) )
+		{
+			$this->user_name = $params['user_name'];
+		}
+		if ( isset( $params['password'] ) )
+		{
+			$this->password = $params['password'];
+		}
+		// array_key_exists because isset does not catch NULL value. And isset because is faster than array_key_exists.
+		if ( isset( $params['confirmation_code'] ) || array_key_exists( 'confirmation_code', $params ) )
+		{
+			$this->confirmation_code = $params['confirmation_code'];
+		}
+		if ( isset( $params['active'] ) )
+		{
+			$this->active = $params['active'];
+		}
 	}
 
 
@@ -115,11 +137,6 @@ class User
 		];
 	}
 
-
-	public function id()
-	{
-		return $this->id;
-	}
 
 	public function getUserName()
 	{
@@ -154,6 +171,12 @@ class User
 	public function getConfirmationCode()
 	{
 		return $this->confirmation_code;
+	}
+
+
+	public function getCreated()
+	{
+		return $this->created;
 	}
 
 

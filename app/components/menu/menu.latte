@@ -11,15 +11,15 @@
 {block menu}
 	<ul>
 		{foreach $section as $item}
-			<li id="{$item->id}">
-				{if $item->url_params}
-					<a href="{plink $item->url (expand)explode(' ', $item->url_params)}">{$item->name}</a>
+			<li id="{$item->getId()}">
+				{if $item->getUrlParams()}
+					<a href="{plink $item->getUrl() (expand)explode(' ', $item->getUrlParams())}">{$item->getName()}</a>
 				{else}
-					<a href="{plink $item->url}">{$item->name}</a>
+					<a href="{plink $item->getUrl()}">{$item->getName()}</a>
 				{/if}
 
-				{if $section = $categories->findBy( [ 'parent_id =' => $item->id ], NULL, $admin ) }
-					{include menu, section => $item->children } {* RECURSION *}
+				{if $section = $categories->findBy( [ 'parent_id =' => $item->getId() ], NULL, $admin ) }
+					{include menu, section => $section } {* RECURSION *}
 				{/if}
 			</li>
 		{/foreach}

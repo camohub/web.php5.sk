@@ -21,7 +21,7 @@ use Nette\Utils\DateTime;
 class Comment
 {
 
-	use \Kdyby\Doctrine\Entities\MagicAccessors;
+	//use \Kdyby\Doctrine\Entities\MagicAccessors;
 	use \Kdyby\Doctrine\Entities\Attributes\Identifier;
 
 	/**
@@ -48,8 +48,14 @@ class Comment
 	/** @ORM\Column(type="datetime") */
 	protected $created;
 
-	/** @ORM\Column(type="boolean", options={"unsigned":true, "default":false}) */
+	/** @ORM\Column(type="boolean") */
 	protected $deleted;
+
+
+	public function __construct()
+	{
+		$this->deleted = 0;  // Because of options default and unsigned with boolean does not work correctly.
+	}
 
 
 	public function create( $params )
@@ -71,5 +77,34 @@ class Comment
 			$this->content = $params['content'];
 		}
 	}
+
+
+	public function getContent()
+	{
+		return $this->content;
+	}
+
+
+	public function getUserName()
+	{
+		return $this->user_name;
+	}
+
+
+	public function getDeleted()
+	{
+		return $this->deleted;
+	}
+
+
+	public function getCreated()
+	{
+		return $this->created;
+	}
+
+
+
+
+
 	
 }
