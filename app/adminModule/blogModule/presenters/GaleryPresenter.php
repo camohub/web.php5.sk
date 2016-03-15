@@ -1,40 +1,42 @@
 <?php
+
 namespace App\AdminModule\BlogModule\Presenters;
 
-use	Nette,
-	App,
-	App\Model\Images,
-	Nette\Utils\Finder,
-	Tracy\Debugger;
+
+use Nette;
+use App;
+use Tracy\Debugger;
+
 
 class GaleryPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 {
 
-	/** @var  App\Model\Images */
-	protected $imagesModel;
-
-
-
-	public function startup()
-	{
-		parent::startup();
-		$this->imagesModel = new Images($this->database);
-	}
+	/** @var  App\Model\Images @inject */
+	public $images;
 
 
 
 	public function renderDefault()
 	{
-		$images = $this->imagesModel->findBy(array('module_id' => 1), 'admin')->order('id DESC');
+		$images = $this->images->imagesResultSet( [ 'module.id =' => 1 ] );
+		$this->template->images = $this->setPaginator( $images );
+		$this->template->page = $this['vp']->getPaginator()->page;
 
+	}
+
+
+///////Protected/////////////////////////////////////////////////////////////
+
+
+	protected function setPaginator( $images )
+	{
 		$vp = $this['vp'];
 		$paginator = $vp->getPaginator();
-		$paginator->itemsPerPage = 15;
-		$paginator->itemCount = count($images);
+		$paginator->itemsPerPage = 3;
 
-		$this->template->images = $images->limit($paginator->itemsPerPage, $paginator->offset);
-		$this->template->page = $paginator->page;
+		$images->applyPaginator( $paginator );
 
+		return $images;
 
 	}
 

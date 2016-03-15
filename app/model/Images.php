@@ -234,6 +234,21 @@ class Images
 	}
 
 
+	public function imagesResultSet( $criteria )
+	{
+		$images = $this->imageRepository->createQueryBuilder()
+			->select( 'i' )
+			->from( 'App\Model\Entity\Image', 'i' )
+			->whereCriteria( $criteria )
+			->orderBy( 'i.id', 'DESC' )
+			->getQuery();
+
+		// Returns ResultSet because of paginator.
+		return new Kdyby\Doctrine\ResultSet( $images );
+
+	}
+
+
 ////Protected/Private//////////////////////////////////////////////////////
 
 	protected function reopenEm()

@@ -7,15 +7,16 @@ tinymce.init({
 	image_advtab: true,
 	image_class_list: [
 		{ title: 'None', value: ''},
-		{ title: 'Dog', value: 'dog'},
-		{ title: 'Cat', value: 'cat'}
+		{ title: 'Left', value: 'fL' },
+		{ title: 'Right', value: 'fR' },
+		{ title: 'Gallery', value: 'gallery' }
 	],
 	plugins: [
 		"advlist autolink link image lists charmap print preview hr anchor pagebreak spellchecker",
 		"searchreplace wordcount visualblocks visualchars code fullscreen insertdatetime media nonbreaking",
 		"save table contextmenu directionality emoticons template paste textcolor"
 	],
-	content_css: "{$basePath}" + "/js/tinymce/css/area.css",
+	content_css: "{$basePath}" + "/css/tinymce.css",
 	style_formats: [
 		{ title: "Headers", items: [
 			{ title: "Header 1", format: "h2"},
@@ -68,7 +69,3 @@ tinymce.init({
 
 });
 
-function bla()
-{
-	alert('bla');
-}
