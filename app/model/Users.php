@@ -7,6 +7,7 @@ use Nette;
 use Kdyby;
 use Nette\Security\Passwords;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
+use Nette\Utils\Random;
 use Tracy\Debugger;
 
 
@@ -22,17 +23,28 @@ class Users
 	/** @var Kdyby\Doctrine\EntityRepository */
 	protected $rolesRepository;
 
+	/** @var Nette\Mail\SendmailMailer */
+	private $mailer;
+
+	/** @var Nette\Mail\Message */
+	private $mail;
+
 
 
 	/**
 	 * @param Kdyby\Doctrine\EntityManager $em
+	 * @param Nette\Mail\SendmailMailer $mailer
+	 * @param Nette\Mail\Message $mail
 	 */
-	public function __construct( Kdyby\Doctrine\EntityManager $em )
+	public function __construct( Kdyby\Doctrine\EntityManager $em, Nette\Mail\SendmailMailer $mailer, Nette\Mail\Message $mail )
 	{
 		$this->em = $em;
 
 		$this->usersRepository = $em->getRepository( Entity\User::class );
 		$this->rolesRepository = $em->getRepository( Entity\Role::class );
+
+		$this->mailer = $mailer;
+		$this->mail = $mail;
 	}
 
 
@@ -114,19 +126,30 @@ class Users
 
 
 	/**
-	 * @param int $id
+	 * @param int|App\Model\Entity\User $user
 	 * @param array $roles
 	 * @throws \Exception
 	 */
-	public function setUserRoles( $id, $roles )
+	public function setUserRoles( $user, array $roles )
 	{
-		$user = $this->usersRepository->find( (int) $id );
-		$roles = $this->rolesRepository->findBy( [ 'name =' => $roles ] );
+		if ( is_numeric( $user ) )
+		{
+			$user = $this->usersRepository->find( (int) $user );
+		}
+
+		foreach ( $user->getRoles() as $role )
+		{
+			$user->removeRole( $role );
+		}
+
+		$roles = $this->rolesRepository->findBy( [ 'id =' => $roles ] );
 
 		foreach ( $roles as $role )
 		{
 			$user->addRole( $role );
 		}
+
+		$this->em->flush( $user );
 
 	}
 
@@ -153,6 +176,88 @@ class Users
 		$newPassword = Passwords::hash( $credentials['newPassword'] );
 
 		$this->updateUser( [ 'password' => $newPassword ], $user );
+
+	}
+
+
+	public function usersResultSet( array $criteria = [ ], $admin = FALSE )
+	{
+		$criteria = $admin ? $criteria : [ 'active =' => 1 ];
+
+		$users = $this->usersRepository->createQueryBuilder()
+			->select( 'u' )
+			->from( 'App\Model\Entity\User', 'u' )
+			->whereCriteria( $criteria )
+			->orderBy( 'u.user_name', 'ASC' )
+			->getQuery();
+
+		// Returns ResultSet because of paginator.
+		return new Kdyby\Doctrine\ResultSet( $users );
+	}
+
+
+	/**
+	 * @param $ent Entity\User|int
+	 * @return array
+	 */
+	public function setDefaults( $ent )
+	{
+		if ( is_numeric( $ent ) )
+		{
+			$ent = $this->usersRepository->find( (int) $ent );
+		}
+		return $arr = $ent->getArray();
+
+	}
+
+
+	public function setRolesDefaults( $id )
+	{
+		return $this->rolesRepository->findPairs( [ 'users.id =' => (int) $id ], 'id' );
+	}
+
+
+	public function rolesToSelect()
+	{
+		return $this->rolesRepository->findPairs( 'name', [ 'name' => 'ASC' ], 'id' );
+	}
+
+
+	public function sendConfirmEmail( $template, $user )
+	{
+		if ( is_numeric( $user ) )
+		{
+			$user = $this->usersRepository->find( (int) $user );
+		}
+
+		$this->em->beginTransaction();
+
+		try
+		{
+			$code = Random::generate( 10, '0-9a-zA-Z' );
+
+			$this->updateUser( [ 'active' => 0, 'confirmation_code' => $code ], $user );
+
+			$template->code = $code;
+			$template->userId = $user->getId();
+
+			$mail = $this->mail;
+			$mail->setFrom( 'admin@email.sk' )
+				->addTo( 'vladimir.camaj@gmail.com' )
+				->setReturnPath( 'camo@tym.sk' )
+				->setSubject( 'Overenie emailovej adresy.' )
+				->setHtmlBody( $template );
+
+			$mailer = $this->mailer;
+			$mailer->send( $mail );
+		}
+		catch ( \Exception $e )
+		{
+			$this->em->rollBack();
+			throw new App\Exceptions\ConfirmationEmailException( 'Pri odosielaní emailu došlo k chybe. Email pravdepodobne nebol odoslaný.' );
+		}
+
+		$this->em->commit();
 
 	}
 

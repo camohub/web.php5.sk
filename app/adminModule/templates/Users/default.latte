@@ -2,7 +2,7 @@
 
 {block content}
 
-<div class="pV20">
+<div class="mV10">
 
     <div n:if="count($flashes)" n:inner-foreach="$flashes as $flash" class="flash">
         <div class="{$flash->type}">{$flash->message}</div>
@@ -12,7 +12,7 @@
 
     {control vp}
 
-	<table class="datagrid mT10">
+	<table class="datagrid mB10">
 		<tr>
 			<th>ID</th>
 			<th>Meno</th>
@@ -20,12 +20,15 @@
 			<th>Action</th>
 		</tr>
 		<tr n:if="count($users)" n:foreach="$users as $user">
-			<td>{$user->id}</td>
-			<td>{$user->user_name}</td>
-			<td>{$user->created}</td>
+			<td>{$user->getId()}</td>
+			<td>{$user->getUserName()}</td>
+			<td>{$user->getCreated()|date:'j. F Y'|datum:sk}</td>
 			<td>
-				<a n:href=":Admin:Users:edit $user->id" class="ico ico_modify" title="Edit"></a>
-				<a n:href="active! $user->id" n:class="ico, $user->active ? ico_ok : ico_no-entry" title="Block/Unblock"></a>
+				<a n:href=":Admin:Users:edit $user->getId()" class="fa fa-pencil fa-lg" title="Edit"></a>
+				<a n:href="email! $user->getId()" class="fa fa-envelope fa-lg" title="Confirmation email"></a>
+				<a n:href="active! $user->getId()"
+				   n:class="fa, fa-lg, $user->getActive() ? fa-check-circle : fa-minus-circle"
+				   title="Block/Unblock"></a>
 			</td>
 		</tr>
 	</table>

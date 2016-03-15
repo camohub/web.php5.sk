@@ -2,21 +2,17 @@
 
 {block content}
 
-<div class="pV20">
+<div class="mV10">
 
-    <div n:if="count($flashes)" n:inner-foreach="$flashes as $flash" class="flash">
-        <div class="{$flash->type}">{$flash->message}</div>
-    </div>
-
-    <h3>Editujete užívateľa {$userRow->user_name}</h3>
+	<h3>Editujete užívateľa {$userEnt->getUserName()}</h3>
 
     {form editForm}
         <ul class="errors" n:if="$form->hasErrors()">
-                <li n:foreach="$form->errors as $error">{$error}</li>
+			<li n:foreach="$form->errors as $error">{$error}</li>
         </ul>
         <div class="pV10">
-            {label users_acl_roles /}<br>
-            {input users_acl_roles}
+			{label roles /}<br>
+			{input roles}
         </div>
         <div class="pV10">
             {input confirmEmail}{label confirmEmail /}<br>
@@ -26,10 +22,6 @@
             {input send}
         </div>
     {/form}
-
-
-
-
 
 </div>
 

@@ -1,51 +1,26 @@
 <?php
 
 
-
 namespace App\AdminModule\Presenters;
 
 
-
-use	Nette,
-	App,
-	Tracy\Debugger,
-	Nette\Utils\Strings,
-	App\Model,
-	Nette\Mail\Message,
-	Nette\Mail\SendmailMailer,
-	Nette\Utils\Random;
-
+use Nette;
+use App;
+use Nette\Utils\Random;
+use Tracy\Debugger;
 
 
 class UsersPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 {
 
-	/** @var Model\Users */
-	private $usersModel;
+	/** @var App\Model\Users @inject */
+	public $usersModel;
 
-	/** @var Nette\Mail\SendmailMailer */
-	private $mailer;
-
-	/** @var Nette\Mail\Message */
-	private $mail;
-
-	/** @var  Nette\Database\Table\Selection */
+	/** @var  array */
 	protected $users;
 
-	/** @var  Nette\Database\Table\ActiveRow */
-	protected $userRow;
-
-
-
-	public function __construct(Model\Users $usersModel, Nette\Mail\SendmailMailer $mailer, Nette\Mail\Message $mail)
-	{
-		parent::__construct();
-
-		$this->usersModel = $usersModel;
-		$this->mailer = $mailer;
-		$this->mail = $mail;
-
-	}
+	/** @var  App\Model\Entity\User */
+	protected $userEnt;
 
 
 
@@ -53,12 +28,12 @@ class UsersPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	{
 		parent::startup();
 
-		if(!$this->user->isAllowed('user', 'edit'))
+		if ( ! $this->user->isAllowed( 'user', 'edit' ) )
 		{
-			throw new App\Exceptions\AccessDeniedException('Nemáte oprávnenie editovať účty užívateľov.');
+			throw new App\Exceptions\AccessDeniedException( 'Nemáte oprávnenie editovať účty užívateľov.' );
 		}
 
-		$this['breadcrumbs']->add('Užívatelia', ':Admin:Users:default');
+		$this['breadcrumbs']->add( 'Užívatelia', ':Admin:Users:default' );
 
 	}
 
@@ -66,38 +41,75 @@ class UsersPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 	public function renderDefault()
 	{
-		$users = $this->usersModel->findAll('admin');
+		$users = $this->usersModel->usersResultSet( [ ], 'admin' );
+		$this->template->users = $this->setPaginator( $users );
+	}
 
+
+
+	public function actionEdit( $id )
+	{
+		$this['breadcrumbs']->add( 'Editovať', ':Admin:Users:edit' );
+
+		$this->userEnt = $this->template->userEnt = $this->usersModel->findOneBy( [ 'id =' => (int) $id ], 'admin' );
+
+	}
+
+
+
+	/**
+	 * @secured
+	 * @param $id
+	 * @throws App\Exceptions\DuplicateEntryException
+	 */
+	public function handleActive( $id )
+	{
+		$user = $this->usersModel->findOneBy( [ 'id' => (int) $id ], 'admin' );
+
+		$status = $user->getActive() == 1 ? 0 : 1;
+		$this->usersModel->updateUser( [ 'active' => $status ], (int) $id );
+
+		$this->flashMessage( 'Zmenili ste vyditeľnosť užívateľského účtu.' );
+		$this->redirect( 'this' );
+	}
+
+
+
+	/**
+	 * @secured
+	 * @param $id
+	 * @throws App\Exceptions\DuplicateEntryException
+	 */
+	public function handleEmail( $id )
+	{
+		try
+		{
+			$template = $this->createTemplate()->setFile( __DIR__ . '/../templates/Users/email.latte' );
+			$this->usersModel->sendConfirmEmail( $template, $id );
+		}
+		catch ( \Exception $e )
+		{
+			$this->flashMessage( 'Pri odosielaní emailu došlo k chybe. Email pravdepodobne nebol odoslaný.', 'error' );
+			return;
+		}
+
+		$this->flashMessage( 'Bol odoslaný konfirmačný email.' );
+		$this->redirect( 'this' );
+	}
+
+
+///////protected////////////////////////////////////////////////////////////////////////////
+
+	protected function setPaginator( $users )
+	{
 		$vp = $this['vp'];
 		$paginator = $vp->getPaginator();
-		$paginator->itemsPerPage = 10;
-		$paginator->itemCount = count($users);
+		$paginator->itemsPerPage = 3;
 
-		$this->template->users = $users->limit($paginator->itemsPerPage, $paginator->offset);
+		$users->applyPaginator( $paginator );
 
-	}
+		return $users;
 
-
-
-	public function actionEdit($id)
-	{
-		$this['breadcrumbs']->add('Editovať', ':Admin:Users:edit');
-
-		$this->userRow = $this->template->userRow = $this->usersModel->findOneBy(array('id' => (int)$id), 'admin');
-
-	}
-
-
-
-	public function handleActive($id)
-	{
-		$user = $this->usersModel->findOneBy(array('id' => (int)$id), 'admin');
-
-		$status = $user->active == 1 ? 0 : 1;
-		$this->usersModel->updateUser(array('active' => $status), (int)$id);
-
-		$this->flashMessage('Zmenili ste vyditeľnosť užívateľského účtu.');
-		$this->redirect('this');
 	}
 
 
@@ -108,23 +120,21 @@ class UsersPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	protected function createComponentEditForm()
 	{
 		$form = new Nette\Application\UI\Form;
-		$id = (int)$this->getParameter('id');
+		$id = (int) $this->getParameter( 'id' );
 
-		$form->addProtection('Vypršal čas vyhradený pre odoslanie formulára. Z dôvodu rizika útoku CSRF bola požiadavka na server zamietnutá.', 'error');
+		$form->addProtection( 'Vypršal čas vyhradený pre odoslanie formulára. Z dôvodu rizika útoku CSRF bola požiadavka na server zamietnutá.', 'error' );
 
+		$rolesSel = $this->usersModel->rolesToSelect();
+		$rolesDefaults = $this->usersModel->setRolesDefaults( $id );
+		$form->addMultiSelect( 'roles', 'Uživatľské role', $rolesSel, '5' )
+			->setRequired( 'Musíte vybrať jedného uživateľa.' )
+			->setDefaultValue( $rolesDefaults )
+			->setAttribute( 'class', 'w150 b7' );
 
-		$rolesDefault = $this->usersModel->findUserRoles($id, 'admin')->fetchPairs('users_id', 'acl_roles_id');
-		$allRoles = $this->usersModel->findAllRoles()->fetchPairs('id', 'name');
-		$form->addMultiSelect('users_acl_roles', 'Uživatľské role', $allRoles, '5')
-			->setRequired('Musíte vybrať jedného uživateľa.')
-			->setDefaultValue($rolesDefault)
-			->setAttribute('class', 'w150');
+		$form->addCheckbox( 'confirmEmail', ' Overiť emailovú adresu.' );
 
-		$form->addCheckbox('confirmEmail', ' Overiť emailovú adresu.');
-
-
-		$form->addSubmit('send', 'Uložiť')
-			->setAttribute('class', 'formElB');
+		$form->addSubmit( 'send', 'Uložiť' )
+			->setAttribute( 'class', 'formElB' );
 
 		$form->onSuccess[] = $this->editFormSucceeded;
 		return $form;
@@ -134,56 +144,42 @@ class UsersPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	/**
 	 * @param $form
 	 */
-	public function editFormSucceeded($form)
+	public function editFormSucceeded( $form )
 	{
 		$values = $form->getValues();
-		$id = (int)$this->getParameter('id');
+		$id = (int) $this->getParameter( 'id' );
 
-		try {
-			$this->usersModel->setUsersRoles($id, $values->users_acl_roles);
+		try
+		{
+			$this->usersModel->setUserRoles( $id, $values->roles );
 		}
-		catch(\Exception $e) {
-			$this->flashMessage('Pri nastavovaní užívateľských rolí došlo k chybe. Skontrolujte prosím aké práva má užívateľ nastavené.', 'error');
+		catch ( \Exception $e )
+		{
+			$this->flashMessage( 'Pri nastavovaní užívateľských rolí došlo k chybe. Skontrolujte prosím aké práva má užívateľ nastavené.', 'error' );
 			return;
 		}
 
-		// Sending confirmation email + sets user->active = 0
-		if($values->confirmEmail)
+		if ( $values->confirmEmail )
 		{
-			$this->database->beginTransaction();
+			$this->em->beginTransaction();
 
-			try {
-				$code = Random::generate(10,'0-9a-zA-Z');
-
-				$this->usersModel->updateUser(array('active' => 0, 'confirmation_code' => $code), $id);
-
-				$template = $this->createTemplate()->setFile(__DIR__ . '/../templates/Users/email.latte');
-				$template->code = $code;
-				$template->userId = $id;
-
-				$mail = $this->mail;
-				$mail->setFrom('admin@email.sk')
-					->addTo('vladimir.camaj@gmail.com')
-					->setReturnPath('camo@tym.sk')
-					->setSubject('Overenie emailovej adresy.')
-					->setHtmlBody($template);
-
-				$mailer = $this->mailer;
-				$mailer->send($mail);
+			try
+			{
+				$template = $this->createTemplate()->setFile( __DIR__ . '/../templates/Users/email.latte' );
+				$this->usersModel->sendConfirmEmail( $template, $id );
 			}
-			catch(\Exception $e) {
-				$this->database->rollBack();
-				$this->flashMessage('Pri odosielaní emailu došlo k chybe. Email pravdepodobne nebol odoslaný.', 'error');
+			catch ( \Exception $e )
+			{
+				$this->flashMessage( 'Pri odosielaní emailu došlo k chybe. Email pravdepodobne nebol odoslaný.', 'error' );
 				return;
 			}
 
-			$this->database->commit();
-			$this->flashMessage('Bol odoslaný konfirmačný email.');
+			$this->flashMessage( 'Bol odoslaný konfirmačný email.' );
 
 		}
 
-		$this->flashMessage('Nastavenia boli zmenené.');
-		$this->redirect('this');
+		$this->flashMessage( 'Nastavenia boli zmenené.' );
+		$this->redirect( 'this' );
 
 	}
 

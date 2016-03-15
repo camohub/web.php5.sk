@@ -123,6 +123,12 @@ class User
 	}
 
 
+	public function removeRole( Role $role )
+	{
+		$this->roles->removeElement( $role );
+	}
+
+
 	/**
 	 * @return array
 	 */
