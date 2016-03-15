@@ -141,8 +141,7 @@ class Images
 				$tmpName = $image->getTemporaryFile();
 
 				$spl = new \SplFileInfo( $sName );
-				$sName = $spl->getBasename( '.' . $spl->getExtension() ) . /*'.' . microtime( TRUE ) .*/
-					'.' . $spl->getExtension();
+				$sName = $spl->getBasename( '.' . $spl->getExtension() ) . '-' . microtime( TRUE ) . '.' . $spl->getExtension();
 
 				$this->em->beginTransaction();
 
@@ -155,11 +154,9 @@ class Images
 							'name'   => $sName,
 							'module' => $module,
 						] );
-						// Is necessary because if exception occurs $module is detached and needs to be merged.
-						$this->em->merge( $module );
+
 						// And if module is merged, image cant be persisted but have to be merged too.
 						$this->em->merge( $image );
-
 						$this->em->flush();
 					}
 					catch ( UniqueConstraintViolationException $e )
@@ -167,6 +164,8 @@ class Images
 						$result['errors'][] = 'Súbor s názvom ' . $name . ' už existuje.';
 						$this->em->rollback();
 						$this->reopenEm();
+						// If exception occurs $module is detached and needs to be merged.
+						$this->em->merge( $module );
 						continue;
 					}
 
@@ -174,7 +173,7 @@ class Images
 					$x = $img->width;
 					$y = $img->height;
 
-					if ( $x > 900 || $y > 900 )
+					if ( $x > 1200 || $y > 1000 )
 					{
 						$img->resize( 1200, 1000 );  // Keeps ratio => one of the sides can be shorter, but none will be longer
 					}
@@ -188,7 +187,7 @@ class Images
 
 					if ( $x > 150 )
 					{
-						$img->resize( 200, NULL );  // Width will be 150px and height keeps ratio
+						$img->resize( 150, NULL );  // Width will be 150px and height keeps ratio
 					}
 					$img->save( $path . '/thumbnails/' . $sName );
 
@@ -199,6 +198,7 @@ class Images
 				{
 					$this->em->rollback();
 					$this->reopenEm();
+					$this->em->merge( $module );
 					Debugger::log( $e->getMessage(), 'ERROR' );
 					@unlink( $path . '/' . $sName );  // If something is saved, delete it.
 					@unlink( $path . '/mediums/' . $sName );
