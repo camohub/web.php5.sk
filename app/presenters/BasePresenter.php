@@ -19,9 +19,6 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 	/** @var Kdyby\Doctrine\EntityManager @inject */
 	public $em;
 
-	/** @var Nette\Database\Context @inject */
-	public $database;
-
 	/** @var App\Model\Categories @inject */
 	public $categories;
 
@@ -232,18 +229,6 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 		}
 		};*/
 		return $control;
-	}
-
-
-	/**
-	 * @return Nette\Application\UI\Multiplier
-	 */
-	protected function createComponentPoll()
-	{
-		return new Nette\Application\UI\Multiplier( function ( $name )
-		{
-			return new App\Controls\Poll( $this->database, $this, $name );
-		} );
 	}
 
 
