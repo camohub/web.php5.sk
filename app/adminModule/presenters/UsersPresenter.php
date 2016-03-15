@@ -82,6 +82,8 @@ class UsersPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	 */
 	public function handleEmail( $id )
 	{
+		$this->em->beginTransaction();
+
 		try
 		{
 			$template = $this->createTemplate()->setFile( __DIR__ . '/../templates/Users/email.latte' );
@@ -89,10 +91,12 @@ class UsersPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		}
 		catch ( \Exception $e )
 		{
+			$this->em->rollback();
 			$this->flashMessage( 'Pri odosielaní emailu došlo k chybe. Email pravdepodobne nebol odoslaný.', 'error' );
 			return;
 		}
 
+		$this->em->commit();
 		$this->flashMessage( 'Bol odoslaný konfirmačný email.' );
 		$this->redirect( 'this' );
 	}
@@ -170,10 +174,12 @@ class UsersPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 			}
 			catch ( \Exception $e )
 			{
+				$this->em->rollback();
 				$this->flashMessage( 'Pri odosielaní emailu došlo k chybe. Email pravdepodobne nebol odoslaný.', 'error' );
 				return;
 			}
 
+			$this->em->commit();
 			$this->flashMessage( 'Bol odoslaný konfirmačný email.' );
 
 		}

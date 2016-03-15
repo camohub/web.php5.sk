@@ -116,7 +116,6 @@ class UserManager extends Nette\Object implements Nette\Security\IAuthenticator
 		$params['roles'] = $this->em->getRepository( Entity\Role::class )->findBy( [ 'name' => $params['roles'] ] );
 
 		$params[self::COL_PASSWORD] = Passwords::hash( $params['password'] );
-		$params[self::COL_CONFIRMATION_CODE] = $code = Random::generate( 10, '0-9a-zA-Z' );
 		$params['resource'] = 'App';
 
 		try

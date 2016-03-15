@@ -223,6 +223,12 @@ class Users
 	}
 
 
+	/**
+	 * @desc Transaction have to be initialized/commited in presenter because of registration.
+	 * @param $template
+	 * @param $user
+	 * @throws App\Exceptions\DuplicateEntryException
+	 */
 	public function sendConfirmEmail( $template, $user )
 	{
 		if ( is_numeric( $user ) )
@@ -230,34 +236,22 @@ class Users
 			$user = $this->usersRepository->find( (int) $user );
 		}
 
-		$this->em->beginTransaction();
+		$code = Random::generate( 10, '0-9a-zA-Z' );
 
-		try
-		{
-			$code = Random::generate( 10, '0-9a-zA-Z' );
+		$this->updateUser( [ 'active' => 0, 'confirmation_code' => $code ], $user );
 
-			$this->updateUser( [ 'active' => 0, 'confirmation_code' => $code ], $user );
+		$template->code = $code;
+		$template->userId = $user->getId();
 
-			$template->code = $code;
-			$template->userId = $user->getId();
+		$mail = $this->mail;
+		$mail->setFrom( 'admin@email.sk' )
+			->addTo( 'vladimir.camaj@gmail.com' )
+			->setReturnPath( 'camo@tym.sk' )
+			->setSubject( 'Overenie emailovej adresy.' )
+			->setHtmlBody( $template );
 
-			$mail = $this->mail;
-			$mail->setFrom( 'admin@email.sk' )
-				->addTo( 'vladimir.camaj@gmail.com' )
-				->setReturnPath( 'camo@tym.sk' )
-				->setSubject( 'Overenie emailovej adresy.' )
-				->setHtmlBody( $template );
-
-			$mailer = $this->mailer;
-			$mailer->send( $mail );
-		}
-		catch ( \Exception $e )
-		{
-			$this->em->rollBack();
-			throw new App\Exceptions\ConfirmationEmailException( 'Pri odosielaní emailu došlo k chybe. Email pravdepodobne nebol odoslaný.' );
-		}
-
-		$this->em->commit();
+		$mailer = $this->mailer;
+		$mailer->send( $mail );
 
 	}
 

@@ -6,7 +6,6 @@ use    Nette;
 use    App;
 use    Kdyby;
 use    App\Exceptions;
-use    App\Model;
 use    Nette\Mail\Message;
 use    Nette\Mail\SendmailMailer;
 use    Tracy\Debugger;
@@ -17,8 +16,11 @@ use    Tracy\Debugger;
  */
 class RegisterPresenter extends App\Presenters\BasePresenter
 {
-	/** @var Model\UserManager */
+	/** @var App\Model\UserManager */
 	protected $userManager;
+
+	/** @var App\Model\Users */
+	protected $users;
 
 	/** @var  Nette\Mail\SendmailMailer */
 	protected $mailer;
@@ -28,13 +30,12 @@ class RegisterPresenter extends App\Presenters\BasePresenter
 
 
 
-	public function __construct( Model\UserManager $userManager, SendmailMailer $mailer, Message $mail )
+	public function __construct( App\Model\UserManager $userManager, App\Model\Users $users )
 	{
 		parent::__construct();
 
 		$this->userManager = $userManager;
-		$this->mailer = $mailer;
-		$this->mail = $mail;
+		$this->users = $users;
 	}
 
 
@@ -97,7 +98,7 @@ class RegisterPresenter extends App\Presenters\BasePresenter
 	{
 		$values = $form->getValues();
 
-		$this->database->beginTransaction();
+		$this->em->beginTransaction();
 
 		try
 		{
@@ -105,7 +106,7 @@ class RegisterPresenter extends App\Presenters\BasePresenter
 		}
 		catch ( Exceptions\DuplicateEntryException $e )
 		{
-			$this->database->rollBack();
+			$this->em->rollBack();
 
 			if ( $e->getMessage() == 'user_name' )
 			{
@@ -120,8 +121,7 @@ class RegisterPresenter extends App\Presenters\BasePresenter
 		}
 		catch ( \Exception $e )
 		{
-			$this->database->rollBack();
-
+			$this->em->rollBack();
 			Debugger::log( $e->getMessage(), 'error' );
 			$this->flashMessage( 'Pri zakladní nového účtu došlo k chybe. Skúste to prosím ešte raz.', 'error' );
 
@@ -132,31 +132,18 @@ class RegisterPresenter extends App\Presenters\BasePresenter
 		try
 		{
 			$template = $this->createTemplate()->setFile( __DIR__ . '/../templates/Register/email.latte' );
-			$template->code = $user->getConfirmationCode();
-			// Cause :Admin:Users: which also use this template has not row instance only id
-			$template->userId = $user->getId();
-
-			$mail = $this->mail;
-			$mail->setFrom( 'admin@email.sk' )
-				->addTo( 'vladimir.camaj@gmail.com' )
-				->setReturnPath( 'camo@tym.sk' )
-				->setSubject( 'Overenie emailovej adresy.' )
-				->setHtmlBody( $template );
-
-			$mailer = $this->mailer;
-			$mailer->send( $mail );
+			$this->users->sendConfirmEmail( $template, $user );
 		}
 		catch ( \Exception $e )
 		{
-			$this->database->rollBack();
-
+			$this->em->rollBack();
 			Debugger::log( $e->getMessage(), 'error' );
 			$this->flashMessage( 'Počas odosielania confirmačného emailu došlo k chybe. Účet nemohol byť vytvorený.', 'error' );
 
 			return;
 		}
 
-		$this->database->commit();
+		$this->em->commit();
 
 		$this->flashMessage( 'Vitajte ' . $values['user_name'] . '. Vaša registrácia bola úspešná. Váš účet bude aktivovaný po potvrdení emailovej adresy. Konfirmačný email bol poslaný na adresu ' . $values['email'] );
 		$this->redirect( ':Articles:show' );
