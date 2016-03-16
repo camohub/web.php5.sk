@@ -154,10 +154,8 @@ class Images
 							'name'   => $sName,
 							'module' => $module,
 						] );
-
-						// And if module is merged, image cant be persisted but have to be merged too.
-						$this->em->merge( $image );
-						$this->em->flush();
+						$this->em->persist( $image );
+						$this->em->flush( $image );
 					}
 					catch ( UniqueConstraintViolationException $e )
 					{
@@ -165,7 +163,7 @@ class Images
 						$this->em->rollback();
 						$this->reopenEm();
 						// If exception occurs $module is detached and needs to be merged.
-						$this->em->merge( $module );
+						$module = $this->em->merge( $module );  // Is necessary to write $module = merge( $module ).
 						continue;
 					}
 
@@ -192,14 +190,15 @@ class Images
 					$img->save( $path . '/thumbnails/' . $sName );
 
 					$result['saved_items'][] = $name;
+
 					$this->em->commit();
 				}
 				catch ( \Exception $e )
 				{
 					$this->em->rollback();
-					$this->reopenEm();
-					$this->em->merge( $module );
 					Debugger::log( $e->getMessage(), 'ERROR' );
+					$this->reopenEm();
+					$module = $this->em->merge( $module );  // Is necessary to write $module = merge( $module ).
 					@unlink( $path . '/' . $sName );  // If something is saved, delete it.
 					@unlink( $path . '/mediums/' . $sName );
 					@unlink( $path . '/thumbnails/' . $sName );
@@ -254,11 +253,6 @@ class Images
 	protected function reopenEm()
 	{
 		$this->em = $this->em->create( $this->em->getConnection(), $this->em->getConfiguration() );
-	}
-
-	protected function refreshEm( $entity )
-	{
-		$this->em->refresh( $entity );
 	}
 
 
