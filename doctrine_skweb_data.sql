@@ -3,13 +3,12 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: localhost
--- Generation Time: Mar 16, 2016 at 03:05 AM
+-- Generation Time: Mar 16, 2016 at 03:19 AM
 -- Server version: 5.6.26-log
 -- PHP Version: 5.6.12
 
+SET FOREIGN_KEY_CHECKS = 0;
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
-SET AUTOCOMMIT = 0;
-START TRANSACTION;
 SET time_zone = "+00:00";
 
 
@@ -177,7 +176,7 @@ INSERT INTO `users_roles` (`user_id`, `role_id`) VALUES
   (971, 3),
   (972, 3),
   (974, 3);
-COMMIT;
+SET FOREIGN_KEY_CHECKS = 1;
 
 /*!40101 SET CHARACTER_SET_CLIENT = @OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS = @OLD_CHARACTER_SET_RESULTS */;
