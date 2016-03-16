@@ -18,16 +18,13 @@ return array(
 			/.idea
 			/nbproject
 			/deployment
-			/doc
-			/files
+			images/app/*
 			log/*
 			!log/.htaccess
 			temp/*
 			!temp/.htaccess
 			tests/
 			bin/
-			www/foto/*
-			!www/foto/original/default.png
 			composer.lock
 			composer.json
 			.bowerrc
@@ -44,7 +41,6 @@ return array(
 		),*/
 		'purge' => array(
 			'temp/cache',
-			'temp/install',
 			'temp/deployment',
 			'tmp/'
 		),
