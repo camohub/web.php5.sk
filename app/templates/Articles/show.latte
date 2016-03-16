@@ -19,12 +19,15 @@
 {if isset($article)}{* Shows one article *}
 
 	<h1>{$article->getTitle()}</h1>
-	<div class="small1">{$article->getCreated()|date:'j. F Y'|datum:sk}</div>
+	<div class="small1 fWB">
+		{$article->getCreated()|date:'j. F Y'|datum:sk}<span
+				n:if="$article->getUser()"> / {$article->getUser()->getUserName()}</span>
+	</div>
 	<div>{$article->getPerex()|noescape}{$article->getContent()|noescape}</div>
 	<div class="clear pT10"></div>
 	{* Because of floaded images *}
 	<div class="fb-like" data-colorscheme="dark" data-share="true" data-show-faces="true" data-width="450"></div>
-	{if $user->id == $article->getUser()->getId()}
+	{if $article->getUser() && $user->id == $article->getUser()->getId()}
 		<a n:href=":Admin:Blog:Articles:edit $article->id" class="small1 fR">editovať</a>
 	{/if}
 
