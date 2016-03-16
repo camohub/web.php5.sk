@@ -1,10 +1,13 @@
 <?php
+
+
 namespace App\AdminModule\BlogModule\Presenters;
+
 
 use Nette;
 use App;
 use Nette\Application\UI\Form;
-use    Tracy\Debugger;
+use Tracy\Debugger;
 
 
 class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
@@ -294,7 +297,10 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		$criteria = [ ];
 		$order = [ ];
 
-		$criteria['user.id ='] = $values['authors'] ? $values['authors'] : $this->user->id;
+		if ( $values['authors'] )
+		{
+			$criteria['user.id ='] = $values['authors'];
+		}
 
 		if ( $values['interval'] )
 		{

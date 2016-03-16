@@ -11,7 +11,7 @@
 	</tr>
 	<tr n:if="count($articles)" n:foreach="$articles as $article">
 		<td>{$article->title}</td>
-		<td>{$article->user->getUserName()}</td>
+		<td>{if $article->getUser()}{$article->getUser()->getUserName()}{else}NULL{/if}</td>
 		<td>{$article->created|date:'j.n. Y'}</td>
 		<td class="tAR">
 			<a n:href=":Admin:Blog:Articles:edit $article->id" class="fa fa-lg fa-pencil" title="Edit"></a>
