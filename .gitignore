@@ -9,8 +9,6 @@
 #################
 /temp/*
 !/temp/.htaccess
-/www/webtemp/*
-!/www/webtemp/.htaccess
 
 #################
 ## Nette configs
@@ -26,8 +24,7 @@
 #################
 ## Bin
 #################
-/bin/test.bat
-/bin/testOne.bat
+
 
 #################
 ## Files
@@ -44,12 +41,8 @@
 ## Deployment
 ################
 /deployment/*
-!/deployment/deployment.bat
-!/deployment/deployment_dev.bat
-!/deployment/deployment_test.bat
-!/deployment/deployment_ver*.bat
-!/deployment/deployment.example.php
-!/deployment/deployment.config.php
+!/deployment/deployment.ini.php
+!/deployment/documentation.php
 
 #################
 ## Installer
@@ -61,4 +54,8 @@
 ## Foto
 ################
 /www/images/*
-!/www/images/default/*
+
+#################
+## Javascripts
+################
+/www/bower_components/*
