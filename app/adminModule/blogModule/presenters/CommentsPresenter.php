@@ -52,8 +52,9 @@ class CommentsPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		}
 
 		$this->article = $article = $this->articles->findOneBy( array( 'id' => (int) $id ), 'admin' );
+		$author = $this->article->getUser();
 
-		if ( ! ( $article->user->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
+		if ( ! ( $author && $author->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
 		{
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte právo zmazať tento komentár.' );
 		}

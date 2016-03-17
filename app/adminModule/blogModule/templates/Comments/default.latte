@@ -2,18 +2,20 @@
 
 {block content}
 
-<h2 class="fS15 mT20">{$article->title}</h2>
+<h2 class="fS15 mT20">{$article->getTitle()}</h2>
 
-<span class="fS09 fWB">autor: {$article->user->getUserName()}</span>
+<span class="fS09 fWB">autor: {if $article->getUser()}{$article->getUser()->getUserName()}{else}NULL{/if}</span>
 
 <h3 class="fS12 mV20">Komentáre k článku</h3>
 
 {snippet comments}
-	<div n:if="$article->comments" n:class="p10, $iterator->isOdd() ? bgC7" n:foreach="$article->comments as $comment">
-		<a n:href="visibility! comment_id => $comment->id"
-		   n:class="ajax, fa, fa-lg, fR, $comment->deleted ? fa-minus-circle : fa-trash-o" title="Delete/Undelete"> </a>
+	<div n:if="$article->comments" n:class="p10, $iterator->isOdd() ? bgC7"
+		 n:foreach="$article->getComments() as $comment">
+		<a n:href="visibility! comment_id => $comment->getId()"
+		   n:class="ajax, fa, fa-lg, fR, $comment->getDeleted() ? fa-minus-circle : fa-trash-o"
+		   title="Delete/Undelete"> </a>
 
-		<div class="fS09 c1"><b>{$comment->user_name}</b> {$comment->created|date:'j.n.Y H:i'}</div>
-	<div class="pV5">{$comment->content}</div>
-</div>
+		<div class="fS09 c1"><b>{$comment->getUserName()}</b> {$comment->getCreated()|date:'j.n.Y H:i'}</div>
+		<div class="pV5">{$comment->getContent()}</div>
+	</div>
 {/snippet}

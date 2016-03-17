@@ -108,8 +108,9 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		}
 
 		$this->article = $this->articles->findOneBy( array( 'id' => (int) $id ), 'admin' );
+		$author = $this->article->getUser();
 
-		if ( ! ( $this->article->user->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
+		if ( ! ( $author && $author->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
 		{
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte právo editovať tento článok.' );
 		}
@@ -144,8 +145,9 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		}
 
 		$this->article = $this->articles->find( (int) $id );
+		$author = $this->article->getUser();
 
-		if ( ! ( $this->article->user && $this->article->user->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
+		if ( ! ( $author && $author->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
 		{
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte právo zmazať tento článok.' );
 		}
