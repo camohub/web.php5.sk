@@ -154,8 +154,7 @@ class ImagesPresenter extends BaseAdminPresenter
 			$this->flashMessage( 'Súbor ' . join( ', ', $result['saved_items'] ) . ' bol úspešne uložený na server.' );
 		}
 
-		return;
-		//$this->redirect( 'this' );
+		$this->redirect( 'this' );
 
 	}
 
