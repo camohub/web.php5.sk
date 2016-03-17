@@ -303,7 +303,7 @@ class Articles extends Nette\Object
 		{
 			$article = $this->find( (int) $article );
 		}
-		$article->status = $article->status == 0 ? 1 : 0;
+		$article->update( [ 'status' => $article->getStatus() == 0 ? 1 : 0 ] );
 		$this->em->flush( $article );
 	}
 

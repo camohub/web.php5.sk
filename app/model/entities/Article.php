@@ -8,7 +8,6 @@ use Kdyby;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Common\Collections\ArrayCollection;
 use Nette;
-use Nette\Utils\Strings;
 use Tracy\Debugger;
 
 
