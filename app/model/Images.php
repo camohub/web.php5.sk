@@ -199,9 +199,7 @@ class Images
 					Debugger::log( $e->getMessage(), 'ERROR' );
 					$this->reopenEm();
 					$module = $this->em->merge( $module );  // Is necessary to write $module = merge( $module ).
-					@unlink( $path . '/' . $sName );  // If something is saved, delete it.
-					@unlink( $path . '/mediums/' . $sName );
-					@unlink( $path . '/thumbnails/' . $sName );
+					@$this->unlink( $sName );  // If something is saved, delete it.
 					$result['errors'][] = 'Pri ukladaní súboru ' . $name . ' došlo k chybe. Súbor nebol uložený.';
 				}
 			}
@@ -228,6 +226,8 @@ class Images
 			$img = $this->imageRepository->find( (int) $img );
 		}
 
+		@$this->unlink( $img->getName() );
+
 		$this->em->remove( $img );
 		$this->em->flush( $img );
 	}
@@ -253,6 +253,16 @@ class Images
 	protected function reopenEm()
 	{
 		$this->em = $this->em->create( $this->em->getConnection(), $this->em->getConfiguration() );
+	}
+
+
+	protected function unlink( $name )
+	{
+		$path = $this->wwwDir . '/images/app';
+
+		@unlink( $path . '/' . $name );
+		@unlink( $path . '/mediums/' . $name );
+		@unlink( $path . '/thumbnails/' . $name );
 	}
 
 
