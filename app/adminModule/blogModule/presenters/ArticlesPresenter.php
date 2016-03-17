@@ -61,7 +61,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 	public function actionCreate()
 	{
-		if ( ! $this->user->isAllowed( 'article', 'create' ) )
+		if ( ! $this->user->isAllowed( 'article', 'add' ) )
 		{
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte oprávnenie vytvárať články.' );
 		}
@@ -80,8 +80,9 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		}
 
 		$this->article = $this->articles->find( (int) $id );
+		$author = $this->article->getUser();
 
-		if ( ! ( $this->article->user->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
+		if ( ! ( $author && $author->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
 		{
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte právo editovať tento článok.' );
 		}
@@ -100,6 +101,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	 */
 	public function handleVisibility( $id )
 	{
+		// Ajax implementation is problematic because of filter, if filter is not remembered.
 		if ( ! $this->user->isAllowed( 'article', 'edit' ) )
 		{
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte oprávnenie editovať články.' );
@@ -115,15 +117,15 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		try
 		{
 			$this->articles->switchVisibility( $this->article );
+			$this->flashMessage( 'Zmenili ste vyditeľnosť článku.' );
 		}
 		catch ( \Exception $e )
 		{
 			Debugger::log( $e->getMessage() . 'in ' . $e->getFile() . ' on line ' . $e->getLine() );
 			$this->flashMessage( 'Pri upravovaní údajov došlo k chybe.', Debugger::ERROR );
-			return;
+			// Do not return. Because of @secured it needs to be redirected.
 		}
 
-		$this->flashMessage( 'Zmenili ste vyditeľnosť článku.' );
 		$this->redirect( ':Admin:Blog:Articles:default' );
 
 	}
@@ -143,7 +145,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 		$this->article = $this->articles->find( (int) $id );
 
-		if ( ! ( $this->article->user->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
+		if ( ! ( $this->article->user && $this->article->user->getId() == $this->user->id || $this->user->isInRole( 'admin' ) ) )
 		{
 			throw new App\Exceptions\AccessDeniedException( 'Nemáte právo zmazať tento článok.' );
 		}
