@@ -18,7 +18,7 @@ return array(
 			/.idea
 			/nbproject
 			/deployment
-			images/app/*
+			/www/images/app/*
 			log/*
 			!log/.htaccess
 			temp/*
