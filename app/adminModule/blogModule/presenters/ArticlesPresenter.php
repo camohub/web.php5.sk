@@ -122,7 +122,7 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		}
 		catch ( \Exception $e )
 		{
-			Debugger::log( $e->getMessage() . 'in ' . $e->getFile() . ' on line ' . $e->getLine() );
+			Debugger::log( $e->getMessage() . 'in ' . $e->getFile() . ' on line ' . $e->getLine(), Debugger::ERROR );
 			$this->flashMessage( 'Pri upravovaní údajov došlo k chybe.', Debugger::ERROR );
 			// Do not return. Because of @secured it needs to be redirected.
 		}
@@ -284,8 +284,19 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 		$form->onSuccess[] = $this->filterFormSucceeded;
 
+		// Nex if ensures $form->setDefaults()
 		if ( $filter = $this->getSession( 'Admin:Blog:Articles' )->filter )
 		{
+			if ( isset( $filter['order'] ) )  // $filter['order'] has to be in format e.g "created DESC"
+			{
+				$order = [ ];
+				foreach ( $filter['order'] as $key => $val )
+				{
+					$order[] = $key . ' ' . $val;
+				}
+				$filter['order'] = $order;
+			}
+
 			$form->setDefaults( $filter );
 		}
 
@@ -320,8 +331,8 @@ class ArticlesPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		{
 			$order['created'] = 'DESC';
 		}
-
-		$filter = [ 'criteria' => $criteria, 'order' => $order ];
+		
+		$filter = [ 'criteria' => $criteria, 'order' => $order, 'remember' => $values->remember ];
 
 		$articleSession = $this->getSession( 'Admin:Blog:Articles' );
 		$articleSession->setExpiration( 0 );
