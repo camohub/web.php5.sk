@@ -20,7 +20,7 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 	/** @var  App\Model\Articles @inject */
 	public $articles;
 
-	/** @var  Nette\Database\Table\ActiveRow */
+	/** @var  App\Model\Entity\Article */
 	protected $article;
 
 	/** @var  array */
@@ -57,7 +57,7 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 
 			$this->template->articles = $this->setPaginator( $articles );
 
-			$this->setHeaderTags( $metaDesc = 'web.php5.sk - najnovšie články', $title = ' Najnovšie články' );
+			$this->setHeaderTags( $metaDesc = 'web.php5.sk - najnovšie články', $title = 'Najnovšie články' );
 
 		}
 		else // Displays one article.
@@ -71,7 +71,7 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 
 			if ( ! $article )
 			{
-				throw new Nette\Application\BadRequestException( 'Požadovanú stránku sa nepodarilo nájsť.' );
+				throw new Nette\Application\BadRequestException( 'Požadovanú stránku sa nepodarilo nájsť.', 404 );
 			}
 
 			$this->template->article = $article;

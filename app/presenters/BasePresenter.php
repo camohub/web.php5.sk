@@ -4,6 +4,7 @@ namespace App\Presenters;
 
 use Nette;
 use	App;
+use NasExt;
 use Kdyby;
 use Nette\Caching\Cache;
 use	Tracy\Debugger;
@@ -214,11 +215,11 @@ abstract class BasePresenter extends Nette\Application\UI\Presenter
 
 	/**
 	 * @param $name
-	 * @return \NasExt\Controls\VisualPaginator
+	 * @return NasExt\Controls\VisualPaginator
 	 */
 	protected function createComponentVp( $name )
 	{
-		$control = new \NasExt\Controls\VisualPaginator( $this, $name );
+		$control = new NasExt\Controls\VisualPaginator( $this, $name );
 		// enable ajax request, default is false
 		/*$control->setAjaxRequest();
 
