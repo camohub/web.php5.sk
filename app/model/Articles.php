@@ -4,10 +4,10 @@
 namespace App\Model;
 
 
+use App;
 use Nette;
 use Kdyby;
 use Nette\Utils\Strings;
-use App\Exceptions;
 use Doctrine\DBAL\Exception\UniqueConstraintViolationException;
 use Tracy\Debugger;
 
@@ -165,19 +165,19 @@ class Articles extends Nette\Object
 	/**
 	 * @param array $values
 	 * @return Entity\Article
-	 * @throws Exceptions\DuplicateEntryException
-	 * @throws Exceptions\GeneralException
-	 * @throws Exceptions\InvalidArgumentException
+	 * @throws App\Exceptions\DuplicateEntryException
+	 * @throws App\Exceptions\GeneralException
+	 * @throws App\Exceptions\InvalidArgumentException
 	 */
 	function createArticle( $values )
 	{
 		if ( ! isset( $values['categories'], $values['title'], $values['perex'], $values['meta_desc'], $values['content'], $values['user_id'] ) )
 		{
-			throw new Exceptions\InvalidArgumentException( 'Values does not contain some of required parameter: title, perex, content, meta_desc, user_id or category. In Articles->insertArticle($params).' );
+			throw new App\Exceptions\InvalidArgumentException( 'Values does not contain some of required parameter: title, perex, content, meta_desc, user_id or category. In Articles->insertArticle($params).' );
 		}
 		if ( ! $values['categories'] )
 		{
-			throw new Exceptions\InvalidArgumentException( 'Params does not contain category parameter. In Articles->insertArticle($params).' );
+			throw new App\Exceptions\InvalidArgumentException( 'Params does not contain category parameter. In Articles->insertArticle($params).' );
 		}
 
 		$params = [ ];
@@ -206,11 +206,11 @@ class Articles extends Nette\Object
 		}
 		catch ( UniqueConstraintViolationException $e )
 		{
-			throw new Exceptions\DuplicateEntryException( 'Article with title ' . $values['title'] . ' already exists. You have to change.' );
+			throw new App\Exceptions\DuplicateEntryException( 'Article with title ' . $values['title'] . ' already exists. You have to change.' );
 		}
 		catch ( \Exception $e )
 		{
-			throw new Exceptions\GeneralException( 'Articles->insertArticle() fails on: ' . $e->getMessage() );
+			throw new App\Exceptions\GeneralException( 'Articles->insertArticle() fails on: ' . $e->getMessage() );
 		}
 
 		return $article;
@@ -221,15 +221,15 @@ class Articles extends Nette\Object
 	/**
 	 * @param $values array
 	 * @param $id int
-	 * @throws Exceptions\InvalidArgumentException
-	 * @throws Exceptions\GeneralException
+	 * @throws App\Exceptions\InvalidArgumentException
+	 * @throws App\Exceptions\GeneralException
 	 * @return int
 	 */
 	public function updateArticle( $values, $id )
 	{
 		if ( ! isset( $values['categories'] ) || ! $values['categories'] )
 		{
-			throw new Exceptions\InvalidArgumentException( 'Values does not contain category parameter. In Articles insertArticle($params).' );
+			throw new App\Exceptions\InvalidArgumentException( 'Values does not contain category parameter. In Articles insertArticle($params).' );
 		}
 
 		$params = [ ];
@@ -274,7 +274,7 @@ class Articles extends Nette\Object
 		}
 		catch ( \Exception $e )
 		{
-			throw new Exceptions\GeneralException( $e->getMessage() );
+			throw new App\Exceptions\GeneralException( $e->getMessage() );
 		}
 
 	}

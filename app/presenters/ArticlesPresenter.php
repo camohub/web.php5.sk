@@ -140,7 +140,7 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 
 		$values = $form->getValues();
 
-		if ( $values->name ) // Probably robot insertion
+		if ( $values->name )  // Probably robot insertion
 		{
 			$this->redirect( 'this' );
 		}
