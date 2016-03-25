@@ -24,6 +24,7 @@ class ArticlesPresenterTest extends Tester\TestCase
 
 	use Testbench\TCompiledContainer;
 	use Testbench\TPresenter;
+	use Testbench\TDoctrine;
 
 
 	protected $commentFormCSRFToken;
