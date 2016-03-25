@@ -59,11 +59,6 @@
 
 				<div class="hr"> </div>
 
-				{if isset($optCompArray['poll'])}
-					{var $poll_name = $optCompArray['poll']->component_name}
-					{control poll-$poll_name}
-				{/if}
-
 			</div>
 
 			<div id="main" class="col-xs-12 col-sm-8 col-md-9 col-lg-7">
@@ -72,7 +67,8 @@
 				<div n:if="count($flashes)" n:inner-foreach="$flashes as $flash" class="flash">
 					<div n:class="alert, alert-dismissible, fade, in, $flash->type == 'error' ? alert-danger : alert-success">
 						<button type="button" class="close" data-dismiss="alert" aria-label="Close"><span
-									aria-hidden="true">&times;</span></button>{$flash->message}</div>
+									aria-hidden="true">&times;</span></button>{$flash->message}
+					</div>
                 </div>
                 {/snippet}
 

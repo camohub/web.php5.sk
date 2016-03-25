@@ -38,7 +38,9 @@
 		"google/apiclient": "1.0.*@beta",
 		"kdyby/translation": "~2.2",
 		"nasext/visual-paginator": "~2.2",
-		"kdyby/doctrine": "^3.0"
+		"kdyby/doctrine": "^3.0",
+		"mrtnzlml/testbench": "^2.1",
+		"kdyby/fake-session": "^2.0"
 	},
 	"require-dev": {
 		"nette/tester": "~1.3"

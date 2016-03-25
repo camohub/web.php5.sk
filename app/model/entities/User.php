@@ -186,5 +186,15 @@ class User
 	}
 
 
+	public function getrolesNames()
+	{
+		$r = [ ];
+		foreach ( $this->roles as $role )
+		{
+			$r[] = $role->getName();
+		}
+		return $r;
+	}
+
 	
 }

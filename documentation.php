@@ -8,3 +8,7 @@
 	<li>cd c:\\Apache24\htdocs\web.php5.sk\vendor\dg\ftp-deployment\</li>
 	<li>php deployment ../../../deployment/deployment.ini.php</li>
 </ul>
+<ul>
+	<li>Testy sa spúšťajú z root adresára nasledujúcim príkazom (pozor na spätné lomítko).</li>
+	<li>tests\run-tests.bat</li>
+</ul>

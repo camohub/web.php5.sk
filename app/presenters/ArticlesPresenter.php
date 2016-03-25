@@ -28,14 +28,6 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 
 
 
-	public function startup()
-	{
-		parent::startup();
-
-	}
-
-
-
 	/**
 	 * @desc This method is used for both category and article actions.
 	 * @param $title
@@ -142,7 +134,7 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 
 		if ( $values->name )  // Probably robot insertion
 		{
-			$this->redirect( 'this' );
+			return;
 		}
 
 		$title = $this->getParameter( 'title' );

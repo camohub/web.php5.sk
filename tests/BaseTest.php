@@ -4,8 +4,10 @@
 namespace Test;
 
 
+use App;
 use Nette;
 use Tester;
+use Tracy\Debugger;
 
 
 abstract class BaseTest extends Tester\TestCase
@@ -27,9 +29,9 @@ abstract class BaseTest extends Tester\TestCase
 		$presenter = $this->container->getByType( 'Nette\Application\IPresenterFactory' )->createPresenter( $name );
 		$presenter->autoCanonicalize = $canonicalize;
 
-		//$presenter = new App\Presenters\DoctrinePresenter();
-
 		return $presenter;
 	}
+
+
 
 }

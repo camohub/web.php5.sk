@@ -11,12 +11,11 @@ $container = require __DIR__ . '/../bootstrap.php';
 
 class ExampleTest extends Tester\TestCase
 {
-	private $container;
 
 
-	function __construct(Nette\DI\Container $container)
+	function __construct()
 	{
-		$this->container = $container;
+
 	}
 
 

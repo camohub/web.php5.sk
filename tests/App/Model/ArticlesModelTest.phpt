@@ -7,22 +7,27 @@
 namespace Test;
 
 
-$container = require __DIR__ . '/../bootstrap.php';
-require_once( __DIR__ . '/../BaseTest.php' );
+$container = require __DIR__ . '/../../bootstrap.php';
 
 
 use App;
 use Nette;
 use Kdyby;
+use Tester;
+use Testbench;
 use Tester\Assert;
 
 
-class ArticlesPresenterTest extends BaseTest
+class ArticlesPresenterTest extends Tester\TestCase
 {
+
+	use Testbench\TPresenter;
+	use Testbench\TCompiledContainer;
+
 
 	public function setUp()
 	{
-		$this->presenter = $this->getPresenter( 'Articles' );
+
 	}
 
 
@@ -37,7 +42,7 @@ class ArticlesPresenterTest extends BaseTest
 	 */
 	public function testDependencies()
 	{
-		$articles = $this->presenter->articles;
+		$articles = $this->getService( 'App\Model\Articles' );
 
 		Assert::true( property_exists( $articles, 'em' ) );
 		Assert::true( property_exists( $articles, 'articleRepository' ) );
@@ -46,7 +51,7 @@ class ArticlesPresenterTest extends BaseTest
 	}
 
 
-	public function testMethods()
+	/*public function testMethods()
 	{
 		$articles = $this->presenter->articles;
 
@@ -67,7 +72,7 @@ class ArticlesPresenterTest extends BaseTest
 		Assert::true( $findCategoryArticles instanceof Kdyby\Doctrine\ResultSet );
 
 		Assert::true( method_exists( $articles, 'insertComment' ) );
-		
+
 		$setDefaults = $articles->setDefaults( $findOneBy );
 		Assert::true( is_array( $setDefaults )
 			&& array_key_exists( 'meta_desc', $setDefaults )
@@ -98,7 +103,7 @@ class ArticlesPresenterTest extends BaseTest
 		Assert::true( method_exists( $articles, 'switchVisibility' ) );
 
 
-	}
+	}*/
 
 }
 
