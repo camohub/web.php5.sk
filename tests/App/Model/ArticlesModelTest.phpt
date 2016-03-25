@@ -37,45 +37,33 @@ class ArticlesPresenterTest extends Tester\TestCase
 	}
 
 
-	/**
-	 * @desc This tests mainly injected services and components from BasePresenter and ArticlesPresenter.
-	 */
-	public function testDependencies()
+	public function testMethods()
 	{
 		$articles = $this->getService( 'App\Model\Articles' );
+		$categories = $this->getService( 'App\Model\Categories' );
 
-		Assert::true( property_exists( $articles, 'em' ) );
-		Assert::true( property_exists( $articles, 'articleRepository' ) );
-		Assert::true( property_exists( $articles, 'userRepository' ) );
-		Assert::true( property_exists( $articles, 'categoryRepository' ) );
-	}
-
-
-	/*public function testMethods()
-	{
-		$articles = $this->presenter->articles;
 
 		$findOneBy = $articles->findOneBy( [ 'id !=' => NULL ] );
-		Assert::true( $findOneBy instanceof App\Model\Entity\Article );
+		Assert::type( App\Model\Entity\Article::class, $findOneBy );
 
 		$find = $articles->find( $findOneBy->getId() );
-		Assert::true( $find instanceof App\Model\Entity\Article );
+		Assert::type( App\Model\Entity\Article::class, $find );
 
 		$findAll = $articles->findAll();
-		Assert::true( is_array( $findAll ) && $findAll[0] instanceof App\Model\Entity\Article );
+		Assert::type( 'array', $findAll );
+		Assert::type( App\Model\Entity\Article::class, $findAll[0] );
 
 		$findBy = $articles->findBy( [ 'id !=' => NULL ] );
-		Assert::true( is_array( $findBy ) && $findBy[0] instanceof App\Model\Entity\Article );
+		Assert::type( 'array', $findBy );
+		Assert::type( App\Model\Entity\Article::class, $findBy[0] );
 
-		$category = $this->presenter->categories->findOneBy( [ 'id !=' => NULL ] );
+		$category = $categories->findOneBy( [ 'id !=' => NULL ] );
 		$findCategoryArticles = $articles->findCategoryArticles( [ $category->getId() ] );
-		Assert::true( $findCategoryArticles instanceof Kdyby\Doctrine\ResultSet );
-
-		Assert::true( method_exists( $articles, 'insertComment' ) );
+		Assert::type( Kdyby\Doctrine\ResultSet::class, $findCategoryArticles );
 
 		$setDefaults = $articles->setDefaults( $findOneBy );
-		Assert::true( is_array( $setDefaults )
-			&& array_key_exists( 'meta_desc', $setDefaults )
+		Assert::type( 'array', $setDefaults );
+		Assert::true( array_key_exists( 'meta_desc', $setDefaults )  // Do not use isset because of NULL.
 			&& array_key_exists( 'title', $setDefaults )
 			&& array_key_exists( 'perex', $setDefaults )
 			&& array_key_exists( 'content', $setDefaults )
@@ -99,11 +87,13 @@ class ArticlesPresenterTest extends Tester\TestCase
 			$articles->updateArticle( [ 'categories' => [ ] ], 1 );
 		}, 'App\Exceptions\InvalidArgumentException' );
 
+
+		Assert::true( method_exists( $articles, 'insertComment' ) );
 		Assert::true( method_exists( $articles, 'delete' ) );
 		Assert::true( method_exists( $articles, 'switchVisibility' ) );
 
 
-	}*/
+	}
 
 }
 
