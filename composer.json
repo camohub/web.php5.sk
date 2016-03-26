@@ -40,7 +40,8 @@
 		"nasext/visual-paginator": "~2.2",
 		"kdyby/doctrine": "^3.0",
 		"mrtnzlml/testbench": "^2.1",
-		"kdyby/fake-session": "^2.0"
+		"kdyby/fake-session": "^2.0",
+		"zenify/doctrine-migrations": "^2.3"
 	},
 	"require-dev": {
 		"nette/tester": "~1.3"

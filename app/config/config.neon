@@ -20,10 +20,12 @@ nette:
 		savePath: "%tempDir%/sessions"
 
 extensions:
-    console: Kdyby\Console\DI\ConsoleExtension
-    events: Kdyby\Events\DI\EventsExtension
-    annotations: Kdyby\Annotations\DI\AnnotationsExtension
-    doctrine: Kdyby\Doctrine\DI\OrmExtension
+	console: Kdyby\Console\DI\ConsoleExtension
+	events: Kdyby\Events\DI\EventsExtension
+	annotations: Kdyby\Annotations\DI\AnnotationsExtension
+	doctrine: Kdyby\Doctrine\DI\OrmExtension
+	migrations: Zenify\DoctrineMigrations\DI\MigrationsExtension
+	- Symnedi\EventDispatcher\DI\EventDispatcherExtension
 
 
 services:
@@ -41,3 +43,8 @@ services:
 	- Nette\Mail\SendmailMailer
 	- Nette\Mail\Message
 
+migrations:
+	table: doctrine_migrations # database table for applied migrations
+	directory: %appDir%/../migrations # directory, where all migrations are stored
+	namespace: Migrations # namespace of migration classes
+	codingStandard: tabs # or "spaces", coding style for generated classes
