@@ -17,6 +17,7 @@ body {
   width: 100%;
   height: 100%;
   background: #fff;
+	color: #000000;
   font-family: Trebuchet MS, sans-serif;
   font-weight: normal;
 }
@@ -26,10 +27,10 @@ body {
 }
 #header {
   margin: 0;
-  margin-bottom: -1px;
+	margin-bottom: -2px;
   /*padding:120px 10px 0 7%;*/
   padding: 80px 10px 0 7%;
-  color: #fff;
+	color: #eee;
   font-size: 3.15em;
   font-weight: 900;
   font-family: verdana;
@@ -40,6 +41,7 @@ body {
   min-height: 100%;
   margin-bottom: -5em;
   /* makes footer visible cause 100% push it outside of window */
+	background-color: #eee;
 }
 #footerPusher {
   /* must be at the end of wrapper cause margin-bottom -5em pulls the footer up */
@@ -131,7 +133,7 @@ h4 {
   list-style: none inside;
 }
 .sidebar a {
-  color: #565656;
+	color: #434343;
   display: block;
   font-weight: bold;
   letter-spacing: 1px;
@@ -139,7 +141,8 @@ h4 {
 }
 .sidebar a:hover {
 	color: #3aa391;
-  background-color: #e9eaf5;
+	border-left: 3px solid #3aa391;
+	padding-left: 9px;
   text-decoration: none;
 }
 .sidebar li ul {
@@ -563,7 +566,7 @@ ul li ul li a:hover {
   background-color: #3d4f61;
 }
 .bgC5 {
-  background-color: #eaffeb;
+	background-color: #f5f5f5;
 }
 .bgC7 {
   background-color: #d7fce5;
@@ -714,6 +717,7 @@ textarea {
   padding: 5px;
   border-radius: 3px;
   border: 3px solid #81C5B3;
+	background-color: #fafafa;
 }
 .formElB,
 input[type=submit] {
@@ -805,7 +809,7 @@ ul.error li {
 }
 /* end form errors */
 table.datagrid {
-  background-color: #F5FFFE;
+	background-color: #f5f5f5;
   color: #3d4f61;
 }
 table.datagrid th {
@@ -887,8 +891,10 @@ li.breadcrumbs a:hover {
   background: url('http://web.php5.sk/www/images/icons/Hint.png') 2px center no-repeat;
 }
 pre.prettyprint.custom {
-  padding: 10px;
-  background-color: #f5f8ff;
+	margin-left: -7px;
+	margin-right: -7px;
+	padding: 10px 7px;
+	background-color: #fafafa;
   border: 1px solid #e1e4ef;
   overflow: auto;
   word-wrap: normal;

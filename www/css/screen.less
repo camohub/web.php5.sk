@@ -1,8 +1,9 @@
 @c0: #000000;
 @c1: #fff;
 @c2: #444;
+@c3: #eee;
 @c5: #899542;
-@c6: #565656;
+@c6: #434343;
 @c8: #b63c3c;
 @c9: #056296;
 @c10: #375f8e;
@@ -12,7 +13,8 @@
 @c16: #f3f5d3;
 @c17: #F0F5BF;
 @c18: #3d4f61;
-@c21: #eaffeb;
+@c21: #f5f5f5;
+@c22: #fafafa;
 @c23: #d7fce5;
 @c25: #373734;
 @c26: #dfe0eb;
@@ -20,14 +22,13 @@
 @c29: #81C5B3;
 @c31: #889999;
 @c33: #df5148;
-@c35: #F5FFFE;
 @c37: #3aa391;
 @c39: #27D2BD;
 @c40: #e9eaf5;
-@c41: #f5f8ff;
 @c43: #023;
 @c45: #344;
 @c46: #e1e4ef;
+
 
 @ff1: Trebuchet MS, verdana;
 
@@ -42,6 +43,7 @@ html, body {
 	width: 100%;
 	height: 100%;
 	background: @c1;
+	color: @c0;
 	font-family: Trebuchet MS, sans-serif;
 	font-weight: normal;
 }
@@ -53,10 +55,10 @@ body {
 
 #header {
 	margin: 0;
-	margin-bottom: -1px;
+	margin-bottom: -2px;
 	/*padding:120px 10px 0 7%;*/
 	padding: 80px 10px 0 7%;
-	color: @c1;
+	color: @c3;
 	font-size: 3.15em;
 	font-weight: 900;
 	font-family: verdana;
@@ -67,6 +69,7 @@ body {
 #wrapper {
 	min-height: 100%;
 	margin-bottom: -5em; /* makes footer visible cause 100% push it outside of window */
+	background-color: @c3;
 }
 
 #footerPusher { /* must be at the end of wrapper cause margin-bottom -5em pulls the footer up */
@@ -173,7 +176,8 @@ h2, h3, h4 {
 
 		&:hover {
 			color: @c37;
-			background-color: @c40;
+			border-left: 3px solid @c37;
+			padding-left: 9px;
 			text-decoration: none;
 		}
 
@@ -889,6 +893,7 @@ ul.pagination {
 	padding: 5px;
 	border-radius: 3px;
 	border: 3px solid @c29;
+	background-color: @c22;
 }
 
 .formElB, input[type=submit] {
@@ -997,7 +1002,7 @@ a[href^="error:"] {
 /* end form errors */
 
 table.datagrid {
-	background-color: @c35;
+	background-color: @c21;
 	color: @c18;
 
 	th {
@@ -1099,8 +1104,10 @@ li.breadcrumbs {
 }
 
 pre.prettyprint.custom {
-	padding: 10px;
-	background-color: @c41;
+	margin-left: -7px;
+	margin-right: -7px;
+	padding: 10px 7px;
+	background-color: @c22;
 	border: 1px solid @c46;
 	overflow: auto;
 	word-wrap: normal;
