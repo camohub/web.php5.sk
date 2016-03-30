@@ -1,0 +1,38 @@
+#
+# SECURITY WARNING: it is CRITICAL that this file & directory are NOT accessible directly via a web browser!
+#
+# If you don't protect this directory from direct web access, anybody will be able to see your passwords.
+# http://nette.org/security-warning
+#
+#database:
+#	dsn: 'mysql:host=localhost;dbname=skweb'
+#	user: skweb
+#	password: kukurukukuIQ65
+#	options:
+#		lazy: yes
+
+testbench:
+    dbname: doctrine_skweb
+    sqls:
+        - %testsDir%/../doctrine_skweb_structure.sql
+        - %testsDir%/../doctrine_skweb_data.sql
+
+database:
+	dsn: 'mysql:host=localhost;dbname=doctrine_skweb_test'
+	user: root
+	password: root
+	options:
+		lazy: yes
+
+doctrine:
+    user: root
+    password: root
+    dbname: doctrine_skweb_test
+    metadata:
+        App: %appDir%
+
+extensions:
+    fakeSession: Kdyby\FakeSession\DI\FakeSessionExtension
+
+# WARNING! If is necessary to change or extend this file and send changes to server
+# it must be allowed in /deployment/deployment.ini.php.
