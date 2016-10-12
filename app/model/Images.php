@@ -118,9 +118,10 @@ class Images
 		$module = $this->moduleRepository->findOneBy( [ 'name =' => 'blog' ] );
 		$path = $this->wwwDir . '/images/app';
 
-		if ( ! is_dir( $path ) && ! mkdir( $path, 0777 ) ) // Dir blog does not exist and can not be created
+		if ( ! is_dir( $path ) && ! mkdir( $path, 0777 ) )
 		{
-			throw new App\Exceptions\CreateDirectoryException( 'Nepodarilo sa vytvoriť adresár pre obrázky. Kontaktujte prosím administrátora.' );;
+			// Dir blog does not exist and can not be created
+			throw new App\Exceptions\CreateDirectoryException( 'Nepodarilo sa vytvoriť adresár pre obrázky. Kontaktujte prosím administrátora.' );
 		}
 		if ( ! is_dir( $path . '/thumbnails' ) && ! mkdir( $path . '/thumbnails', 0777 ) )
 		{

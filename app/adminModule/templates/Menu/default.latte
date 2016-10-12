@@ -10,24 +10,24 @@ $(document).ready(function()
 	$('#sideMenu').find( 'ul' ).css( 'display', 'block' );
 
 
-   	$('.editMenu').on('mousedown', function()
-   	{
-   		var serialized = $('ul.sortable').sortableListsToString(),
-   			href = $(this).attr('href');
+	$('.editMenu').on('mousedown', function()
+	{
+		var serialized = $('ul.sortable').sortableListsToString(),
+			href = $(this).attr('href');
 
-   		serialized = serialized.replace(/no-parent/g, '0');
-   		href = href.replace(/&menuItem[^&]+/g, '');  // If original url contains menuItems these have to be removed.
+		serialized = serialized.replace(/no-parent/g, '0');
+		href = href.replace(/&menuItem[^&]+/g, '');  // If original url contains menuItems these have to be removed.
 
-   		$(this).attr('href', href + '&' + serialized);  // Not need to solve ? cause links to handle methods always have do= param
-   	});
+		$(this).attr('href', href + '&' + serialized);  // Not need to solve ? cause links to handle methods always have do= param
+	});
 
 
 // Nette.ajax extensions ///////////////////////////////////////////
 
-   	$.nette.ext('menu', {
-    	before: function (jqXHR, settings)
+	$.nette.ext('menu', {
+		before: function (jqXHR, settings)
 		{
-    		var sn = settings.nette;
+			var sn = settings.nette;
 			if(!sn) return true;
 
 			if(sn.el.hasClass('stop-ajax'))
@@ -40,21 +40,21 @@ $(document).ready(function()
 				sn.el.addClass('stop-ajax');
 			}
 
-    		$('#editSection, #createSection').slideUp();
+			$('#editSection, #createSection').slideUp();
 			$('.alert' ).fadeOut();
-    		$('#ajax-spinner').css( { 'display': 'block' } );
-    	},
-    	complete: function ( jqXHR, status, settings )
+			$('#ajax-spinner').css( { 'display': 'block' } );
+		},
+		complete: function ( jqXHR, status, settings )
 		{
-    		$('#ajax-spinner').css( { 'display': 'none' } );
-    		this.counter--;
+			$('#ajax-spinner').css( { 'display': 'none' } );
+			this.counter--;
 
 			$('#sideMenu').find( 'ul' ).css( 'display', 'block' );
 
-    		if (this.counter <= 0) {
+			if (this.counter <= 0) {
 
-    		}
-    	},
+			}
+		},
 		error: function ()
 		{
 			$( '#snippet--flexiFlash' ).html(
@@ -66,7 +66,7 @@ $(document).ready(function()
 					'</div>'
 			);
 		}
-    });
+	});
 
 // End of nette.ajax ///////////////////////////////////////////////
 
@@ -80,10 +80,10 @@ function activateEditForm(id, title, el)
 	var editSection = $('#editSection');
 
 	editSection.find('input[name=title]').val(title);
-    editSection.find('input[name=id]').val(id);
+	editSection.find('input[name=id]').val(id);
 	$('#createSection').css({'display' : 'none'});
 	editSection.slideDown();
-    editSection.offset({ left:editSection.offset().left, top:$(el).offset().top - 20 });  // must be after the slide cause display:none make some trouble
+	editSection.offset({ left:editSection.offset().left, top:$(el).offset().top - 20 });  // must be after the slide cause display:none make some trouble
 
 }
 
@@ -109,7 +109,7 @@ function activateCreateForm(el)
 
 	$('#editSection').css({'display' : 'none'});
 	createSection.slideDown();
-    createSection.offset({ left:elOffset.left, top:elOffset.top });  // must be after the slide cause display:none make some trouble
+	createSection.offset({ left:elOffset.left, top:elOffset.top });  // must be after the slide cause display:none make some trouble
 
 }
 

@@ -17,7 +17,7 @@ body {
   width: 100%;
   height: 100%;
   background: #fff;
-	color: #000000;
+  color: #000000;
   font-family: Trebuchet MS, sans-serif;
   font-weight: normal;
 }
@@ -27,10 +27,10 @@ body {
 }
 #header {
   margin: 0;
-	margin-bottom: -2px;
+  margin-bottom: -2px;
   /*padding:120px 10px 0 7%;*/
   padding: 80px 10px 0 7%;
-	color: #eee;
+  color: #eee;
   font-size: 3.15em;
   font-weight: 900;
   font-family: verdana;
@@ -41,7 +41,7 @@ body {
   min-height: 100%;
   margin-bottom: -5em;
   /* makes footer visible cause 100% push it outside of window */
-	background-color: #eee;
+  background-color: #eee;
 }
 #footerPusher {
   /* must be at the end of wrapper cause margin-bottom -5em pulls the footer up */
@@ -73,17 +73,17 @@ strong {
 }
 h1 {
   font-family: Trebuchet MS, verdana;
-	color: #b63c3c;
+  color: #b63c3c;
   font-size: 2.2em;
   font-weight: bold;
   letter-spacing: -1px;
   margin-bottom: 15px;
 }
 h1 a {
-	color: #b63c3c;
+  color: #b63c3c;
 }
 h1 a:active {
-	color: #3aa391;
+  color: #3aa391;
 }
 /*h1 a { color: @c3; }*/
 h2,
@@ -96,15 +96,15 @@ h4 {
 }
 #main h2 {
   font-size: 1.35em;
-	color: #3aa391;
+  color: #3aa391;
 }
 #main h3 {
   font-size: 1.1em;
-	color: #b63c3c;
+  color: #b63c3c;
 }
 #main h4 {
   font-size: 1em;
-	color: #7491a3;
+  color: #7491a3;
 }
 #main ol,
 #main ul {
@@ -113,16 +113,16 @@ h4 {
   margin: 0 0 14px;
 }
 #main img.fL {
-	margin: 7px 14px 5px 0;
-	-webkit-box-shadow: 3px 3px 7px #555;
-	-moz-box-shadow: 3px 3px 7px #555;
-	box-shadow: 3px 3px 7px #555;
+  margin: 7px 14px 5px 0;
+  -webkit-box-shadow: 3px 3px 7px #555;
+  -moz-box-shadow: 3px 3px 7px #555;
+  box-shadow: 3px 3px 7px #555;
 }
 #main img.fR {
-	margin: 7px 0 5px 7px;
-	-webkit-box-shadow: -3px 3px 7px #555;
-	-moz-box-shadow: -3px 3px 7px #555;
-	box-shadow: -3px 3px 7px #555;
+  margin: 7px 0 5px 7px;
+  -webkit-box-shadow: -3px 3px 7px #555;
+  -moz-box-shadow: -3px 3px 7px #555;
+  box-shadow: -3px 3px 7px #555;
 }
 .sidebar {
   padding-right: 30px;
@@ -133,16 +133,16 @@ h4 {
   list-style: none inside;
 }
 .sidebar a {
-	color: #434343;
+  color: #434343;
   display: block;
   font-weight: bold;
   letter-spacing: 1px;
   font-size: 1.2em;
 }
 .sidebar a:hover {
-	color: #3aa391;
-	border-left: 3px solid #3aa391;
-	padding-left: 9px;
+  color: #3aa391;
+  border-left: 3px solid #3aa391;
+  padding-left: 9px;
   text-decoration: none;
 }
 .sidebar li ul {
@@ -172,11 +172,11 @@ a {
   text-decoration: none;
 }
 a.current {
-	color: #b63c3c;
+  color: #b63c3c;
 }
 a:hover,
 a:active {
-	color: #3aa391;
+  color: #3aa391;
   text-decoration: none;
 }
 a:focus,
@@ -185,7 +185,7 @@ a:visited {
   text-decoration: none;
 }
 ul li ul li a:hover {
-	color: #3aa391;
+  color: #3aa391;
 }
 /********** edit menu *************/
 #adminEditMenu ul.sortable,
@@ -495,7 +495,7 @@ ul li ul li a:hover {
   max-width: 75px;
 }
 .maxW130 {
-	max-width: 130px;
+  max-width: 130px;
 }
 .h100P {
   height: 100%;
@@ -533,6 +533,12 @@ ul li ul li a:hover {
 .clear {
   clear: both;
 }
+.c0,
+.color0,
+.c0 label,
+a.c0 {
+  color: #000000;
+}
 .c1,
 .color1,
 .c1 label {
@@ -560,13 +566,13 @@ ul li ul li a:hover {
 }
 .c7,
 .c7 label {
-	color: #b63c3c;
+  color: #b63c3c;
 }
 .bgC1 {
   background-color: #3d4f61;
 }
 .bgC5 {
-	background-color: #f5f5f5;
+  background-color: #f5f5f5;
 }
 .bgC7 {
   background-color: #d7fce5;
@@ -621,8 +627,8 @@ ul li ul li a:hover {
   left: 0;
 }
 .tR0 {
-	top: 0;
-	right: 0;
+  top: 0;
+  right: 0;
 }
 .bL0 {
   bottom: 0;
@@ -717,7 +723,7 @@ textarea {
   padding: 5px;
   border-radius: 3px;
   border: 3px solid #81C5B3;
-	background-color: #fafafa;
+  background-color: #fafafa;
 }
 .formElB,
 input[type=submit] {
@@ -749,7 +755,7 @@ form .required label {
 .button1,
 a.button1 {
   background: url('http://web.php5.sk/www/images/button1.jpg') left center repeat-x;
-	color: #fff;
+  color: #fff;
   border-radius: 3px;
   cursor: pointer;
 }
@@ -790,7 +796,7 @@ div.g-signin2 {
 }
 /* flashes */
 div.flash {
-	margin: 0;
+  margin: 0;
   font-weight: bold;
   border-radius: 3px;
 }
@@ -809,16 +815,16 @@ ul.error li {
 }
 /* end form errors */
 table.datagrid {
-	background-color: #f5f5f5;
+  background-color: #f5f5f5;
   color: #3d4f61;
 }
 table.datagrid th {
-	background-color: #dfe0eb;
+  background-color: #dfe0eb;
 }
 table.datagrid td,
 table.datagrid th {
   padding: 7px;
-	border: 1px solid #3aa391;
+  border: 1px solid #3aa391;
 }
 html.js .jshidden {
   display: none;
@@ -853,10 +859,10 @@ li.breadcrumbs a:hover {
   background-color: #e9eaf5;
 }
 .fa.fa-lg {
-	padding-left: 10px;
-	line-height: 1em;
-	vertical-align: 0;
-	cursor: pointer;
+  padding-left: 10px;
+  line-height: 1em;
+  vertical-align: 0;
+  cursor: pointer;
 }
 .ico {
   padding-left: 20px;
@@ -872,11 +878,11 @@ li.breadcrumbs a:hover {
 }
 .fa-minus-circle,
 .fa-trash-o {
-	color: #b63c3c;
+  color: #b63c3c;
 }
 .fa-check-circle,
 .fa-pencil {
-	color: green;
+  color: green;
 }
 .ico_trash {
   background: url('http://web.php5.sk/www/images/icons/Trash.png') 2px center no-repeat;
@@ -891,10 +897,10 @@ li.breadcrumbs a:hover {
   background: url('http://web.php5.sk/www/images/icons/Hint.png') 2px center no-repeat;
 }
 pre.prettyprint.custom {
-	margin-left: -7px;
-	margin-right: -7px;
-	padding: 10px 7px;
-	background-color: #fafafa;
+  margin-left: -7px;
+  margin-right: -7px;
+  padding: 10px 7px;
+  background-color: #fafafa;
   border: 1px solid #e1e4ef;
   overflow: auto;
   word-wrap: normal;
