@@ -5,7 +5,7 @@ require __DIR__ . '/../vendor/autoload.php';
 $configurator = new Nette\Configurator;
 
 #$configurator->setDebugMode(false); // disable debugger on localhost
-#$configurator->setDebugMode('78.98.20.153'); // enable for your remote IP
+$configurator->setDebugMode('217.31.33.34'); // enable for your remote IP
 $configurator->enableDebugger(__DIR__ . '/../log');
 
 $configurator->setTempDirectory(__DIR__ . '/../temp');
