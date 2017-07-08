@@ -42,6 +42,15 @@ tinymce.init({
 
 	toolbar: "insertfile undo redo | styleselect | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist | link image | media fullpage | forecolor backcolor",
 
+	// TinyMCE.triggerSave() is necessary cause TinyMCE does not set actual value to the textarea on submit.
+	// The previous value leaves there!!!!!!!!!!!!!!!
+	init_instance_callback: function (editor)
+	{
+		editor.on( 'change', function (e) {
+			tinyMCE.triggerSave();
+		})
+	},
+
 	file_browser_callback: function (field_name, url, type, win)
 	{
 		if(type == 'image')
