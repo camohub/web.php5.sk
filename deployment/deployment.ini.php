@@ -5,13 +5,13 @@ $password = 'kukurukukuIQ65';
 $server = 'web.php5.sk';
 $domain = 'http://web.php5.sk';
 
-return array(
-	'my site' => array(
-		'remote'      => 'ftp://' . $username . ':' . $password . '@' . $server,
+return [
+	'my site' => [
+		'remote' => 'ftp://' . $username . ':' . $password . '@' . $server,
 		'passivemode' => TRUE,
-		'local'       => 'c://Apache24/htdocs/web.php5.sk',
-		'test'        => FALSE,
-		'ignore'      => '
+		'local' => 'C:\wamp64-3-2-0\www\web-php5-sk',
+		'test' => FALSE,
+		'ignore' => '
 			.git*
 			.composer*
 			project.pp[jx]
@@ -19,6 +19,8 @@ return array(
 			/nbproject
 			/deployment
 			/www/images/app/*
+			/doc
+			/files
 			config.local.neon
 			log/*
 			!log/.htaccess
@@ -40,15 +42,15 @@ return array(
 				$domain . '/install?printHtml=0',
 				'local:composer install --dev -d ./../'
 		),*/
-		'purge'       => array(
+		'purge' => [
 			'temp/cache',
 			'temp/deployment',
 			'tmp/'
-		),
-		'preprocess'  => FALSE,
-	),
+		],
+		'preprocess' => FALSE,
+	],
 
 	'tempdir' => __DIR__ . '/../temp',
 	'colors' => TRUE,
-);
+];
 
