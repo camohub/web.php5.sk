@@ -87,7 +87,7 @@ class ArticlesPresenter extends \App\Presenters\BasePresenter
 	{
 		$vp = $this['vp'];
 		$paginator = $vp->getPaginator();
-		$paginator->itemsPerPage = 2;
+		$paginator->itemsPerPage = 10;
 
 		//$paginator->itemCount = $articles->count( '*' );
 		$articles->applyPaginator( $paginator );

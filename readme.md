@@ -9,8 +9,8 @@ DEPLOYMENT
 
 PRIKAZY
 -----------------------------------
-- cd `C:\wamp64-3-2-0\www\web-php5-sk\vendor\dg\ftp-deployment\`
-- php `deployment ../../../deployment/deployment.ini.php`
+- cd C:\wamp64-3-2-0\www\web-php5-sk\vendor\dg\ftp-deployment\
+- php deployment ../../../deployment/deployment.ini.php
 
 TESTY
 -----------------------------------

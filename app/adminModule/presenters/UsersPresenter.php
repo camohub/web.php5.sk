@@ -108,7 +108,7 @@ class UsersPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 	{
 		$vp = $this['vp'];
 		$paginator = $vp->getPaginator();
-		$paginator->itemsPerPage = 3;
+		$paginator->itemsPerPage = 10;
 
 		$users->applyPaginator( $paginator );
 
