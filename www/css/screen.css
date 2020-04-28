@@ -723,7 +723,7 @@ textarea {
   padding: 5px;
   border-radius: 3px;
   border: 3px solid #81C5B3;
-  background-color: #fafafa;
+  background-color: #f9faff;
 }
 .formElB,
 input[type=submit] {
@@ -900,7 +900,7 @@ pre.prettyprint.custom {
   margin-left: -7px;
   margin-right: -7px;
   padding: 10px 7px;
-  background-color: #fafafa;
+  background-color: #f9faff;
   border: 1px solid #e1e4ef;
   overflow: auto;
   word-wrap: normal;

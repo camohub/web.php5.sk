@@ -7,8 +7,7 @@ DEPLOYMENT
 		Tieto súbory/adresáre budú okrem iného zo servera zmazané.
 		Preto **config.local.neon** treba nechať nahrať, inak ho deployment vymaže.
 
-PRIKAZY
------------------------------------
+
 - cd C:\wamp64-3-2-0\www\web-php5-sk\vendor\dg\ftp-deployment\
 - php deployment ../../../deployment/deployment.ini.php
 
