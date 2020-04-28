@@ -20,7 +20,7 @@ body {
   color: #000000;
   font-family: Trebuchet MS, sans-serif;
   font-weight: normal;
-	font-size: 15px;
+  font-size: 15px;
 }
 body {
   position: relative;
@@ -42,7 +42,6 @@ body {
   min-height: 100%;
   margin-bottom: -5em;
   /* makes footer visible cause 100% push it outside of window */
-  background-color: #eee;
 }
 #footerPusher {
   /* must be at the end of wrapper cause margin-bottom -5em pulls the footer up */
