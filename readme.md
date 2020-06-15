@@ -1,7 +1,7 @@
 
 DEPLOYMENT
 -----------------------------------
-- Demploment sa spúšťa cez konzolu.
+- Deployment sa spúšťa cez konzolu.
 - Pred spustením treba zmeniť údaje v **config.loal.noen** na serverové.
 - Do súboru **deployment.ini.php** sa pridávajú súbory/adresáre, ktoré nechceme uplodovať na server.
 		Tieto súbory/adresáre budú okrem iného zo servera zmazané.

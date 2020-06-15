@@ -2,8 +2,11 @@ RewriteEngine On
 
 #This rule redirects only one first(main) request not css/js files.
 #Css/js.. are requested by browser after main request redirect is done.
+RewriteCond %{HTTPS} off
+RewriteRule (.*) https://%{HTTP_HOST}%{REQUEST_URI} [R=301,L]
+
 RewriteCond %{HTTP_HOST} ^www\.(.*)
-RewriteRule (.*) http://%1/$1 [R=301,L,QSA]
+RewriteRule (.*) https://%1/$1 [R=301,L,QSA]
 
 RewriteCond %{HTTP_HOST} ^web\.php5\.sk$
 RewriteRule ^$ www/ [L]

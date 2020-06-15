@@ -1,7 +1,7 @@
 <?php
 
 $username = 'skweb';
-$password = 'kukurukukuIQ65';
+$password = '252cc94588c42758428d9f586603c9f2';
 $server = 'web.php5.sk';
 $domain = 'http://web.php5.sk';
 

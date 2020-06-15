@@ -754,7 +754,7 @@ form .required label {
 }
 .button1,
 a.button1 {
-  background: url('http://web.php5.sk/www/images/button1.jpg') left center repeat-x;
+  background: url('https://web.php5.sk/www/images/button1.jpg') left center repeat-x;
   color: #fff;
   border-radius: 3px;
   cursor: pointer;
@@ -871,10 +871,10 @@ li.breadcrumbs a:hover {
   cursor: pointer;
 }
 .ico_modify {
-  background: url('http://web.php5.sk/www/images/icons/Modify.png') 2px center no-repeat;
+  background: url('https://web.php5.sk/www/images/icons/Modify.png') 2px center no-repeat;
 }
 .ico_comment {
-  background: url('http://web.php5.sk/www/images/icons/Comment.png') 2px center no-repeat;
+  background: url('https://web.php5.sk/www/images/icons/Comment.png') 2px center no-repeat;
 }
 .fa-minus-circle,
 .fa-trash-o {
@@ -885,16 +885,16 @@ li.breadcrumbs a:hover {
   color: green;
 }
 .ico_trash {
-  background: url('http://web.php5.sk/www/images/icons/Trash.png') 2px center no-repeat;
+  background: url('https://web.php5.sk/www/images/icons/Trash.png') 2px center no-repeat;
 }
 .ico_add {
-  background: url('http://web.php5.sk/www/images/icons/Add.png') 2px center no-repeat;
+  background: url('https://web.php5.sk/www/images/icons/Add.png') 2px center no-repeat;
 }
 .ico_help {
-  background: url('http://web.php5.sk/www/images/icons/Help book.png') 2px center no-repeat;
+  background: url('https://web.php5.sk/www/images/icons/Help book.png') 2px center no-repeat;
 }
 .ico_hint {
-  background: url('http://web.php5.sk/www/images/icons/Hint.png') 2px center no-repeat;
+  background: url('https://web.php5.sk/www/images/icons/Hint.png') 2px center no-repeat;
 }
 pre.prettyprint.custom {
   margin-left: -7px;

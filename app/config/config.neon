@@ -5,7 +5,7 @@
 # http://nette.org/security-warning
 #
 parameters:
-	absoluteUrl: http://web.php5.sk
+	absoluteUrl: https://web.php5.sk
 
 php:
 	date.timezone: Europe/Bratislava
