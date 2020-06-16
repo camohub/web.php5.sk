@@ -16,6 +16,8 @@ LOCALHOST
 - Wamp má vytvorený virtual na web-php5-sk/ aj s lomítkom na konci
 - Treba zakomentovať bootstrap.php Route::$defaultFlags = Route::SECURED;
 - Treba zmeniť údaje v config.local.neon
+- Ak Chrome presmerováva na https treba mu to zakázať 
+	viď. https://superuser.com/questions/565409/how-to-stop-an-automatic-redirect-from-http-to-https-in-chrome/1561221#1561221
 
 
 TESTY
