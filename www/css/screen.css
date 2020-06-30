@@ -39,13 +39,11 @@ body {
 }
 #header #header-effect {
   display: inline-block;
-  transition: transform 0.05s linear 0s;
+  transition: transform 0.05s linear;
   transform-origin: right center;
 }
 #header:hover #header-effect {
   transform: rotate(-10deg);
-  transition: transform 0.05s linear 0s;
-  transform-origin: right center;
 }
 #wrapper {
   min-height: 100%;
