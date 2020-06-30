@@ -57,14 +57,27 @@ body {
 #header {
 	margin: 0;
 	margin-bottom: -2px;
-	/*padding:120px 10px 0 7%;*/
-	padding: 80px 10px 0 7%;
-	color: @c3;
-	font-size: 3.15em;
+	padding:120px 10px 0 7%;
+	color: @c1;
+	font-size: 4.15em;
 	font-weight: 900;
-	font-family: verdana;
-	letter-spacing: -2px;
+	font-family: Verdana;
+	letter-spacing: -3px;
 	text-shadow: 0 0 7px rgba(0, 0, 0, 0.75);
+
+	#header-effect {
+		display: inline-block;
+		transition: transform 0.05s linear 0s;
+		transform-origin: right center;
+	}
+
+	&:hover {
+		#header-effect {
+			transform: rotate(-10deg);
+			transition: transform 0.05s linear 0s;
+			transform-origin: right center;
+		}
+	}
 }
 
 #wrapper {
