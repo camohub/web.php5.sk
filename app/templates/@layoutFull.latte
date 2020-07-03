@@ -29,7 +29,7 @@
 	<div class="bgI2 bS2">
 		<div class="container">
 			<div class="row oH">
-				<h1 id="header" class="col-xs-12 oH">web<span id="header-effect">.php5</span>.sk</h1>
+				<h1 id="header" class="col-xs-12 oH translate translateInit">web<span id="header-effect">.php5</span>.sk</h1>
 			</div>
 		</div>
 	</div>
@@ -37,31 +37,31 @@
 	<div class="container zI10">
 		<div class="row pT50">
 
-			<div class="col-xs-12 col-sm-4 col-md-3 col-lg-3 col-lg-offset-1 sidebar" id="sideMenu">
+			<div class="translateInit-2 translate-2 col-xs-12 col-sm-4 col-md-3 col-lg-3 col-lg-offset-1 sidebar" id="sideMenu">
 
 				{control menu}
 
 				<ul>
-				{if $presenter->user->isLoggedIn()}
-					{if $user->isAllowed('administration', 'view')}
-						<li><a n:href=":Admin:Drom:default">Drom</a></li>
-					<li><a n:href=":Admin:Default:default" rel="nofollow">Administrácia</a></li>
+					{if $presenter->user->isLoggedIn()}
+						{if $user->isAllowed('administration', 'view')}
+							<li><a n:href=":Admin:Drom:default">Drom</a></li>
+						<li><a n:href=":Admin:Default:default" rel="nofollow">Administrácia</a></li>
+						{/if}
+						<li><a n:href=":Sign:out" rel="nofollow">Odhlásiť</a></li>
+						<li class="hr pH0">
+							<a n:href=":User:default" rel="nofollow" class="small1 c1 {ifCurrent User:default}current{/ifCurrent}">Prihlásený: <b class="nbsp">{$user->identity->user_name}</b></a>
+						</li>
+					{else}
+						<li><a n:href=":Sign:in" rel="nofollow">Prihlásiť</a></li>
+						<li><a n:href=":Register:default" rel="nofollow">Registrovať</a></li>
 					{/if}
-					<li><a n:href=":Sign:out" rel="nofollow">Odhlásiť</a></li>
-					<li class="hr pH0">
-						<a n:href=":User:default" rel="nofollow" class="small1 c1 {ifCurrent User:default}current{/ifCurrent}">Prihlásený: <b class="nbsp">{$user->identity->user_name}</b></a>
-					</li>
-				{else}
-					<li><a n:href=":Sign:in" rel="nofollow">Prihlásiť</a></li>
-					<li><a n:href=":Register:default" rel="nofollow">Registrovať</a></li>
-				{/if}
 				</ul>
 
 				<div class="hr"> </div>
 
 			</div>
 
-			<div id="main" class="col-xs-12 col-sm-8 col-md-9 col-lg-7">
+			<div id="main" class="translateInit translate-2 col-xs-12 col-sm-8 col-md-9 col-lg-7">
 
 				{snippet flash}
 				<div n:if="count($flashes)" n:inner-foreach="$flashes as $flash" class="flash">

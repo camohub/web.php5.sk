@@ -4,6 +4,13 @@ $( function()
 	$.nette.init();
 
 
+	setTimeout(function(  )
+	{
+		$('.translateInit').removeClass('translateInit');
+		$('.translateInit-2').removeClass('translateInit-2');
+	}, 50);
+
+
 	// Live-form-validation section /////////////////////////////////////////////////
 
 	// Necessary to switch off onchange/onblur validation and switch on submit validation.

@@ -78,6 +78,25 @@ body {
 	}
 }
 
+.translate {
+	transition: all 250ms cubic-bezier(0.505, 1.350, 0.495, 1);
+	/*transition: all 250ms cubic-bezier(0.505, 1.650, 0.495, 1, 0.5);*/
+}
+
+.translate-2 {
+	transition: all 350ms cubic-bezier(0.505, 1.350, 0.495, 1);
+}
+
+.translateInit {
+	transform: translate(350px, 0px);
+	opacity: 0;
+}
+
+.translateInit-2 {
+	transform: translate(-350px, 0px);
+	opacity: 0;
+}
+
 #wrapper {
 	min-height: 100%;
 	margin-bottom: -5em; /* makes footer visible cause 100% push it outside of window */

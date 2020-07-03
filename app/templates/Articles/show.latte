@@ -71,14 +71,14 @@
 			});
 		</script>
 		<img id="gLogin" class="h15E cP bR2" src="{$basePath}/images/glogin.png">
-        <script>
-        	$('#gLogin').click(function()
-        	{
-            	// signInCallback defined in step 6.
-            	auth2.grantOfflineAccess({'redirect_uri': 'postmessage'}).then(googleSignIn);
-        	});
-        </script>
-        <div id="result"></div>
+		<script>
+			$('#gLogin').click(function()
+			{
+				// signInCallback defined in step 6.
+				auth2.grantOfflineAccess({'redirect_uri': 'postmessage'}).then(googleSignIn);
+			});
+		</script>
+		<div id="result"></div>
 		<!--a href="#" onclick="googleSignOut();">Sign out</a-->
 		<div id ="loginStatus"><!-- element to show social login errors --></div>
 	{/if}

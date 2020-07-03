@@ -9,7 +9,7 @@
 {cache 'menu_key', tags => [ 'menu_tag' ] }
 
 {block menu}
-	<ul>
+	<ul class="translate-2 translateInit-2">
 		{foreach $section as $item}
 			<li id="{$item->getId()}">
 				{if $item->getUrlParams()}
