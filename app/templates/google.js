@@ -1,7 +1,7 @@
 function googleStart()
 {
     //console.log('googleStart');
-    gapi.load('auth2', function()
+    /*gapi.load('auth2', function()
     {
         auth2 = gapi.auth2.init({
             client_id: '811214467813-v3fmui55m0kmohsf6dbg1jjl11ori3tg.apps.googleusercontent.com',
@@ -9,7 +9,15 @@ function googleStart()
             //fetch_basic_profile: true,
             scope: 'https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email'
         });
-    });
+    });*/
+	gapi.load('auth2', function() {
+		auth2 = gapi.auth2.init({
+			client_id: '811214467813-v3fmui55m0kmohsf6dbg1jjl11ori3tg.apps.googleusercontent.com',
+			scope: 'https://www.googleapis.com/auth/plus.me https://www.googleapis.com/auth/userinfo.profile https://www.googleapis.com/auth/userinfo.email'
+			// Scopes to request in addition to 'profile' and 'email'
+			//fetch_basic_profile: true,
+		});
+	});
 }
 
 function googleSignIn(authResult)
