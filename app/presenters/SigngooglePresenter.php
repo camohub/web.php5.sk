@@ -39,50 +39,44 @@ class SigngooglePresenter extends BasePresenter
 		try
 		{
 			$client = new Google_Client();
-			$client->setClientId( self::APP_ID );
-			$client->setClientSecret( self::APP_SECRET );
+			$client->setAuthConfig(__DIR__ . '/../model/JsonData/GoogleCredentials.json');
+			//$client->addScope([\Google_Service_PeopleService::USERINFO_PROFILE]);  // Prev version
+			//$client->setClientId( self::APP_ID );
+			//$client->setClientSecret( self::APP_SECRET );
 			$client->setRedirectUri( self::REDIRECT_URI );
 
-			$client->authenticate( $code );
+			$accessToken = $client->fetchAccessTokenWithAuthCode( $code );
+			$client->setAccessToken( $accessToken );
 
-			//$client->setAccessToken( $client->getAccessToken() ); // TODO: unused for now????
-
-			//$client->getAuth(); // TODO: unused for now????
-
-			$plus = new Google_Service_Plus( $client );
-
-			$me = $plus->people->get( 'me' );
+			$peopleService = new \Google_Service_PeopleService( $client );
+			$me = $peopleService->people->get('people/me', ['personFields' => 'emailAddresses,names']);
 		}
 		catch ( \Exception $e )
 		{
-			Debugger::log( 'SigngooglePresenter->actionIn() Google+ API exception: ' . $e->getMessage(), 'error' );
+			Debugger::log( $e );
 			$this->sendJson( array( 'errCode' => 1, 'error' => 'Prihlasovanie cez Google+ API zlyhalo.' ) );
 			// No need to call terminate(). SendJson() already calls it.
 		}
 
-		foreach ( $me->emails as $email )
-		{
-			if ( $email->type == 'account' )
-			{
-				$user_email = $email->value;
-			}
-		}
-		if ( ! isset( $user_email ) )
-		{
-			$this->sendJson( array( 'errCode' => 0, 'error' => 'Aplikácia vyžaduje na prihlásenie emailovú adresu. Email musíte pre aplikáciu povoliť.' ) );
-		}
+		// To understand which $me->getMethod returns string or array look at Google_Service_PeopleService_Person class on top.
+		$id = $me->getResourceName();
+		/** @var \Google_Service_PeopleService_EmailAddress $email */
+		foreach ( (array)$me->getEmailAddresses() as $email ) if ( $email->getMetadata()->getPrimary() ) $user_email = $email->value;
+		/** @var \Google_Service_PeopleService_Name $name */
+		foreach ( (array)$me->getNames() as $name ) if ( $name->getMetadata()->getPrimary() ) $user_name = $name->displayName;
+
+		if ( ! isset( $user_email ) ) $this->sendJson( array( 'errCode' => 2, 'error' => 'Aplikácia vyžaduje na prihlásenie emailovú adresu. Email musíte pre aplikáciu povoliť.' ) );
+		if ( ! isset( $user_name ) ) $this->sendJson( array( 'errCode' => 3, 'error' => 'Aplikácia vyžaduje na prihlásenie meno. Dotaz na Google API nevrátil žiadnu hodnotu.' ) );
 
 		$social_network_params = [
 			'network'   => 'Google+',
-			'id'        => $me->getId(),
-			'user_name' => $me->getDisplayName(),
-			'image'     => $me->getImage()->url,
-			'url'       => $me->getUrl(),
+			'id'        => $id,
+			'user_name' => $user_name
 		];
 
 		$userArr = [
 			'email'                 => $user_email,
-			'user_name'             => $me->getDisplayName(),
+			'user_name'             => $user_name,
 			'social_network_params' => serialize( $social_network_params ),
 		];
 
@@ -98,25 +92,22 @@ class SigngooglePresenter extends BasePresenter
 			$this->getUser()->setExpiration( 0, TRUE );
 			$this->getUser()->login( $identity );
 			// Don't call sendJson() from try. It throws an Exception
-
 		}
 		catch ( App\Exceptions\DuplicateEntryException $e )
 		{
-			Debugger::log( 'SigngooglePresenter:actionIn fails on: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() );
+			Debugger::log($e);
 			$this->sendJson( [ 'errCode' => 1, 'error' => 'Pri pokuse registrovať Vás došlo k chybe. Toto meno, alebo email je už registrovaný.' ] );
-
 		}
 		catch ( App\Exceptions\AccessDeniedException $e )
 		{
 			// Be careful what can be displayed.
-			Debugger::log( 'SigngooglePresenter:actionIn e4 fails on: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() );
+			Debugger::log($e);
 			$this->sendJson( [ 'errCode' => 2, 'error' => $e->getMessage() ] );
-
 		}
 		catch ( \Exception $e )
 		{
 			// Be careful whan can be displayed.
-			Debugger::log( 'SigngooglePresenter:actionIn e4 fails on: ' . $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine() );
+			Debugger::log($e);
 			$this->sendJson( [ 'errCode' => 3, 'error' => 'Prihlasovanie cez Google+ zlyhalo.' ] );
 		}
 
@@ -124,7 +115,6 @@ class SigngooglePresenter extends BasePresenter
 		// sendJson must not be in try block cause it throws an Nette\Application\AbortException
 		// _fid is flash messages id. It is necessary for redirect which makes js.
 		$this->sendJson( [ 'ok' => 'loged in', '_fid' => $this->params[self::FLASH_KEY] ] );
-
 
 	}
 

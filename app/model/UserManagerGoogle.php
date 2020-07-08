@@ -65,32 +65,29 @@ class UserManagerGoogle extends Nette\Object
 
 	/**
 	 * @param $params
-	 * @param int $trial
+	 * @param int $round
 	 * @return Entity\User
 	 * @throws App\Exceptions\DuplicateEntryException
 	 * @throws \Exception
 	 */
-	public function add( $params, $trial = 1 )
+	public function add( $params, $round = 1 )
 	{
 		extract( $params );
 
-		if ( $trial !== 1 )
-		{
-			$user_name = $user_name . ' ' . $trial;
-		}
+		if ( $round > 1 ) $user_name = $user_name . ' ' . $round;
 
-		// if name already exists call add() with the name + $trial value // it makes e.g. Jozef Mak 3
+		// if name already exists call add() with the name + $round value // it makes e.g. Jozef Mak 3
 		if ( $this->userRepository->findOneBy( [ 'user_name =' => $user_name ] ) )
 		{
-			return $this->add( $params, ++$trial );
+			return $this->add( $params, ++$round );
 		}
 
 		$this->em->beginTransaction();
 		try
 		{
-			if ( $trial > 30 )
+			if ( $round > 30 )
 			{
-				throw new \Exception( 'Unexpected error. Variable $trial in UserManagerGoogle->add() reached value 30.' );
+				throw new \Exception( 'Unexpected error. Variable $round in UserManagerGoogle->add() reached value 30.' );
 			}
 
 			$user = new Entity\User();
@@ -111,7 +108,7 @@ class UserManagerGoogle extends Nette\Object
 		catch ( UniqueConstraintViolationException $e )
 		{
 			$this->em->rollback();
-			// if duplicate is name calls add() and the name join with $trial value // it makes ie. Jozef Mak 3
+			// if duplicate is name calls add() and the name join with $round value // it makes e.g. Jozef Mak 3
 			$msg = 'email or name';
 			$code = 1;
 			throw new App\Exceptions\DuplicateEntryException( $msg, $code );

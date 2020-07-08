@@ -22,12 +22,10 @@ function googleStart()
 
 function googleSignIn(authResult)
 {
-    //console.log(authResult);
+    var statusEl = document.getElementById('loginStatus');
+
     if (authResult['code'])
     {
-        // Hide the sign-in button now that the user is authorized, for example:
-        //$('#signinButton').attr('style', 'display: none');
-
         // Send the code to the server
         $.ajax({
             type: 'POST',
@@ -41,17 +39,16 @@ function googleSignIn(authResult)
             },
             success : function(data)
             {
-                //console.log('Odpoveď so servera:');	console.log(data); return;
+                //console.log('Odpoveď zo servera:'); console.log(data); return;
 
                 if(data.error)
                 {
                     // Be carefull what is displayed!!!
-                    document.getElementById('loginStatus').innerHTML = '<b class="error">' + data.error + '</b>';
+                    statusEl.innerHTML = '<b class="error">' + data.error + '</b>';
                 }
                 else
                 {
                     var url = window.location.href;
-                    //console.log(url);
                     // _fid is flash messages id
                     url += (url.indexOf("?") === -1)  ?  '?_fid=' + data._fid  :  '&_fid=' + data._fid;
                     window.location = url;
@@ -59,13 +56,13 @@ function googleSignIn(authResult)
             },
             error : function(data)
             {
-                document.getElementById('loginStatus').innerHTML = '<b class="error">Pri prihlasovaní došlo k chybe.</b>';
+                statusEl.innerHTML = '<b class="error">Pri prihlasovaní došlo k chybe.</b>';
             }
         });
     }
     else
     {
-        console.log('There was an error.');
+		statusEl.innerHTML = '<b class="error">Pri prihlasovaní došlo k chybe.</b>';
     }
 }
 
@@ -73,54 +70,3 @@ function onFailure()
 {
     alert('G+ gapi fails.');
 }
-
-/*function onSignIn(googleUser)
-{
-    var gAuthResponse = googleUser.getAuthResponse(),
-        id_token = googleUser.getAuthResponse().id_token,
-        profile = googleUser.getBasicProfile();
-
-    console.log(gAuthResponse);
-
-    $.ajax({
-        url : "{link :Signgoogle:in}",
-        accepts : 'json',
-        type : 'post',
-        data : {
-            'id_token' : id_token
-            //'gAuthResponse' : JSON.stringify(gAuthResponse)
-        },
-        success : function(data)
-        {
-            console.log('Odpoveď so servera:');	console.log(data);
-            if(data.error)
-            {
-                // Be carefull what is displayed!!!
-                document.getElementById('loginStatus').innerHTML = '<b class="error">' + data.error + '</b>';
-            }
-            else
-            {
-                var url = window.location.href;
-                //console.log(url);
-                // _fid is flash messages id
-                url += (url.indexOf("?") === -1)  ?  '?_fid=' + data._fid  :  '&_fid=' + data._fid;
-                window.location = url;
-            }
-        },
-        error : function(data)
-        {
-            document.getElementById('loginStatus').innerHTML = '<b class="error">Pri prihlasovaní došlo k chybe.</b>';
-        }
-    });  // end of $.ajax()
-
-
-}
-
-
-function googleSignOut() {
-    var auth2 = gapi.auth2.getAuthInstance();
-    auth2.signOut().then(function () {
-        console.log('User signed out.');
-    });
-}*/
-
