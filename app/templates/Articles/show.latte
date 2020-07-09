@@ -54,23 +54,22 @@
 		{/form}
 	{else}
 		<span>Ak chcete pridávať komentáre musíte sa prihlásiť {*<a n:href=":Sign:in">prihlásiť na webe</a>, alebo cez sieť*}</span>&nbsp;
-		<!--fb:login-button scope="public_profile,email" return_scopes="true" onlogin="checkLoginState();"></fb:login-button-->
-		<img id="fbLogin" class="h15E cP bR2" src="{$basePath}/images/fblogin.png">
+
+		<div id="fbLogin">
+			<img src="{$basePath}/images/facebook.svg" alt="triangle with all three sides equal" height="20px" width="20px" />
+			Facebook login
+		</div>
 		<script>
 			$('#fbLogin').on('click', function(e)
 			{
-				FB.login(
-					function( response ) {
-						checkLoginState();
-					},
-					{
-						scope: 'public_profile,email'
-					}
-				)
+				fbLogin();
 			});
 		</script>
-		{*<div class="g-signin2" data-onsuccess="onSignIn"></div>*}
-		<img id="gLogin" class="h15E cP bR2" src="{$basePath}/images/glogin.png">
+
+		<div id="gLogin">
+			<img src="{$basePath}/images/google.svg" alt="triangle with all three sides equal" height="20px" width="20px" />
+			Google login
+		</div>
 		<script>
 			$('#gLogin').click(function()
 			{

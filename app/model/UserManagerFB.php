@@ -30,6 +30,7 @@ class UserManagerFB extends Nette\Object
 	{
 		$this->em = $em;
 		$this->userRepository = $em->getRepository( Entity\User::class );
+		$this->roleRepository = $em->getRepository( Entity\Role::class );
 	}
 
 

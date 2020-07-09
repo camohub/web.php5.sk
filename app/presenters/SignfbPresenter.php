@@ -2,10 +2,9 @@
 
 namespace App\Presenters;
 
-use Nette,
-	App,
-	Facebook,
-	Tracy\Debugger;
+use Facebook\Facebook;
+use App;
+use Tracy\Debugger;
 
 
 /**
@@ -22,114 +21,86 @@ class SignfbPresenter extends BasePresenter
 	public $userManagerFB;
 
 
-
 	/**
-	 * @desc This method is called via ajax from fb js sdk (in BasePresenter)
-	 * @param null $id
-	 * @throws Facebook\FacebookRequestException
-	 * @throws Nette\Application\AbortException
+	 * @param $accessToken
 	 */
-	public function actionIn( $id = NULL )
+	public function actionIn( $accessToken )
 	{
-		Facebook\FacebookSession::setDefaultApplication( self::APPID, self::APPSECRET );
+		try
+		{
+			$fb = new Facebook([
+				'app_id' => self::APPID,
+				'app_secret' => self::APPSECRET,
+				'default_graph_version' => 'v2.10',
+				//'default_access_token' => '{access-token}', // optional
+			]);
 
-		$helper = new Facebook\FacebookJavaScriptLoginHelper();
+			$response = $fb->get('/me?fields=email,name,last_name,first_name,id,link', $accessToken);
+			$fbUser = $response->getGraphUser();
+		}
+		catch ( \Exception $e )
+		{
+			// When validation fails or other local issues
+			Debugger::log( $e, 'error' );
+			$this->sendJson( array( 'errCode' => 1, 'error' => 'Prihlasovanie cez Facebook API zlyhalo.' ) );
+		}
+
+		if ( empty( $fbUser->getEmail() ) )
+		{
+			$this->sendJson( array( 'errCode' => 0, 'error' => 'Aplikácia potrebuje kôli prihláseniu Vašu emailovú adresu.' ) );
+		}
 
 		try
 		{
-			$session = $helper->getSession();
-		}
-		catch ( FacebookRequestException $ex )
-		{
-			// When Facebook returns an error
-			Debugger::log( 'SignfbPresenter->actionIn FacebookRequestException: ' . $ex->getMessage(), 'error' );
-			$this->sendJson( array( 'errCode' => 1, 'error' => 'Prihlasovanie cez Facebook API zlyhalo.' ) );
-			// No need to call terminate(). SendJson() already calls it.
-		}
-		catch ( \Exception $ex )
-		{
-			// When validation fails or other local issues
-			Debugger::log( 'SignfbPresenter->actionIn e1 fails on: ' . $ex->getMessage(), 'error' );
-			$this->sendJson( array( 'errCode' => 1, 'error' => 'Prihlasovanie cez Facebook API zlyhalo.' ) );
-		}
-
-		if ( isset( $session ) && $session )
-		{
-			// Logged in
-			try
-			{
-				$request = new Facebook\FacebookRequest( $session, 'GET', '/me' );
-				$response = $request->execute();
-				$fbUser = $response->getGraphObject( Facebook\GraphUser::className() );
-			}
-			catch ( \Exception $e )
-			{
-				Debugger::log( 'SignfbPresenter:actionIn e2 fails on:' . $e->getMessage() );
-				$this->sendJson( array( 'errCode' => 1, 'error' => 'Prihlasovanie cez Facebook API zlyhalo.' ) );
-			}
-
 			$social_network_params = [
 				'network' => 'Facebook',
-				'id'      => $fbUser->getProperty( 'id' ),
-				'name'    => $fbUser->getProperty( 'name' ),
-				'url=>'   => $fbUser->getProperty( 'link' ),
+				'id'      => $fbUser->getId(),
+				'name'    => $fbUser->getName(),
+				'url'   => $fbUser->getLink(),
 			];
 
 			$userArr = [
-				'email'                 => $fbUser->getProperty( 'email' ), // email|NULL
-				'user_name'             => $fbUser->getProperty( 'name' ),
+				'email'                 => $fbUser->getEmail(), // email|NULL
+				'user_name'             => $fbUser->getName(),
 				'social_network_params' => serialize( $social_network_params ),
 			];
 
-			if ( empty( $userArr['email'] ) )
+			$identity = $this->userManagerFB->authenticate( $userArr );
+
+			if ( $identity->active == 0 )
 			{
-				$this->sendJson( array( 'errCode' => 0, 'error' => 'Aplikácia potrebuje kôli autentizácii Vašu emailovú adresu. Bez emailu Vás nieje možné prihlásiť cez Facebook.' ) );
+				throw new App\Exceptions\AccessDeniedException( 'Účet cez ktorý sa pokúšate prihlásiť, je blokovaný.', 2 );
 			}
 
-			try
-			{
-				$identity = $this->userManagerFB->authenticate( $userArr );
+			$this->getUser()->setExpiration( 0, TRUE );
+			$this->getUser()->login( $identity );
+			// Don't call sendJson() from try. It throws an Exception
 
-				if ( $identity->active == 0 )
-				{
-					throw new App\Exceptions\AccessDeniedException( 'Účet cez ktorý sa pokúšate prihlásiť, je blokovaný.', 2 );
-				}
-
-				$this->getUser()->setExpiration( 0, TRUE );
-				$this->getUser()->login( $identity );
-				// Don't call sendJson() from try. It throws an Exception
-
-			}
-			catch ( App\Exceptions\DuplicateEntryException $e )
-			{
-				Debugger::log( 'SignfbPresenter:actionIn e3 fails on:' . $e->getMessage() );
-				$this->sendJson( array( 'errCode' => 0, 'error' => $e->getCode() == 1 ? 'Pri pokuse registrovať Váš email došlo k chybe. Tento email je už registrovaný.' : $e->getMessage() ) );
-
-			}
-			catch ( App\Exceptions\AccessDeniedException $e )
-			{
-				// Be careful what can be displayed.
-				Debugger::log( 'SignfbPresenter:actionIn e4 fails on:' . $e->getMessage() );
-				$this->sendJson( array( 'errCode' => 0, 'error' => $e->getMessage() ) );
-
-			}
-			catch ( \Exception $e )
-			{
-				// Be careful whan can be displayed.
-				Debugger::log( 'SignfbPresenter:actionIn e4 fails on:' . $e->getMessage() );
-				$this->sendJson( array( 'errCode' => 0, 'error' => 'Prihlasovanie cez Facebook zlyhalo.' ) );
-			}
-
-			$this->flashMessage( 'Ste prihlásený ako ' . $this->user->identity->user_name );
-			// sendJson must not be in try block cause it throws an Nette\Application\AbortException
-			// _fid is flash messages id. It is necessary for redirect which makes js.
-			$this->sendJson( array( 'ok' => 'loged in', '_fid' => $this->params[self::FLASH_KEY] ) );
 		}
-		else
+		catch ( App\Exceptions\DuplicateEntryException $e )
 		{
-			$this->sendJson( array( 'errCode' => 0, 'error' => 'Nepodarilo sa overiť vašu identitu na Facebooku.' ) );
+			Debugger::log( $e );
+			$this->sendJson( array( 'errCode' => 0, 'error' => $e->getCode() == 1 ? 'Pri pokuse registrovať Váš email došlo k chybe. Tento email je už registrovaný.' : $e->getMessage() ) );
+
 		}
-		$this->terminate();
+		catch ( App\Exceptions\AccessDeniedException $e )
+		{
+			// Be careful what can be displayed.
+			Debugger::log( $e );
+			$this->sendJson( array( 'errCode' => 0, 'error' => $e->getMessage() ) );
+
+		}
+		catch ( \Exception $e )
+		{
+			// Be careful whan can be displayed.
+			Debugger::log( $e );
+			$this->sendJson( array( 'errCode' => 0, 'error' => 'Prihlasovanie cez Facebook zlyhalo.' ) );
+		}
+
+		$this->flashMessage( 'Ste prihlásený ako ' . $this->user->identity->user_name );
+		// sendJson must not be in try block cause it throws an Nette\Application\AbortException
+		// _fid is flash messages id. It is necessary for redirect which makes js.
+		$this->sendJson( array( 'ok' => 'loged in', '_fid' => $this->params[self::FLASH_KEY] ) );
 
 	}
 
@@ -140,7 +111,7 @@ class SignfbPresenter extends BasePresenter
 	 * @desc This method is not used today !!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	 */
-	public function renderIn( $id = NULL )
+	/*public function renderIn( $id = NULL )
 	{
 		$this->setHeaderTags( NULL, NULL, $robots = 'noindex, nofolow' );
 		$this['breadcrumbs']->add( 'Prihlásenie cez Facebook', ':Signfb:in' );
@@ -225,7 +196,7 @@ class SignfbPresenter extends BasePresenter
 
 			}
 		}
-	}
+	}*/
 
 
 //////component//////////////////////////////////////////////////////////////
