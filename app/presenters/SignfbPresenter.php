@@ -32,6 +32,7 @@ class SignfbPresenter extends BasePresenter
 				'app_id' => self::APPID,
 				'app_secret' => self::APPSECRET,
 				'default_graph_version' => 'v2.10',
+				'http_client_handler' => 'stream',  // This is fix because of bug in Facebook use of Guzzle
 				//'default_access_token' => '{access-token}', // optional
 			]);
 
