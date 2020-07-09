@@ -26,6 +26,7 @@ class SignPresenter extends BasePresenter
 		$this->getComponent( 'breadcrumbs' )->add( 'Prihlásiť', 'Sign:in' );
 
 		$this->template->fb = TRUE;
+		$this->template->google = TRUE;
 		$this->setHeaderTags( NULL, NULL, $robots = 'noindex, nofolow' );
 
 		$this->setReferer( 'signInReferrer' );

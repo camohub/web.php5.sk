@@ -14,17 +14,17 @@
 	<script src="{$basePath}/bower_components/nette-live-form-validation/live-form-validation.js"></script>
 	<script src="{$basePath}/bower_components/nette.ajax.js/nette.ajax.js"></script>
 	<script src="{$basePath}/js/main.min.js"></script>
-
-	{ifset $google}
-		<script>{include 'google.js'}</script>
-		<script src="https://apis.google.com/js/platform.js?onload=googleStart" async defer></script>
-	{/ifset}
-
-	{ifset $fb}
-		<script>{include 'fb.js'}</script>
-		{*<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>*}
-	{/ifset}
 {/block}
+
+{ifset $google}
+	<script>{include 'google.js'}</script>
+	<script src="https://apis.google.com/js/platform.js?onload=googleStart" async defer></script>
+{/ifset}
+
+{ifset $fb}
+	<script>{include 'fb.js'}</script>
+	{*<script async defer crossorigin="anonymous" src="https://connect.facebook.net/en_US/sdk.js"></script>*}
+{/ifset}
 
 <div id="wrapper">
 
