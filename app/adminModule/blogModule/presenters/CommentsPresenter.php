@@ -34,7 +34,7 @@ class CommentsPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 
 		$this->template->article = $article;
 
-		$this['breadcrumbs']->add( 'Komentáre', ':Admin:Blog:Comments:default ' . $article->id );
+		$this['breadcrumbs']->add( 'Komentáre', ':Admin:Blog:Comments:default ' . $article->getId() );
 	}
 
 
@@ -66,7 +66,7 @@ class CommentsPresenter extends App\AdminModule\Presenters\BaseAdminPresenter
 		}
 		catch ( \Exception $e )
 		{
-			Debugger::log( $e->getMessage() . ' in ' . $e->getFile() . ' on line ' . $e->getLine(), Debugger::ERROR );
+			Debugger::log( $e );
 			$this->flashMessage( 'Pri editovaní komentára došlo k chybe.', 'error' );
 		}
 

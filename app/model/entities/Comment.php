@@ -97,6 +97,12 @@ class Comment
 	}
 
 
+	public function setDeleted($bool)
+	{
+		return $this->deleted = (bool)$bool;
+	}
+
+
 	public function getCreated()
 	{
 		return $this->created;

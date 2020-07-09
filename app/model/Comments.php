@@ -45,7 +45,7 @@ class Comments
 		{
 			$ent = $this->commentRepository->find( (int) $ent );
 		}
-		$ent->deleted = $ent->deleted ? FALSE : TRUE;
+		$ent->setDeleted( $ent->getDeleted() ? FALSE : TRUE );
 		$this->em->flush( $ent );
 	}
 
@@ -60,7 +60,7 @@ class Comments
 		{
 			$ent = $this->commentRepository->find( (int) $ent );
 		}
-		$ent->deleted = $ent->deleted ? FALSE : TRUE;
+		$ent->setDeleted( $ent->getDeleted() ? FALSE : TRUE );
 		$this->em->flush( $ent );
 	}
 
