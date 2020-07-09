@@ -4,10 +4,28 @@
 
     <h1 n:block="title" class="mT30 fS2">Prihlasovanie</h1>
 
-    <div id="fbLogin" class="mT20">
-        <b>Prihlásiť cez Facebook</b>
-        <fb:login-button scope="public_profile,email" return_scopes="true" onlogin="checkLoginState();"></fb:login-button>
-        <div id="status" class="pV10"> </div>
-    </div>
+	<div id="fbLogin">
+		<img src="{$basePath}/images/facebook.svg" alt="triangle with all three sides equal" height="20px" width="20px" />
+		Facebook login
+	</div>
+	<script>
+		$('#fbLogin').on('click', function(e)
+		{
+			fbLogin();
+		});
+	</script>
+
+	<div id="gLogin">
+		<img src="{$basePath}/images/google.svg" alt="triangle with all three sides equal" height="20px" width="20px" />
+		Google login
+	</div>
+	<script>
+		$('#gLogin').click(function()
+		{
+			// signInCallback defined in step 6.
+			auth2.grantOfflineAccess({ 'redirect_uri': 'postmessage' }).then(googleSignIn);
+		});
+	</script>
+	<div id="status" class="pV10"> </div>
 
 {include '../components/form.latte', form => 'signInForm'}
