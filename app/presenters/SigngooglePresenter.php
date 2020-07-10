@@ -20,12 +20,7 @@ class SigngooglePresenter extends BasePresenter
 	public $userManagerGoogle;
 
 	/** Google credentials */
-	const
-		SERVER_KEY = 'AIzaSyDpnjlDbqLWfkCHl-0BGHwBquz4Dm8tSCE',
-		APP_ID = '811214467813-v3fmui55m0kmohsf6dbg1jjl11ori3tg.apps.googleusercontent.com',
-		APP_SECRET = 'GYH9LOsTwnhC2b3PLMYH930C',
-		APP_NAME = 'web-php5-sk',
-		REDIRECT_URI = 'postmessage';
+	// Constants are in config.local.neon
 
 
 
@@ -40,10 +35,7 @@ class SigngooglePresenter extends BasePresenter
 		{
 			$client = new Google_Client();
 			$client->setAuthConfig(__DIR__ . '/../model/JsonData/GoogleCredentials.json');
-			//$client->addScope([\Google_Service_PeopleService::USERINFO_PROFILE]);  // Prev version
-			//$client->setClientId( self::APP_ID );
-			//$client->setClientSecret( self::APP_SECRET );
-			$client->setRedirectUri( self::REDIRECT_URI );
+			$client->setRedirectUri( GOOGLE_REDIRECT_URI );
 
 			$accessToken = $client->fetchAccessTokenWithAuthCode( $code );
 			$client->setAccessToken( $accessToken );
@@ -58,7 +50,8 @@ class SigngooglePresenter extends BasePresenter
 			// No need to call terminate(). SendJson() already calls it.
 		}
 
-		// To understand which $me->getMethod returns string or array look at Google_Service_PeopleService_Person class on top.
+		// To understand which $me->getMethod returns string or array
+		// look at Google_Service_PeopleService_Person class on top.
 		$id = $me->getResourceName();
 		/** @var \Google_Service_PeopleService_EmailAddress $email */
 		foreach ( (array)$me->getEmailAddresses() as $email ) if ( $email->getMetadata()->getPrimary() ) $user_email = $email->value;

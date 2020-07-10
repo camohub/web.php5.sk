@@ -13,9 +13,7 @@ use Tracy\Debugger;
 class SignfbPresenter extends BasePresenter
 {
 	/** Facebook credentials */
-	CONST
-		APPID = '1452969908332494',
-		APPSECRET = '5a328a8e5bb2e4ac565c2449d0d50f54';
+	// Constants are in config.local.neon
 
 	/** @var  App\Model\UserManagerFB @inject */
 	public $userManagerFB;
@@ -29,8 +27,8 @@ class SignfbPresenter extends BasePresenter
 		try
 		{
 			$fb = new Facebook([
-				'app_id' => self::APPID,
-				'app_secret' => self::APPSECRET,
+				'app_id' => FB_APP_ID,
+				'app_secret' => FB_APP_SECRET,
 				'default_graph_version' => 'v2.10',
 				'http_client_handler' => 'stream',  // This is fix because of bug in Facebook use of Guzzle
 				//'default_access_token' => '{access-token}', // optional
@@ -104,100 +102,6 @@ class SignfbPresenter extends BasePresenter
 		$this->sendJson( array( 'ok' => 'loged in', '_fid' => $this->params[self::FLASH_KEY] ) );
 
 	}
-
-
-
-	/**
-	 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	 * @desc This method is not used today !!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	 * !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-	 */
-	/*public function renderIn( $id = NULL )
-	{
-		$this->setHeaderTags( NULL, NULL, $robots = 'noindex, nofolow' );
-		$this['breadcrumbs']->add( 'Prihlásenie cez Facebook', ':Signfb:in' );
-
-		Facebook\FacebookSession::setDefaultApplication( '344387805765697', '61c89e18a89237de5a5c68a5a48fc370' );
-
-		// Facebook API needs to be redirected first to Facebook and then back with id = 1 to make a session
-		if ( !$id )
-		{
-			$this->getSession( 'Signfb' )->referer = $this->context->httpRequest->referer ? $this->context->httpRequest->referer->absoluteUrl : NULL;
-
-			$helper = new Facebook\FacebookRedirectLoginHelper( $this->link( '//:Signfb:in', 1 ) );
-			$this->redirectUrl( $helper->getLoginUrl( array( 'scope' => 'public_profile,email' ) ) );
-		}
-		else
-		{
-			$this->template->fbLogin = 0;
-
-			$referer = $this->getSession( 'Signfb' )->referer;
-			$helper = new Facebook\FacebookRedirectLoginHelper( $this->link( '//:Signfb:in', 1 ) );
-
-			try
-			{
-				$session = $helper->getSessionFromRedirect();
-			}
-			catch ( Facebook\FacebookRequestException $ex )
-			{
-				Debugger::log( 'FacebookRequestException: ' . $ex->getMessage(), 'error' );
-				$this->flashMessage( 'Pri prihlasovaní cez Facebook API došlo k chybe. ' . $ex->getMessage() );
-				$referer ? $this->redirectUrl( $referer ) : $this->redirect( 'Default:default' );
-			}
-			catch ( \Exception $ex )
-			{
-				Debugger::log( 'AnotherFacebookException: ' . $ex->getMessage(), 'error' );
-				$this->flashMessage( 'Pri prihlasovaní cez Facebook API došlo k chybe. Skúste to prosím ešte raz.' . $ex->getMessage() );
-				$referer ? $this->redirectUrl( $referer ) : $this->redirect( 'Default:default' );
-			}
-
-			if ( isset( $session ) && $session )
-			{
-				$request = new Facebook\FacebookRequest( $session, 'GET', '/me' );
-				$response = $request->execute();
-				$fbUser = $response->getGraphObject( Facebook\GraphUser::className() );
-
-				$userArr = array(
-					'fb_id'     => $fbUser->getProperty( 'id' ),
-					'email'     => $fbUser->getProperty( 'email' ),
-					'user_name' => $fbUser->getProperty( 'name' ),
-				);
-
-				if ( empty( $userArr['email'] ) )
-				{
-					$this->flashMessage( 'Aplikácia potrebuje kôli autentizácii Vašu emailovú adresu.
-					Bez emailu Vás nieje možné prihlásiť cez Facebook.' );
-					$referer ? $this->redirectUrl( $referer ) : $this->redirect( 'Default:default' );
-				}
-
-				try
-				{
-					$identity = $this->userManagerFB->authenticate( $userArr );
-					if ( $identity->active == 0 )
-					{
-						throw new App\Exceptions\AccessDeniedException( 'Učet ku ktorému chcete pristúpiť bol zablokovaný.' );
-					}
-					$this->getUser()->login( $identity );
-					$this->template->fbLogin = 1;
-				}
-				catch ( App\Exceptions\DuplicateEntryException $e )
-				{
-					$this->flashMessage( $e->getMessage() );
-					$referer ? $this->redirectUrl( $referer ) : $this->redirect( 'Default:default' );
-				}
-				catch ( \Exception $e )
-				{
-					$this->flashMessage( 'Pri prihlasovaní došlo k chybe. Skúste to prosím ešte raz.' );
-					Debugger::log( $e->getMessage(), 'error' );
-					$referer ? $this->redirectUrl( $referer ) : $this->redirect( 'Default:default' );
-				}
-
-
-				$referer ? $this->redirectUrl( $referer ) : $this->redirect( 'Default:default' );
-
-			}
-		}
-	}*/
 
 
 //////component//////////////////////////////////////////////////////////////
