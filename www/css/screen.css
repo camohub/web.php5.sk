@@ -21,6 +21,7 @@ body {
   font-family: Trebuchet MS, sans-serif;
   font-weight: normal;
   font-size: 15px;
+  box-sizing: border-box;
 }
 body {
   position: relative;
